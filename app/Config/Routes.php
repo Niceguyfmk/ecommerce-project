@@ -7,7 +7,13 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-$routes->group("users", ["namespace" => "App\Controllers\Users"], function($routes){
+//Register User and Login User
+$routes->post("/add", "Users\UserController::addUser");
+$routes->post("/login", "AuthenticationController::login");
+
+
+
+/* $routes->group("users", ["namespace" => "App\Controllers\Users"], function($routes){
     //POST - add product
     $routes->post("add", "UserController::addUser");
     //GET - list all products
@@ -19,3 +25,9 @@ $routes->group("users", ["namespace" => "App\Controllers\Users"], function($rout
     //DELETE - delete product
     $routes->delete("(:num)", "UserController::deleteUser/$1");
 });
+
+//need to add filter to the group
+$routes->group('api', function($routes) {
+    $routes->post('login', 'AuthenticationController::login');
+    $routes->get('products', 'ProductController::index', ['filter' => 'auth']); 
+}); */

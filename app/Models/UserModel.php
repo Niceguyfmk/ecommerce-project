@@ -12,7 +12,13 @@ class UserModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        "name",
+        "email",
+        "password",
+        "phone_no",
+        "role"
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -45,5 +51,7 @@ class UserModel extends Model
     protected $afterDelete    = [];
 
 
-    
+    public function registerUser($data){
+        return $this->save($data);
+    }
 }

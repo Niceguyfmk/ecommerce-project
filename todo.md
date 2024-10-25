@@ -5,13 +5,13 @@ First Admin has to login then they can create products. Once, Products are made 
 1. Setup Database Migrations -> done
 
     Users Table (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phone_no VARCHAR(50) NO NULL,
-    role ENUM('admin', 'customer') DEFAULT 'customer',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(100) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        phone_no VARCHAR(50) NOT NULL,
+        role ENUM('admin', 'customer') DEFAULT 'customer',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
 
     Products Table (
@@ -23,10 +23,12 @@ First Admin has to login then they can create products. Once, Products are made 
         Brand VARCHAR(100) NOT NULL,
         Description TEXT NOT NULL,
         Image VARCHAR(255) NOT NULL
+        quantity INT DEFAULT 0,
+        status ENUM('active', 'inactive') DEFAULT 'active',
         created_at datetime default current_timestamp
     )
 
-2. Resource Controller - UserController, ProductController 
+2. Resource Controller - UserController - handles registration, login, and profile management, ProductController - CRUD operations and implements product filtering.
 
 3. Model Classes - UserModel, ProductModel 
 
