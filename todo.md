@@ -2,7 +2,7 @@ E-Commerce application
 
 First Admin has to login then they can create products. Once, Products are made Customers can login and access these products.
 
-1. Setup Database Migrations
+1. Setup Database Migrations -> done
 
     Users Table (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,10 +26,11 @@ First Admin has to login then they can create products. Once, Products are made 
         created_at datetime default current_timestamp
     )
 
-2. Resource Controller - UserController, ProductController
+2. Resource Controller - UserController, ProductController 
 
-3. Model Classes - UserModel, ProductModel
+3. Model Classes - UserModel, ProductModel 
 
 4. Routes:
+
 
 
