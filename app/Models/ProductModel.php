@@ -12,7 +12,17 @@ class ProductModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        "title",
+        "price",
+        "size",
+        "color",
+        "quantity",
+        "status",
+        "brand",
+        "description",
+        "image"
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,7 +38,7 @@ class ProductModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -43,4 +53,21 @@ class ProductModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    
+    public function getProducts(){
+        return $this->findAll();
+    }
+
+    public function getProduct($product_id){
+        return $this->find($product_id);
+    }
+/* 
+    public function updateProductwithId($product_id){
+        return $this->update($product_id);
+    } */
+
+    public function deleteProductById($product_id){
+        return $this->delete($product_id);
+    }
 }

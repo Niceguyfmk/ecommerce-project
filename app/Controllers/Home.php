@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controllers;
-
+use Firebase\JWT\JWT;
 class Home extends BaseController
 {
     public function index(): string
@@ -10,17 +10,20 @@ class Home extends BaseController
     }
 
     public function login(){
-
+     
         return view('login');
     }
-
     
-    public function adminDashboard(){
-
-        return view('include/header') . view('include/sidebar') . view('include/nav') . view('index')
-         . view('include/footer');
+    public function adminDashboard() {
+     
+        $message = session()->getFlashdata('message');
+        return view('include/header') 
+            . view('include/sidebar') 
+            . view('include/nav') 
+            . view('index', ['message' => $message])
+            . view('include/footer');
     }
-
+    
     public function register(){
 
         return view('include/header') . view('include/sidebar') . view('include/nav') . view('register')

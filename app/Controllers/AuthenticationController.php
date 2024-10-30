@@ -47,8 +47,8 @@ class AuthenticationController extends ResourceController
         //You can access the user's hashed password using $authorData['password'].
         if ($userData && password_verify($this->request->getVar("password"), $userData['password'])) {
             $token = $this->generateToken($userData);
-            log_message('info', 'Redirecting to /admin');
-
+            
+            session()->setFlashdata('message', 'Your data has been saved successfully!');
             return redirect()->to('/admin');
         } else {
             return $this->respond([
@@ -58,7 +58,6 @@ class AuthenticationController extends ResourceController
         }
 
     }
-
     // Token generation
     private function generateToken($userData)
     {
@@ -83,7 +82,7 @@ class AuthenticationController extends ResourceController
         return $this->respond([
             "status" => true,
             "message" => "User Profile Information",
-            "data" => $this->request->serData
+            "data" => $this->request->userData
         ]);
     }
 

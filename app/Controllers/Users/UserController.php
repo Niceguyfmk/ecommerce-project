@@ -14,7 +14,6 @@ class UserController extends ResourceController
 
     public function addUser(){
                 
-        //validation
         // Validation
         $validationRules = array(
             "email" => array(
@@ -90,12 +89,31 @@ class UserController extends ResourceController
 
     public function listAllUsers()
     {
-        // Logic to list all users
+       /*  $users = $this->model->getUsers();
+
+        return $this->respond([
+            "status" => true,
+            "message" => "Successfully returned list of users",
+            "users" => $users
+        ]); */
     }
 
-    public function getSingleUser($id)
+    public function getSingleUser($user_id)
     {
-        // Logic to get a single user by ID
+       /*  $user = $this->model->getProduct($user_id);
+        
+        if($user){
+            return $this->respond([
+                "status" => true,
+                "message" => "Successfully found product",
+                "user" => $user
+            ]);
+        }else{
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to find user",
+            ]);
+        } */
     }
 
     public function updateUser($id)

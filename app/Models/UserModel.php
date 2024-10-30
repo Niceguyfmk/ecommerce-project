@@ -54,4 +54,16 @@ class UserModel extends Model
     public function registerUser($data){
         return $this->save($data);
     }
+
+    public function getUsers(){
+        return $this->findAll();
+    }
+
+    public function getProduct($user_id){
+        return $this->where($user_id);
+    }
+
+    public function deleteUserById($user_id){
+        return $this->delete($user_id);
+    }
 }
