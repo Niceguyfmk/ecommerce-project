@@ -73,12 +73,15 @@ class AdminUserController extends ResourceController
     public function adminUsers(){
         
         $adminUsers = $this->model->getAdminUsers();
+        // Pass the users to the view
 
-        return $this->respond([
+        return view('include/header') . view('include/sidebar') . view('include/nav') . view('/adminList', ['users' => $adminUsers])
+        . view('include/footer');
+        /* return $this->respond([
             "status" => true,
             "message" => "Successfully returned list of users",
             "Users" => $adminUsers
-        ]);
+        ]); */
     }
 
     public function getSingleAdmin($admin_id){
@@ -99,7 +102,7 @@ class AdminUserController extends ResourceController
         if($admin){
 
             /*
-            
+
             This reads the raw POST data sent to the server.
             When you send data (like JSON) through an HTTP POST request,
              it’s stored in the body of the request. php://input provides access to this raw data.

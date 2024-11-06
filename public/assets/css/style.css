@@ -224,4 +224,12 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
       padding-left: 10px !important; 
       overflow-x: auto; 
     }
-  }
+}
+
+.card{
+    margin-top: 20px;
+}
+
+.card-header{
+    text-align: center;
+}

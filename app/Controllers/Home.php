@@ -29,4 +29,11 @@ class Home extends BaseController
         return view('include/header') . view('include/sidebar') . view('include/nav') . view('register')
          . view('include/footer');
     }
+
+    
+/*     public function adminList(){
+
+        return view('include/header') . view('include/sidebar') . view('include/nav') . view('adminList')
+         . view('include/footer');
+    } */
 }

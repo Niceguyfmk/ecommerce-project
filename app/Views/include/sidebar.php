@@ -25,7 +25,7 @@
                                     <a href="<?= site_url(relativePath: '/register') ?>" class="sidebar-link">Add User</a>
                                 </li>
                                 <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">User List</a>
+                                    <a href="<?=  site_url('/adminList') ?>" class="sidebar-link">User List</a>
                                 </li>
                             </ul>
                         </li>
