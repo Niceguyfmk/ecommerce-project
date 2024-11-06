@@ -98,7 +98,19 @@ class AdminUserController extends ResourceController
 
         if($admin){
 
-                    // Get the incoming JSON data
+            /*
+            
+            This reads the raw POST data sent to the server.
+            When you send data (like JSON) through an HTTP POST request,
+             it’s stored in the body of the request. php://input provides access to this raw data.
+
+            The json_decode() function converts the JSON string (from the POST data) into a PHP associative array.
+
+            The second parameter, true, tells json_decode to return an associative array instead of an object.
+            If it were false or omitted, it would return a PHP object.
+            
+            */
+
             $raw_data = file_get_contents("php://input");
             $updated_data = json_decode($raw_data, true);
             $admin_role = isset($updated_data["role"]) ? $updated_data["role"] : $admin["role"]; 
