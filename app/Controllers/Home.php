@@ -10,12 +10,12 @@ class Home extends BaseController
     }
 
     public function login(){
-     
+        
         return view('login');
     }
     
     public function adminDashboard() {
-     
+
         $message = session()->getFlashdata('message');
         return view('include/header') 
             . view('include/sidebar') 

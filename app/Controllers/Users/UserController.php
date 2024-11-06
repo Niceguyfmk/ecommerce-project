@@ -73,7 +73,7 @@ class UserController extends ResourceController
 
         //Save Author 
         if($this->model->registerUser($UserData)){
-
+            
             return $this->respond([
                 "status" => true,
                 "message" => "User Registered Successfully"

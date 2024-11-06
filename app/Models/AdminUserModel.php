@@ -57,6 +57,10 @@ class AdminUserModel extends Model
         return $this->findAll();
     }
 
+    public function getAdmin($admin_id){
+        return $this->find($admin_id);
+    }
+
     public function deleteAdminUserById($user_id){
         return $this->delete($user_id);
     }

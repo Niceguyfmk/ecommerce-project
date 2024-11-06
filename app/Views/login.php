@@ -15,7 +15,7 @@
   <body class="d-flex align-items-center py-4 bg-body-tertiary">
     
   <main class="form-signin w-100 m-auto">
-    <form method="POST" action="<?= site_url(relativePath: '/login') ?>">
+    <form method="POST" action="<?= site_url(relativePath: '/adminLogin') ?>">
       <h1 class="h3 mb-3 fw-normal">Sign in</h1>
 
       <div class="form-floating">

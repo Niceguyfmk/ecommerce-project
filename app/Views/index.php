@@ -16,7 +16,7 @@
             <div class="row g-0 w-100">
                 <div class="col-6">
                 <div class="p-3 m-1">
-                    <h4>Welcome Back <?php echo isset($username) ? $username : '' ?> </h4>
+                    <h4>Welcome Back</h4>
                 </div>
                 </div>
                 <div class="col-6 align-self-end text-end">

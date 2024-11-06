@@ -11,13 +11,15 @@ $routes->get('/admin', 'Home::adminDashboard');
 $routes->get('/register', 'Home::register');
 
 
-//Register User and Login User
-$routes->post("/login", "AuthenticationController::login");
+//Register and Login Admin
+$routes->post("/adminLogin", "AdminAuthController::login");
 
-//CRUD on Users Routes
+//CRUD on Admin Routes
 $routes->post("/addAdmin", "Users\AdminUserController::addAdminUser");
-$routes->get("/list-all-users", "Users\UserController::listAllUsers");
-$routes->get("user/(:num)", "Users\UserController::getSingleUser/$1");
+$routes->get("/adminList", "Users\AdminUserController::adminUsers");
+$routes->get("admin/(:num)", "Users\AdminUserController::getSingleAdmin/$1");
+$routes->put("admin/(:num)", "Users\AdminUserController::updateAdmin/$1");
+$routes->delete("admin/(:num)", "Users\AdminUserController::deleteAdmin/$1");
 
 
 //Protected API Routes

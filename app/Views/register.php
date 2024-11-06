@@ -29,9 +29,9 @@
                 <div class="select btn-group">
                     <select id="role" name="role" class="form-select" required>
                         <option value="" disabled selected>Select a role</option>
-                        <option value="admin">admin</option>
-                        <option value="manager">manager</option>
-                        <option value="sales_rep">sales_rep</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="sales_rep">Sales Representative</option>
                     </select>
                     </div>
             </div>

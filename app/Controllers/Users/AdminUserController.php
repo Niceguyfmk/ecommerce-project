@@ -59,11 +59,8 @@ class AdminUserController extends ResourceController
 
         //Save Author 
         if($this->model->registerAdminUser($UserData)){
-
-            return $this->respond([
-                "status" => true,
-                "message" => "User Registered Successfully"
-            ]);
+            session()->setFlashdata('message', 'User Registered Successfully');
+            return redirect()->to('/admin');
         }else{
 
             return $this->respond([
@@ -71,5 +68,72 @@ class AdminUserController extends ResourceController
                 "message" => "Failed to register User"
             ]);
         }
+    }
+
+    public function adminUsers(){
+        
+        $adminUsers = $this->model->getAdminUsers();
+
+        return $this->respond([
+            "status" => true,
+            "message" => "Successfully returned list of users",
+            "Users" => $adminUsers
+        ]);
+    }
+
+    public function getSingleAdmin($admin_id){
+        
+        $admin = $this->model->getAdmin($admin_id);
+        
+        return $this->respond([
+            "status" => true,
+            "message" => "Successfully returned record of user",
+            "User Data" => $admin
+        ]);
+    }
+
+    public function updateAdmin($admin_id){
+        
+        $admin =  $this->model->getAdmin($admin_id);
+
+        if($admin){
+
+                    // Get the incoming JSON data
+            $raw_data = file_get_contents("php://input");
+            $updated_data = json_decode($raw_data, true);
+            $admin_role = isset($updated_data["role"]) ? $updated_data["role"] : $admin["role"]; 
+            /* $admin_password = isset($updated_data["password"]) ? updated_data["password"] : $admin["password"]; */
+            
+            if($this->model->update($admin_id, [
+                "role" => $admin_role,
+
+            ])){
+                return $this->respond([
+                    "status" => true,
+                    "message" => "Successfully updated user data",
+                ]);
+
+            }else{
+                return $this->respond([
+                    "status" => false,
+                    "message" => "Failed to update user data",
+                ]);
+            }
+
+        }else{
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to find user",
+            ]);
+        }
+    }
+
+    public function deleteAdmin($admin_id){
+        $admin = $this->model->deleteAdminUserById($admin_id);
+        
+        return $this->respond([
+            "status" => true,
+            "message" => "Successfully deleted record of user",
+        ]);
     }
 }
