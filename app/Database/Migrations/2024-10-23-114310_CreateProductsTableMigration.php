@@ -9,17 +9,25 @@ class CreateProductsTableMigration extends Migration
     public function up()
     {
         $this->forge->addField([
-            "id" => [
+            "product_attribute_id" => [
                 "type"=> "INT",
                 "auto_increment" => true,
                 "unsigned"=> true
             ],
-            "name" => [
+            "product_id" => [
+                "type"=> "INT",
+                "unsigned"=> true
+            ],
+            "attribute_id" => [
+                "type"=> "INT",
+                "unsigned"=> true
+            ],
+            "attribute_value" => [
                 "type"=> "VARCHAR",
-                "constraint" => "100",
+                "constraint" => "50",
                 "null" => false
             ],
-            "price" => [
+            "attribute_price" => [
                 "type"=> "decimal",
                 "constraint" => "10,2",
                 "null" => false

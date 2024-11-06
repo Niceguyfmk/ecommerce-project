@@ -67,7 +67,7 @@ class UserController extends ResourceController
             "name" => $this->request->getVar("name"),
             "email" => $this->request->getVar("email"), 
             "password" => password_hash($this->request->getVar("password"), PASSWORD_DEFAULT),
-            "phone_no" => $this->request->getVar("phone_no"),
+            "address" => $this->request->getVar("address"),
             "role" => $this->request->getVar("role"),
         ];
 

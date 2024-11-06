@@ -7,23 +7,18 @@
             </div>
         </div>
     </div>
-        <form action = "<?= site_url(relativePath: '/add') ?>" method="post" id="form-submit">
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-            </div>
+        <form action = "<?= site_url(relativePath: '/addAdmin') ?>" method="post" id="form-submit">
+
             <div class="mb-3">
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
-            <div class="mb-3">
-                <label for="phone_no" class="form-label">Phone Number:</label>
-                <input type="text" class="form-control" id="phone_no" name="phone_no" required>
-            </div>
+            
             <div class="mb-3">
                 <label for="password" class="form-label">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+
             <div class="mb-3">
                 <label for="confirm_password" class="form-label">Confirm Password:</label>
                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
@@ -34,8 +29,9 @@
                 <div class="select btn-group">
                     <select id="role" name="role" class="form-select" required>
                         <option value="" disabled selected>Select a role</option>
-                        <option value="admin">Admin</option>
-                        <option value="customer">Customer</option>
+                        <option value="admin">admin</option>
+                        <option value="manager">manager</option>
+                        <option value="sales_rep">sales_rep</option>
                     </select>
                     </div>
             </div>

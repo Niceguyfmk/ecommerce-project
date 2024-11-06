@@ -15,7 +15,7 @@ $routes->get('/register', 'Home::register');
 $routes->post("/login", "AuthenticationController::login");
 
 //CRUD on Users Routes
-$routes->post("/add", "Users\UserController::addUser");
+$routes->post("/addAdmin", "Users\AdminUserController::addAdminUser");
 $routes->get("/list-all-users", "Users\UserController::listAllUsers");
 $routes->get("user/(:num)", "Users\UserController::getSingleUser/$1");
 

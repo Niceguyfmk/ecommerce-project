@@ -4,12 +4,12 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateUsersTableMigration extends Migration
+class CreareAdminTableMigration extends Migration
 {
     public function up()
     {
         $this->forge->addField([
-            "user_id" => [
+            "admin_id" => [
                 "type"=> "INT",
                 "auto_increment" => true,
                 "unsigned"=> true
@@ -29,24 +29,21 @@ class CreateUsersTableMigration extends Migration
                 "constraint" => "255",
                 "null"=> false
             ],
-            "address" => [
-                "type" => "TEXT",
-            ],
             "role" => [
                 "type" => "ENUM",
-                "constraint" => ["admin", "customer"],
+                "constraint" => ["admin", "manager", "sales_rep"],
                 "null"=> false,
-                "default" => "customer"
+                "default" => "admin"
             ],
             "created_at timestamp default current_timestamp" 
         ]);
 
-        $this->forge->addPrimaryKey("user_id");
-        $this->forge->createTable("users");
+        $this->forge->addPrimaryKey("admin_id");
+        $this->forge->createTable("admin_users");
     }
 
     public function down()
     {
-        $this->forge->dropTable("users");
+        $this->forge->dropTable("admin_users");
     }
 }
