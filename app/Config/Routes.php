@@ -10,6 +10,9 @@ $routes->get('/loginPage', 'Home::login');
 $routes->get('/admin', 'Home::adminDashboard');
 $routes->get('/register', 'Home::register');
 
+//Product Views
+$routes->get('/createProduct', 'Products\ProductController::addProductView');
+
 
 //Register and Login Admin
 $routes->post("/adminLogin", "AdminAuthController::login");

@@ -5,11 +5,35 @@ namespace App\Controllers\Products;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\ProductModel;
+use App\Models\ProductCategoriesModel;
+use App\Models\AttributesModel;
+use App\Models\ProductAttributesModel;
 class ProductController extends ResourceController
 {
     protected $modelName = ProductModel::class;
     protected $format = 'json';
     
+    //Load product page with relevant categories and attributes
+    public function addProductView()
+    {
+        // Load the category model
+        $categoryModel = new ProductCategoriesModel;
+        $categories = $categoryModel->getAllCategories();
+
+        // Load the attribute model
+        $attributeModel = new AttributesModel();
+        $attributes = $attributeModel->getAllAttributes();  
+        
+        return view('include/header')
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/addProduct', [
+            'categories' => $categories,
+            'attributes' => $attributes
+            ])
+        . view('include/footer');    
+    }
+
     // Add a product
     public function addProduct(){
         

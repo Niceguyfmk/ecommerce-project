@@ -37,7 +37,7 @@
                             </a>
                             <ul id="jobs" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                                 <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Create Product</a>
+                                    <a href="<?=  site_url(relativePath: '/createProduct') ?>" class="sidebar-link">Create Product</a>
                                 </li>
                                 <li class="sidebar-item">
                                     <a href="#" class="sidebar-link">View Product List</a>
