@@ -40,7 +40,7 @@
                                     <a href="<?=  site_url(relativePath: '/createProduct') ?>" class="sidebar-link">Create Product</a>
                                 </li>
                                 <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">View Product List</a>
+                                <a href="<?=  site_url(relativePath: '/viewProducts') ?>" class="sidebar-link">View Product List</a>
                                 </li>
                             </ul>
                         </li>

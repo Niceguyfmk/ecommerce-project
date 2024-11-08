@@ -1,6 +1,6 @@
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <h1>Add New Product</h1>
-    <form method="POST" action="<?= site_url('product/addProduct') ?>">
+    <form method="POST" action="<?= site_url('product/addProduct') ?>" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
@@ -24,23 +24,37 @@
                 <?php endforeach; ?>
             </select>
         </div>
+
+        <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+                <input type="file" class="form-control" id="image" name="image">
+        </div>
+
         <h3>Product Attributes</h3>
         <?php foreach ($attributes as $attribute): ?>
             <div class="mb-3">
 
+                <!-- Attribute Name -->
                 <label for="attribute_<?= $attribute['attribute_id'] ?>" class="form-label"><?= esc($attribute['attribute_name']) ?></label>
                 <input type="text" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>"
-                 name="attributes[<?= $attribute['attribute_id'] ?>][value]" placeholder="Enter value (e.g., Red, Large)">
-                
-                <label for="attribute_<?= $attribute['attribute_id'] ?>_price" class="form-label">Additional Price</label>
-                <input type="number" step="0.01" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_price"
-                 name="attributes[<?= $attribute['attribute_id'] ?>][additional_price]" placeholder="Enter additional price">
-                
-                <label for="attribute_<?= $attribute['attribute_id'] ?>_quantity" class="form-label">Quantity</label>
-                <input type="number" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_quantity"
-                 name="attributes[<?= $attribute['attribute_id'] ?>][quantity]" placeholder="Enter quantity">
+                    name="attributes[<?= $attribute['attribute_id'] ?>][value]" placeholder="Enter value (e.g., Red, XL, H&M)">
 
             </div>
+
+            <!-- Additional Price -->
+            <div class="mb-3">
+                <label for="attribute_<?= $attribute['attribute_id'] ?>_price" class="form-label">Additional Price</label>
+                <input type="number" step="0.01" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_price"
+                    name="attributes[<?= $attribute['attribute_id'] ?>][additional_price]" placeholder="Enter additional price">
+            </div>
+
+            <!-- Quantity -->
+            <div class="mb-3">
+                <label for="attribute_<?= $attribute['attribute_id'] ?>_quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_quantity"
+                    name="attributes[<?= $attribute['attribute_id'] ?>][quantity]" placeholder="Enter quantity">
+            </div>
+
         <?php endforeach; ?>
 
         <button type="submit" class="btn btn-primary">Save Product</button>

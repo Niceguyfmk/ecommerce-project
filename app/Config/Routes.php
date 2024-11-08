@@ -12,6 +12,7 @@ $routes->get('/register', 'Home::register');
 
 //Product Views
 $routes->get('/createProduct', 'Products\ProductController::addProductView');
+$routes->get('/viewProducts', 'Products\ProductController::ProductListView');
 
 
 //Register and Login Admin

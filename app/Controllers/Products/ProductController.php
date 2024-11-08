@@ -8,6 +8,7 @@ use App\Models\ProductModel;
 use App\Models\ProductCategoriesModel;
 use App\Models\AttributesModel;
 use App\Models\ProductAttributesModel;
+use App\Models\ImagesModel;
 class ProductController extends ResourceController
 {
     protected $modelName = ProductModel::class;
@@ -21,7 +22,7 @@ class ProductController extends ResourceController
         $categories = $categoryModel->getAllCategories();
 
         // Load the attribute model
-        $attributeModel = new AttributesModel();
+        $attributeModel = new AttributesModel;
         $attributes = $attributeModel->getAllAttributes();  
         
         return view('include/header')
@@ -39,40 +40,19 @@ class ProductController extends ResourceController
         
         //validation
         $validationRules = [
-            "title" => [
+            "name" => [
                 "rules" => "required|min_length[5]",
                 "errors" => [
                     "required" => "Product Title is required",
                     "min_length" => "Title must be greater than 5 characters",
                 ]
             ],
-            "price" => [
+            "base_price" => [
                 "rules" => "required|decimal|greater_than[0]",
                 "errors" => [
                     "required" => "Please provide the price of the product",
                     "decimal" => "price must be a decimal value",
                     "greater_than" => "Product price must be greater than 0 value"
-                ]
-            ],
-            "size" => [
-                "rules" => "required",
-                "errors" => [
-                    "required" => "Please provide the size of the product"
-                ]
-            ],
-            "quantity" => [
-                "rules" => "required|integer|greater_than_equal_to[0]",
-                "errors" => [
-                    "required" => "Quantity is required",
-                    "integer" => "Quantity must be an integer value",
-                    "greater_than_equal_to" => "Quantity must be 0 or greater",
-                ]
-            ],
-            "status" => [
-                "rules" => "required|in_list[active,inactive]",
-                "errors" => [
-                    "required" => "Status is required",
-                    "in_list" => "Status must be either 'active' or 'inactive'",
                 ]
             ],
         ];
@@ -82,43 +62,62 @@ class ProductController extends ResourceController
             return $this->fail($this->validator->getErrors());
         }
 
-        $imageFile = $this->request->getfile("image");
-
-        $productImageURL = "";
-
-        if($imageFile){
-            //file available
-            $newProductImageName = $imageFile->getRandomName();
-            $imageFile->move(FCPATH . "uploads", $newProductImageName);
-            $productImageURL = "uploads/" . $newProductImageName;
-
-        }
-
         //getPost()
         $ProductData = [
-            "title" => $this->request->getVar("title"), 
-            "brand" => $this->request->getVar("brand"),
-            "price" => $this->request->getVar("price"), 
-            "size" =>  $this->request->getVar("size"), 
+            "name" => $this->request->getVar("name"), 
+            "base_price" => $this->request->getVar("base_price"),
+            "description" => $this->request->getVar("description"), 
+            "category_id" =>  $this->request->getVar("category_id"), 
             "quantity" => $this->request->getVar("quantity"),
-            "color" => $this->request->getVar("color"),
-            "status" => $this->request->getVar("status"),
-/*          "color" => $this->request->getVar("color"),*/
-            "description" => $this->request->getVar("description"),
         ];
+ 
+        $ProductID = $this->model->insert($ProductData);
+        
+        //if product is successfully inserted
+        if($ProductID){
 
-        //Save Author 
-        if($this->model->save($ProductData)){
+            //save image next to image table
+            $imageFile = $this->request->getfile("image");
 
-            return $this->respond([
-                "status" => true,
-                "message" => "Successfully created product"
-            ]);
+            $productImageURL = "";
+    
+            if($imageFile){
+                //file available
+                $newProductImageName = $imageFile->getRandomName();
+                $imageFile->move(FCPATH . "uploads/products/", $newProductImageName);
+                $productImageURL = "uploads/products/" . $newProductImageName;
+                $imageModel = new ImagesModel();
+                $imageModel->insertImage($productImageURL, $ProductID);
+                
+                // Handle product attributes
+                $attributes = $this->request->getPost('attributes'); // Get the attributes data
+
+                foreach ($attributes as $attributeId => $attribute) {
+                    $attributeData = [
+                        'product_id' => $ProductID, // Assuming you have the product ID
+                        'attribute_id' => $attributeId,
+                        'attribute_value' => $attribute['value'],
+                        'additional_price' => $attribute['additional_price'],
+                        'quantity' => $attribute['quantity']
+                    ];
+                    
+                    // Insert each attribute into the product_attributes table
+                    $productAttributeModel = new ProductAttributesModel();
+                    $productAttributeModel->save($attributeData);
+                }
+                
+            }else{
+                return $this->respond([
+                    "status" => false,
+                    "message" => "Failed to insert image",
+                ]);
+            }
+
+            
         }else{
-
             return $this->respond([
                 "status" => false,
-                "message" => "Failed to create product"
+                "message" => "Failed to insert product",
             ]);
         }
     }

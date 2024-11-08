@@ -13,15 +13,10 @@ class ProductModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        "title",
-        "price",
-        "size",
-        "color",
-        "quantity",
-        "status",
-        "brand",
+        "name",
+        "base_price",
         "description",
-        "image"
+        "category_id"
     ];
 
     protected bool $allowEmptyInserts = false;
