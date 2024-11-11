@@ -12,7 +12,11 @@ $routes->get('/register', 'Home::register');
 
 //Product Views
 $routes->get('/createProduct', 'Products\ProductController::addProductView');
-$routes->get('/viewProducts', 'Products\ProductController::ProductListView');
+$routes->get('/viewProducts', 'Products\ProductController::listProductView');
+$routes->get('/product/edit/(:num)', 'Products\ProductController::updateProductView/$1');
+$routes->post('/product/update/(:num)', 'Products\ProductController::updateProduct/$1');
+
+$routes->get('/product/delete/(:num)', 'Products\ProductController::deleteProduct/$1');
 
 
 //Register and Login Admin

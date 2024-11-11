@@ -35,6 +35,30 @@ class ProductController extends ResourceController
         . view('include/footer');    
     }
 
+    public function listProductView(){
+
+        $products = $this->model->getProducts();
+
+        return view('include/header')
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/listProducts', [
+            'products' => $products,  // Passing the products to the view
+        ])
+        . view('include/footer'); 
+    }
+
+    public function updateProductView($product_id){
+        $product = $this->model->getProduct($product_id);
+        return view('include/header')
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/updateProduct', [
+            'product' => $product,  // Passing the product id to the view
+        ])
+        . view('include/footer');
+    }
+
     // Add a product
     public function addProduct(){
         
@@ -68,7 +92,6 @@ class ProductController extends ResourceController
             "base_price" => $this->request->getVar("base_price"),
             "description" => $this->request->getVar("description"), 
             "category_id" =>  $this->request->getVar("category_id"), 
-            "quantity" => $this->request->getVar("quantity"),
         ];
  
         $ProductID = $this->model->insert($ProductData);
@@ -89,22 +112,6 @@ class ProductController extends ResourceController
                 $imageModel = new ImagesModel();
                 $imageModel->insertImage($productImageURL, $ProductID);
                 
-                // Handle product attributes
-                $attributes = $this->request->getPost('attributes'); // Get the attributes data
-
-                foreach ($attributes as $attributeId => $attribute) {
-                    $attributeData = [
-                        'product_id' => $ProductID, // Assuming you have the product ID
-                        'attribute_id' => $attributeId,
-                        'attribute_value' => $attribute['value'],
-                        'additional_price' => $attribute['additional_price'],
-                        'quantity' => $attribute['quantity']
-                    ];
-                    
-                    // Insert each attribute into the product_attributes table
-                    $productAttributeModel = new ProductAttributesModel();
-                    $productAttributeModel->save($attributeData);
-                }
                 
             }else{
                 return $this->respond([
@@ -112,8 +119,7 @@ class ProductController extends ResourceController
                     "message" => "Failed to insert image",
                 ]);
             }
-
-            
+  
         }else{
             return $this->respond([
                 "status" => false,
@@ -121,6 +127,24 @@ class ProductController extends ResourceController
             ]);
         }
     }
+
+/*     public function addAttributes{
+
+        $attributes = $this->request->getPost('attributes');
+
+        foreach ($attributes as $attributeId => $attribute) {
+            $attributeData = [
+                'product_id' => $ProductID, 
+                'attribute_id' => $attributeId,
+                'attribute_value' => $attribute['value'],
+                'additional_price' => $attribute['additional_price'],
+                'quantity' => $attribute['quantity']
+            ];
+            
+            $productAttributeModel = new ProductAttributesModel();
+            $productAttributeModel->save($attributeData);
+        }
+    } */
 
     // Get Products List
     public function listAllProducts(){
@@ -161,23 +185,13 @@ class ProductController extends ResourceController
 
             //product exists
             $updated_data = json_decode(file_get_contents("php://input"), true);
-            $product_title = isset($updated_data["title"]) ? $updated_data["title"] : $product["title"];
-            $product_price = isset($updated_data["price"]) ? $updated_data["price"] : $product["price"];
-            $product_size = isset($updated_data["size"]) ? $updated_data["size"] : $product["size"];
-            $product_color = isset($updated_data["color"]) ? $updated_data["color"] : $product["color"];
-            $product_quantity = isset($updated_data["quantity"]) ? $updated_data["quantity"] : $product["quantity"];
-            $product_status = isset($updated_data["status"]) ? $updated_data["status"] : $product["status"];
-            $product_brand = isset($updated_data["brand"]) ? $updated_data["brand"] : $product["brand"];
+            $product_name = isset($updated_data["name"]) ? $updated_data["name"] : $product["name"];
+            $product_price = isset($updated_data["base_price"]) ? $updated_data["base_price"] : $product["base_price"];
             $product_description = isset($updated_data["description"]) ? $updated_data["description"] : $product["description"];
 
             if($this->model->update($product_id, [
-                "title" => $product_title,
+                "name" => $product_name,
                 "price" => $product_price,
-                "size" => $product_size,
-                "quantity" => $product_quantity,
-                "color" => $product_color,
-                "status" => $product_status,
-                "brand" => $product_brand,
                 "description"=> $product_description
             ])){
                 return $this->respond([
@@ -201,27 +215,20 @@ class ProductController extends ResourceController
     }
 
     // Delete Product
-    public function deleteProduct($product_id){
+    public function deleteProduct($product_id) {
+        // Fetch the product
         $product = $this->model->getProduct($product_id);
-
-        if($product){
-            if($this->model->deleteProductById($product_id)){
-                return $this->respond([
-                    "status" => true,
-                    "message" => "Successfully deleted product",
-                ]);
-            }else{
-                return $this->respond([
-                    "status" => false,
-                    "message" => "Failed to delete product",
-                ]);
+    
+        if ($product) {
+            // Proceed with the deletion
+            if ($this->model->deleteProductById($product_id)) {
+                return redirect()->to('/viewProducts')->with('status', 'Product successfully deleted.');
+            } else {
+                return redirect()->to('/viewProducts')->with('error', 'Failed to delete product.');
             }
-        }else{
-            return $this->respond([
-                "status" => false,
-                "message" => "Failed to find product",
-            ]);
+        } else {
+            return redirect()->to('/viewProducts')->with('error', 'Product not found.');
         }
-        
     }
+    
 }

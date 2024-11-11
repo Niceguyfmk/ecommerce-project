@@ -1,38 +1,29 @@
 E-Commerce application
 
-First Admin has to login then they can create products. Once, Products are made Customers can login and access these products.
+Attributes:
+        <h3>Product Attributes</h3>
+        <?php foreach ($attributes as $attribute): ?>
+            <div class="mb-3">
 
-1. Setup Database Migrations -> done
+                <label for="attribute_<?= $attribute['attribute_id'] ?>" class="form-label"><?= esc($attribute['attribute_name']) ?></label>
+                <input type="text" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>"
+                    name="attributes[<?= $attribute['attribute_id'] ?>][value]" placeholder="Enter value (e.g., Red, XL, H&M)">
 
-    Users Table (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(100) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        phone_no VARCHAR(50) NOT NULL,
-        role ENUM('admin', 'customer') DEFAULT 'customer',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
+            </div>
 
-    Products Table (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        price DECIMAL(10,2) NOT NULL,
-        Size  VARCHAR(50) NOT NULL,
-        Color VARCHAR(50) NOT NULL,
-        Brand VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        Image VARCHAR(255) NOT NULL
-        quantity INT DEFAULT 0,
-        status ENUM('active', 'inactive') DEFAULT 'active',
-        created_at datetime default current_timestamp
-    )
+            <div class="mb-3">
+                <label for="attribute_<?= $attribute['attribute_id'] ?>_price" class="form-label">Additional Price</label>
+                <input type="number" step="0.01" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_price"
+                    name="attributes[<?= $attribute['attribute_id'] ?>][additional_price]" placeholder="Enter additional price">
+            </div>
 
-2. Resource Controller - UserController - handles registration, login, and profile management, ProductController - CRUD operations and implements product filtering.
+            <div class="mb-3">
+                <label for="attribute_<?= $attribute['attribute_id'] ?>_quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="attribute_<?= $attribute['attribute_id'] ?>_quantity"
+                    name="attributes[<?= $attribute['attribute_id'] ?>][quantity]" placeholder="Enter quantity">
+            </div>
 
-3. Model Classes - UserModel, ProductModel 
-
-4. Routes:
+        <?php endforeach; ?>
 
 
 

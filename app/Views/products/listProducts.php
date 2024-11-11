@@ -6,7 +6,7 @@
             <div class="title-container">
                 <div class="row justify-content">
                     <div class="row">
-                        <h2>Admin List:</h2>
+                        <h2>Products List:</h2>
                 </div>
             </div>
     </div>
@@ -17,28 +17,27 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>ID</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Created At</th>
+                        <th>Name</th>
+                        <th>Base Price</th>
+                        <th>Description</th>
                         <th>Action</th>
-
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($users)): ?>
+                    <?php if (empty($products)): ?>
                         <tr>
-                            <td colspan="5" class="text-center">No users found.</td>
+                            <td colspan="5" class="text-center">No products found.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($users as $user): ?>
+                        <?php foreach ($products as $product): ?>
                             <tr>
-                                <td><?= esc($user['admin_id']) ?></td>
-                                <td><?= esc($user['email']) ?></td>
-                                <td><?= esc($user['role']) ?></td>
-                                <td><?= esc($user['created_at']) ?></td>
+                                <td><?= esc($product['product_id']) ?></td>
+                                <td><?= esc($product['name']) ?></td>
+                                <td><?= esc($product['base_price']) ?></td>
+                                <td><?= esc($product['description']) ?></td>
                                 <td>
-                                <a href="<?= site_url('admin/' . $user['user_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="<?= site_url('admin/' . $user['user_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                                    <a href="<?= site_url('product/edit/' . $product['product_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="<?= site_url('product/delete/' . $product['product_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
