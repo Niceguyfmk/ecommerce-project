@@ -14,53 +14,68 @@ class JWTAuthFilter implements FilterInterface
     
     public function before(RequestInterface $request, $arguments = null)
     {
+        // First, try to get the Authorization header from the request.
         $AuthorizationHeader = $request->getServer("HTTP_AUTHORIZATION");
-
-        //Check Header Authorization is available
-        if(!$AuthorizationHeader){
-            return $this->unauthorizedResponse();
-        };
-
-        //Check Header Pattern
-        $AuthorizationHeaderStringArr = explode(" ", $AuthorizationHeader); // ["Bearer", "eyJ0eXAi..."]
-
-        if(count($AuthorizationHeaderStringArr) !== 2 || $AuthorizationHeaderStringArr[0] != "Bearer"){
-            return $this->unauthorizedResponse();
-        };
-
-        //Validate the token value
-        try{
-            $blacklistedObject = new TokenBlacklisted();
-
-            $tokenData = $blacklistedObject->where("token", $AuthorizationHeaderStringArr[1])->first();
-
-            if($tokenData){
+    
+        // If no Authorization header is found, check the session for the token
+        if (!$AuthorizationHeader) {
+            
+            $token = session()->get('jwtToken');  // Get token from session
+            
+            if (!$token) {
+                // If no token is found in session, return an unauthorized response
                 return $this->unauthorizedResponse();
             }
-
-            $decodedData = JWT::decode($AuthorizationHeaderStringArr[1], new Key(getenv("JWT_Key"), "HS256"));
-
-            $request->jwtToken = $AuthorizationHeaderStringArr[1];
-            $request->userData = (array) $decodedData;
-        } catch (ExpiredException $e) {
-            return $this->failedTokenValidateResponse('Token has expired');
-        }catch(\Exception $ex){
-            return $this->failedTokenValidateResponse($ex->getMessage());
+    
+            try {
+                
+                // Decode the token using JWT::decode()
+                $decodedData = JWT::decode($token, new Key(getenv("JWT_KEY"), "HS256"));
+    
+                // Store the token and user data in the request
+                $request->jwtToken = $token;
+                $user = (array) $decodedData->user;
+                $request->userData = $user;
+            } catch (ExpiredException $e) {
+                //if token has expired remove it from session
+                session()->remove('jwtToken'); 
+                return $this->failedTokenValidateResponse('Token has expired');
+            } catch (\Exception $ex) {
+                return $this->failedTokenValidateResponse($ex->getMessage());
+            }
+        } else {
+            // If the Authorization header is present, validate it as usual
+            $AuthorizationHeaderStringArr = explode(" ", $AuthorizationHeader); // ["Bearer", "eyJ0eXAi..."]
+    
+            if (count($AuthorizationHeaderStringArr) !== 2 || $AuthorizationHeaderStringArr[0] != "Bearer") {
+                return $this->unauthorizedResponse();
+            };
+    
+            // Validate the token value
+            try {
+                // Check if the token is blacklisted
+                $blacklistedObject = new TokenBlacklisted();
+                $tokenData = $blacklistedObject->where("token", $AuthorizationHeaderStringArr[1])->first(); 
+    
+                if ($tokenData) {
+                    return $this->unauthorizedResponse();
+                }
+    
+                // Decode the JWT token
+                $decodedData = JWT::decode($AuthorizationHeaderStringArr[1], new Key(getenv("JWT_KEY"), "HS256"));
+    
+                // Store the token and user data in the request
+                $request->jwtToken = $AuthorizationHeaderStringArr[1];
+                $request->userData = (array) $decodedData;
+            } catch (ExpiredException $e) {
+                return $this->failedTokenValidateResponse('Token has expired');
+            } catch (\Exception $ex) {
+                return $this->failedTokenValidateResponse($ex->getMessage());
+            }
         }
     }
+    
 
-    /**
-     * Allows After filters to inspect and modify the response
-     * object as needed. This method does not allow any way
-     * to stop execution of other after filters, short of
-     * throwing an Exception or Error.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param array|null        $arguments
-     *
-     * @return ResponseInterface|void
-     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
         //

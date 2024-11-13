@@ -6,7 +6,7 @@
 <main class="content px-3 py-2">
     <div class="container-fluid">
         <div class="mb-3">
-            <h4>dashboard</h4>
+            <h4>Dashboard</h4>
         </div>
     </div>
     <div class="row">
@@ -20,7 +20,7 @@
                 </div>
                 </div>
                 <div class="col-6 align-self-end text-end">
-                <img src="image/customer-support.jpg" class="img-fluid illustration-img" alt="">
+                <img src="<?= base_url('assets/images/customer-support.jpg') ?>" class="img-fluid illustration-img" alt="">
                 </div>
             </div>
             </div>

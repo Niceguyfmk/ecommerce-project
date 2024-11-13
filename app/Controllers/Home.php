@@ -23,15 +23,12 @@ class Home extends BaseController
             . view('index', ['message' => $message])
             . view('include/footer');
     }
-    
+   
     public function register(){
 
         return view('include/header') . view('include/sidebar') . view('include/nav') . view('register')
          . view('include/footer');
     }
-
-    
-
     
 /*     public function adminList(){
 

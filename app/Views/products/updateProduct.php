@@ -12,7 +12,7 @@
     </div>
         </div>
         <div class="card-body">
-            <form method="POST" action="<?= site_url('product/update/' . $product['product_id']) ?>">
+            <form method="POST" action="<?= site_url('/product/update/' . $product['product_id']) ?>">
                 <div class="mb-3">
                     <label for="name" class="form-label">Product Name</label>
                     <input type="text" class="form-control" id="name" name="name" value="<?= esc($product['name']) ?>" required>

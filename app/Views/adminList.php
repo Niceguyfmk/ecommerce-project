@@ -30,18 +30,16 @@
                             <td colspan="5" class="text-center">No users found.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($users as $user): ?>
                             <tr>
                                 <td><?= esc($user['admin_id']) ?></td>
                                 <td><?= esc($user['email']) ?></td>
                                 <td><?= esc($user['role']) ?></td>
                                 <td><?= esc($user['created_at']) ?></td>
                                 <td>
-                                <a href="<?= site_url('admin/' . $user['user_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="<?= site_url('admin/' . $user['user_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                                <a href="<?= site_url('admin/' . $user['admin_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="<?= site_url('admin/' . $user['admin_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>

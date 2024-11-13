@@ -2,14 +2,14 @@
             <!-- Content For Sidebar -->
             <div class="h-100">
                 <div class="sidebar-logo">
-                    <a href="<?= site_url(relativePath: '/admin') ?>">Apparel Wear</a>
+                    <a href="<?= base_url(relativePath: 'auth/admin') ?>">Apparel Wear</a>
                 </div>
                 <ul class="sidebar-nav">
                     <li class="sidebar-header">
                         Admin Elements
                     </li>
                     <li class="sidebar-item">
-                        <a href="<?= site_url(relativePath: '/admin') ?>" class="sidebar-link">
+                        <a href="<?= base_url(relativePath: 'auth/admin') ?>" class="sidebar-link">
                             <i class="fa-solid fa-list pe-2"></i>
                             Dashboard
                         </a>
@@ -22,10 +22,10 @@
                             </a>
                             <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                                 <li class="sidebar-item">
-                                    <a href="<?= site_url(relativePath: '/register') ?>" class="sidebar-link">Add User</a>
+                                    <a href="<?= site_url(relativePath: 'auth/register') ?>" class="sidebar-link">Add User</a>
                                 </li>
                                 <li class="sidebar-item">
-                                    <a href="<?=  site_url('/adminList') ?>" class="sidebar-link">User List</a>
+                                    <a href="<?=  site_url('auth/adminList') ?>" class="sidebar-link">User List</a>
                                 </li>
                             </ul>
                         </li>
@@ -37,10 +37,10 @@
                             </a>
                             <ul id="jobs" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                                 <li class="sidebar-item">
-                                    <a href="<?=  site_url(relativePath: '/createProduct') ?>" class="sidebar-link">Create Product</a>
+                                    <a href="<?=  site_url(relativePath: '/product/createProduct') ?>" class="sidebar-link">Create Product</a>
                                 </li>
                                 <li class="sidebar-item">
-                                <a href="<?=  site_url(relativePath: '/viewProducts') ?>" class="sidebar-link">View Product List</a>
+                                <a href="<?=  site_url(relativePath: '/product/viewProducts') ?>" class="sidebar-link">View Product List</a>
                                 </li>
                             </ul>
                         </li>

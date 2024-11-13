@@ -36,8 +36,8 @@
                                 <td><?= esc($product['base_price']) ?></td>
                                 <td><?= esc($product['description']) ?></td>
                                 <td>
-                                    <a href="<?= site_url('product/edit/' . $product['product_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="<?= site_url('product/delete/' . $product['product_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                                    <a href="<?= site_url('/product/edit/' . $product['product_id']) ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="<?= site_url('/product/delete/' . $product['product_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
