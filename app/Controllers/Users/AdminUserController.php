@@ -5,6 +5,7 @@ namespace App\Controllers\Users;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\AdminUserModel;
+use App\Models\AdminRoleModel;
 
 class AdminUserController extends ResourceController
 {
@@ -31,13 +32,6 @@ class AdminUserController extends ResourceController
                     "min_length" => "Password must be at least 3 characters long"
                 ),
             ),
-            
-            "role" => array(
-                "rules" => "required",
-                "errors" => array(
-                    "required" => "Please select a role"
-                ),
-            ),
         );
 
 
@@ -54,13 +48,13 @@ class AdminUserController extends ResourceController
         $UserData = [
             "email" => $this->request->getVar("email"), 
             "password" => password_hash($this->request->getVar("password"), PASSWORD_DEFAULT),
-            "role" => $this->request->getVar("role"),
+            "role_id" => $this->request->getVar("role_id"),
         ];
 
         //Save Author 
         if($this->model->registerAdminUser($UserData)){
             session()->setFlashdata('message', 'User Registered Successfully');
-            return redirect()->to('/admin');
+            return redirect()->to('auth/admin');
         }else{
 
             return $this->respond([
@@ -70,19 +64,41 @@ class AdminUserController extends ResourceController
         }
     }
 
-    public function adminUsers(){
+    public function adminList(){
+        $users = $this->model->getAdminUsers();
         
-        $adminUsers = $this->model->getAdminUsers();
-        // Pass the users to the view
+        $roleModel = new AdminRoleModel();
+        $roles = $roleModel->getAllRoles();  
+        $message = session()->getFlashdata('message');
 
-        return view('include/header') . view('include/sidebar') . view('include/nav') . view('/adminList', ['users' => $adminUsers])
-        . view('include/footer');
-        /* return $this->respond([
-            "status" => true,
-            "message" => "Successfully returned list of users",
-            "Users" => $adminUsers
-        ]); */
+        return view('include/header') . view('include/sidebar') . view('include/nav') . view('adminList', [
+            'users' => $users, 
+            'roles' => $roles,
+            'message' => $message
+        ]) . view('include/footer');
     }
+    
+    public function update_role()
+{   
+
+    $admin_id = $this->request->getPost('user_id');
+    $role_id = $this->request->getPost('role_id'); 
+    
+    // Validate the inputs 
+    if (empty($admin_id) || empty($role_id)) {
+        return redirect()->back()->with('error', 'Invalid input data');
+    }
+
+    $data = ['role_id' => $role_id];
+    if ($this->model->update($admin_id, $data)) {
+        // Role updated successfully, redirect back with success message
+        session()->setFlashdata('message', 'Role updated successfully');
+        return redirect()->to('auth/adminList');
+    } else {
+        // Failed to update the role
+        return redirect()->back()->with('error', 'Failed to update role');
+    }
+}
 
     public function getSingleAdmin($admin_id){
         
@@ -117,7 +133,6 @@ class AdminUserController extends ResourceController
             $raw_data = file_get_contents("php://input");
             $updated_data = json_decode($raw_data, true);
             $admin_role = isset($updated_data["role"]) ? $updated_data["role"] : $admin["role"]; 
-            /* $admin_password = isset($updated_data["password"]) ? updated_data["password"] : $admin["password"]; */
             
             if($this->model->update($admin_id, [
                 "role" => $admin_role,
@@ -144,11 +159,9 @@ class AdminUserController extends ResourceController
     }
 
     public function deleteAdmin($admin_id){
-        $admin = $this->model->deleteAdminUserById($admin_id);
+        $this->model->deleteAdminUserById($admin_id);
         
-        return $this->respond([
-            "status" => true,
-            "message" => "Successfully deleted record of user",
-        ]);
+        return redirect()->to('/auth/adminList');
+
     }
 }

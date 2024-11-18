@@ -6,7 +6,7 @@
             </div>
         </div>
     </div>
-        <form action = "<?= site_url(relativePath: '/addAdmin') ?>" method="post" id="form-submit">
+        <form action = "<?= site_url(relativePath: '/auth/addAdmin') ?>" method="post" id="form-submit">
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email:</label>
@@ -26,11 +26,10 @@
             <div class="mb-3">
                 <input type="hidden" id="role" name="role" value="">
                 <div class="select btn-group">
-                    <select id="role" name="role" class="form-select" required>
+                    <select id="role_id" name="role_id" class="form-select" required>
                         <option value="" disabled selected>Select a role</option>
-                        <option value="admin">Admin</option>
-                        <option value="manager">Manager</option>
-                        <option value="sales_rep">Sales Representative</option>
+                        <option value="1">Admin</option>
+                        <option value="2">Manager</option>
                     </select>
                     </div>
             </div>

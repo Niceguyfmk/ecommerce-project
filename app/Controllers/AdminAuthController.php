@@ -79,7 +79,7 @@ class AdminAuthController extends ResourceController
                 "id" => $userData['admin_id'],
                 "email" => $userData["email"],
                 "password" => $userData["password"],
-                "role" => $userData["role"]
+                "role_id" => $userData["role_id"]
             ]
         ];
 
@@ -89,7 +89,6 @@ class AdminAuthController extends ResourceController
     public function userProfile(){
 
         $userData = $this->request->userData;
-
         return view('include/header') 
         . view('include/sidebar') 
         . view(name: 'include/nav') 
@@ -99,6 +98,43 @@ class AdminAuthController extends ResourceController
             ])
         . view('include/footer');
     }
+
+    public function updateAdminPass()
+    {
+        // Get data from the form
+        $admin_id = $this->request->getPost('id');
+        $password = $this->request->getPost('password');
+        $confirm_password = $this->request->getPost('confirm_password');
+        
+        // Early return for missing fields
+        if (empty($admin_id)) {
+            return $this->respond(['status' => 'error', 'message' => 'Admin ID is required.']);
+        }
+        if (empty($password) || empty($confirm_password)) {
+            return $this->respond(['status' => 'error', 'message' => 'All fields are required.']);
+        }
+        if ($password === $confirm_password) {
+            return $this->respond(['status' => 'error', 'message' => 'Passwords do match.']);
+        }
+    
+        // Fetch admin record and verify password
+        $admin = $this->model->find($admin_id);
+        if (!$admin || !password_verify($password, $admin['password'])) {
+            return $this->respond(['status' => 'error', 'message' => 'Invalid original password or admin not found.']);
+        }
+    
+        // Hash new password and update data
+        $hashed_password = password_hash($confirm_password, PASSWORD_DEFAULT);
+        $data = [
+            'password' => $hashed_password
+        ];
+    
+        if ($this->model->updateData($admin_id, $data)) {
+            return $this->respond(['status' => 'success', 'message' => 'Admin data updated successfully.']);
+        }
+    
+        return $this->respond(['status' => 'error', 'message' => 'Failed to update admin data.']);
+    }    
 
     public function logout(){
 

@@ -25,4 +25,8 @@ class ImagesModel extends Model
         ];
         return $this->save($Imagedata);
     }
+
+    public function getAllImages(){
+        return $this->findAll();
+    }
 }

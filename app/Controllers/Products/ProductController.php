@@ -14,47 +14,55 @@ class ProductController extends ResourceController
     protected $modelName = ProductModel::class;
     protected $format = 'json';
     
-    //Load product page with relevant categories and attributes
+    //Load create product page with relevant categories
     public function addProductView()
     {
         // Load the category model
         $categoryModel = new ProductCategoriesModel;
         $categories = $categoryModel->getAllCategories();
-
-        // Load the attribute model
-        $attributeModel = new AttributesModel;
-        $attributes = $attributeModel->getAllAttributes();  
-        
+      
         return view('include/header')
         . view('include/sidebar')
         . view('include/nav')
         . view('products/addProduct', [
             'categories' => $categories,
-            'attributes' => $attributes
             ])
         . view('include/footer');    
     }
-
+    //Load Product List Page
     public function listProductView(){
 
         $products = $this->model->getProducts();
+
+        $imagesModel = new ImagesModel();
+        $images = $imagesModel->getAllImages();
+
+        $categoryModel = new ProductCategoriesModel;
+        $categories = $categoryModel->getAllCategories();
+
+        $message = session()->getFlashdata('message');
 
         return view('include/header')
         . view('include/sidebar')
         . view('include/nav')
         . view('products/listProducts', [
-            'products' => $products,  // Passing the products to the view
+            'products' => $products,
+            'categories' => $categories,  
+            'images' => $images,
+            'message' => $message
         ])
         . view('include/footer'); 
     }
 
     public function updateProductView($product_id){
         $product = $this->model->getProduct($product_id);
+        $images = new ImagesModel();
         return view('include/header')
         . view('include/sidebar')
         . view('include/nav')
         . view('products/updateProduct', [
-            'product' => $product,  // Passing the product id to the view
+            'product' => $product,
+            'images' => $images
         ])
         . view('include/footer');
     }
@@ -91,7 +99,7 @@ class ProductController extends ResourceController
             "name" => $this->request->getVar("name"), 
             "base_price" => $this->request->getVar("base_price"),
             "description" => $this->request->getVar("description"), 
-            "category_id" =>  $this->request->getVar("category_id"), 
+            "category_id" =>  $this->request->getVar("category"), 
         ];
  
         $ProductID = $this->model->insert($ProductData);
@@ -112,7 +120,7 @@ class ProductController extends ResourceController
                 $imageModel = new ImagesModel();
                 $imageModel->insertImage($productImageURL, $ProductID);
                 
-                
+                return redirect()->to('auth/admin')->with('success', 'Product added successfully');
             }else{
                 return $this->respond([
                     "status" => false,
@@ -147,7 +155,9 @@ class ProductController extends ResourceController
     } */
 
     // Get Products List
-    public function listAllProducts(){
+
+
+/*     public function listAllProducts(){
         $products = $this->model->getProducts();
 
         return $this->respond([
@@ -155,9 +165,8 @@ class ProductController extends ResourceController
             "message" => "Successfully returned list of products",
             "products" => $products
         ]);
-    }
+    } */
 
-    // Get Products using ID
     public function getSingleProduct($product_id){
         $product = $this->model->getProduct($product_id);
         
@@ -179,34 +188,44 @@ class ProductController extends ResourceController
     // Update Product using ID
     public function updateProduct($product_id){
          
-        $product = $this->model->getProduct($product_id);
+    $product = $this->model->getProduct($product_id);
 
-        if($product){
+    if ($product) {
+        $updated_data = [];
 
-            //product exists
-            $updated_data = json_decode(file_get_contents("php://input"), true);
-            $product_name = isset($updated_data["name"]) ? $updated_data["name"] : $product["name"];
-            $product_price = isset($updated_data["base_price"]) ? $updated_data["base_price"] : $product["base_price"];
-            $product_description = isset($updated_data["description"]) ? $updated_data["description"] : $product["description"];
+        $updated_data["name"] = $this->request->getPost("name") ? $this->request->getPost("name") : $product["name"];        
+        $updated_data["base_price"] = $this->request->getPost("base_price") ? $this->request->getPost("base_price") : $product["base_price"];
+        $updated_data["category_id"] = $this->request->getPost("category_id") ? $this->request->getPost("category_id") : $product["category_id"];     
+        $updated_data["description"] = $this->request->getPost("description") ? $this->request->getPost("description") : $product["description"];
+        
+        if(!empty($updated_data)){
 
-            if($this->model->update($product_id, [
-                "name" => $product_name,
-                "price" => $product_price,
-                "description"=> $product_description
-            ])){
-                return $this->respond([
-                    "status" => true,
-                    "message" => "Successfully updated product",
-                ]);
+            $this->model->update($product_id, $updated_data);
 
+            $imageFile = $this->request->getfile("image");
+            $productImageURL = "";
+    
+            if(!empty($imageFile)){
+                //file available
+                $newProductImageName = $imageFile->getRandomName();
+                $imageFile->move(FCPATH . "uploads/products/", $newProductImageName);
+                $productImageURL = "uploads/products/" . $newProductImageName;
+                $imageModel = new ImagesModel();
+                $imageModel->insertImage($productImageURL, $product_id);
+                session()->setFlashdata('message', 'Product updated successfully');
+                return redirect()->to('product/viewProducts');
             }else{
-                return $this->respond([
-                    "status" => false,
-                    "message" => "Failed to update product",
-                ]);
+                session()->setFlashdata('message', 'Product updated successfully, no image was inserted or changed');
+                return redirect()->to('product/viewProducts');
             }
-
         }else{
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to update product information",
+            ]);
+        }
+
+    }else{
             return $this->respond([
                 "status" => false,
                 "message" => "Failed to find product",
@@ -222,9 +241,9 @@ class ProductController extends ResourceController
         if ($product) {
             // Proceed with the deletion
             if ($this->model->deleteProductById($product_id)) {
-                return redirect()->to('/viewProducts')->with('status', 'Product successfully deleted.');
+                return redirect()->to('product/viewProducts')->with('status', 'Product successfully deleted.');
             } else {
-                return redirect()->to('/viewProducts')->with('error', 'Failed to delete product.');
+                return redirect()->to('product/viewProducts')->with('error', 'Failed to delete product.');
             }
         } else {
             return redirect()->to('/viewProducts')->with('error', 'Product not found.');

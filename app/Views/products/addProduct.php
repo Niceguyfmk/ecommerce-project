@@ -1,6 +1,6 @@
 <div class="container mt-5 mb-5">
     <h1>Add New Product</h1>
-    <form method="POST" action="<?= site_url('product/addProduct') ?>" enctype="multipart/form-data">
+    <form method="post" action="<?= site_url('product/addProduct') ?>" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
