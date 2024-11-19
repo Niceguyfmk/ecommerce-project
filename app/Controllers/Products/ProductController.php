@@ -67,6 +67,23 @@ class ProductController extends ResourceController
         . view('include/footer');
     }
 
+    public function updateAttributesView($product_id){
+        
+        $attributesModel = new AttributesModel();
+        $attributes = $attributesModel->getAllAttributes();
+
+        $product = $this->model->getProduct($product_id);
+
+        return view('include/header')
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/addProductAttributes', [
+            'product' => $product,
+            'attributes' => $attributes
+        ])
+        . view('include/footer');
+    }
+
     // Add a product
     public function addProduct(){
         
@@ -120,7 +137,8 @@ class ProductController extends ResourceController
                 $imageModel = new ImagesModel();
                 $imageModel->insertImage($productImageURL, $ProductID);
                 
-                return redirect()->to('auth/admin')->with('success', 'Product added successfully');
+                session()->setFlashdata('message', 'Product added successfully');
+                return redirect()->to('auth/admin');
             }else{
                 return $this->respond([
                     "status" => false,
@@ -136,36 +154,46 @@ class ProductController extends ResourceController
         }
     }
 
-/*     public function addAttributes{
-
+    public function saveAttributes($product_id)
+    {
+        $productAttributesModel = new ProductAttributesModel();
         $attributes = $this->request->getPost('attributes');
+    
+        foreach ($attributes as $attribute) {
+            // Check if a record with this product_id and attribute_id already exists
+            $existingAttribute = $productAttributesModel->where('product_id', $product_id)
+                                                       ->where('attribute_id', $attribute['attribute_id'])
+                                                       ->first();
+            $data = [
+                'unit_type' => $attribute['unit_type'],
+                'unit_quantity' => $attribute['unit_quantity'],
+                'price' => $attribute['price'],
+                'discount_price' => $attribute['discount_price'],
+                'stock' => $attribute['stock'],
+                'is_default' => $attribute['is_default']
+                ];
 
-        foreach ($attributes as $attributeId => $attribute) {
-            $attributeData = [
-                'product_id' => $ProductID, 
-                'attribute_id' => $attributeId,
-                'attribute_value' => $attribute['value'],
-                'additional_price' => $attribute['additional_price'],
-                'quantity' => $attribute['quantity']
-            ];
-            
-            $productAttributeModel = new ProductAttributesModel();
-            $productAttributeModel->save($attributeData);
+                if ($existingAttribute) {
+                // Update the existing record
+                $productAttributesModel->update($existingAttribute['product_attribute_id'], $data);
+            } else {
+                // If no existing record, insert a new one
+                $productAttributesModel->addAttributes([
+                    'product_id' => $product_id,
+                    'attribute_id' => $attribute['attribute_id'],
+                    'unit_type' => $attribute['unit_type'],
+                    'unit_quantity' => $attribute['unit_quantity'],
+                    'price' => $attribute['price'],
+                    'discount_price' => $attribute['discount_price'] ?? null,
+                    'stock' => $attribute['stock'],
+                    'is_default' => $attribute['is_default'],
+                ]);
+            }
         }
-    } */
-
-    // Get Products List
-
-
-/*     public function listAllProducts(){
-        $products = $this->model->getProducts();
-
-        return $this->respond([
-            "status" => true,
-            "message" => "Successfully returned list of products",
-            "products" => $products
-        ]);
-    } */
+    
+        return redirect()->to('product/viewProducts');
+    }
+    
 
     public function getSingleProduct($product_id){
         $product = $this->model->getProduct($product_id);

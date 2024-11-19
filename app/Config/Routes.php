@@ -46,4 +46,6 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->get('edit/(:num)', 'ProductController::updateProductView/$1');
     $routes->post('update/(:num)', 'ProductController::updateProduct/$1');
     $routes->get('delete/(:num)', 'ProductController::deleteProduct/$1');
+    $routes->get('updateAttributes/(:num)', 'ProductController::updateAttributesView/$1');
+    $routes->post('attributes/(:num)', 'ProductController::saveAttributes/$1');
 });
