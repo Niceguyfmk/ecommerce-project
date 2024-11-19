@@ -20,8 +20,9 @@ class ProductController extends ResourceController
         // Load the category model
         $categoryModel = new ProductCategoriesModel;
         $categories = $categoryModel->getAllCategories();
-      
-        return view('include/header')
+        $pageTitle = 'Add Product';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
         . view('include/sidebar')
         . view('include/nav')
         . view('products/addProduct', [
@@ -41,8 +42,9 @@ class ProductController extends ResourceController
         $categories = $categoryModel->getAllCategories();
 
         $message = session()->getFlashdata('message');
-
-        return view('include/header')
+        $pageTitle = 'Product Table';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
         . view('include/sidebar')
         . view('include/nav')
         . view('products/listProducts', [
@@ -54,19 +56,6 @@ class ProductController extends ResourceController
         . view('include/footer'); 
     }
 
-    public function updateProductView($product_id){
-        $product = $this->model->getProduct($product_id);
-        $images = new ImagesModel();
-        return view('include/header')
-        . view('include/sidebar')
-        . view('include/nav')
-        . view('products/updateProduct', [
-            'product' => $product,
-            'images' => $images
-        ])
-        . view('include/footer');
-    }
-
     public function updateAttributesView($product_id){
         
         $attributesModel = new AttributesModel();
@@ -74,7 +63,9 @@ class ProductController extends ResourceController
 
         $product = $this->model->getProduct($product_id);
 
-        return view('include/header')
+        $pageTitle = 'Product Attributes';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
         . view('include/sidebar')
         . view('include/nav')
         . view('products/addProductAttributes', [

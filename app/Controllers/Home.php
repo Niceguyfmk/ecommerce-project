@@ -6,7 +6,13 @@ class Home extends BaseController
 {
     public function index(): string
     {
-        return view('welcome_message');
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Dashboard';
+    
+        return  view('shop-Include/header', ['pageTitle' => $pageTitle])
+          . view('shop/index', ['message' => $message])
+           .view('shop-Include/footer');
+            
     }
 
     public function login(){
@@ -15,18 +21,19 @@ class Home extends BaseController
     }
     
     public function adminDashboard() {
-
         $message = session()->getFlashdata('message');
-        return view('include/header') 
+        $pageTitle = 'Dashboard';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
             . view('include/sidebar') 
             . view('include/nav') 
-            . view('index', ['message' => $message])
+            . view('index', ['message' => $message]) 
             . view('include/footer');
-    }
+    }   
    
     public function register(){
-
-        return view('include/header') . view('include/sidebar') . view('include/nav') . view('register')
+        $pageTitle = 'Add User';
+        return view('include/header', ['pageTitle' => $pageTitle]) . view('include/sidebar') . view('include/nav') . view('register')
          . view('include/footer');
     }
 }

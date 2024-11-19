@@ -89,7 +89,9 @@ class AdminAuthController extends ResourceController
     public function userProfile(){
 
         $userData = $this->request->userData;
-        return view('include/header') 
+        $pageTitle = 'Profile';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
         . view('include/sidebar') 
         . view(name: 'include/nav') 
         . view('profile', [
