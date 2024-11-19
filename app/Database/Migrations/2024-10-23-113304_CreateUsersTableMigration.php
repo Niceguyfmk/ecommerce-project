@@ -20,7 +20,7 @@ class CreateUsersTableMigration extends Migration
             ],
             "email" => [
                 "type" => "VARCHAR",
-                "constraint" => "255    ",
+                "constraint" => "255",
                 "null"=> false,
                 "unique" => true
             ],
