@@ -23,6 +23,10 @@ class ProductAttributesModel extends Model
         "is_default"
     ];
 
+    public function getAllProductAttributes(){
+        return $this->findAll();
+    }
+
     public function addAttributes($data){
         return $this->insert($data);
     }

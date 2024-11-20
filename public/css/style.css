@@ -452,6 +452,14 @@
 
 
 /*** Single Page Start ***/
+.rating .fas {
+    color: #ff523b;
+  }
+  
+  .rating .far {
+    color: #ff523b;
+  }
+  
 .pagination {
     display: inline-block;
 }

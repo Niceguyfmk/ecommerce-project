@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <!-- Table to display user records -->
-            <table class="table table-striped table-bordered table-hover">
+            <table class="table table-striped table-bordered table-hover" id="myTable">
                 <thead class="thead-dark">
                     <tr>
                         <th>ID</th>
@@ -98,6 +98,8 @@
 </div>
 
 <script>
+let table = new DataTable('#myTable');
+
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize the Edit Role Modal functionality
     initializeEditRoleModal();

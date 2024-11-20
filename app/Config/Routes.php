@@ -2,10 +2,12 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/**
- * @var RouteCollection $routes
- */
+
 $routes->get('/', 'Home::index');
+$routes->get('/shop', 'Home::shop');
+$routes->get('/shop-detail', 'Home::detail');
+$routes->get('/cart', 'Home::cart');
+
 $routes->get('/loginPage', 'Home::login');
 //Login Admin
 $routes->post("/adminLogin", "AdminAuthController::login");
