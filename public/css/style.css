@@ -459,9 +459,9 @@
   .rating .far {
     color: #ff523b;
   }
-  
+ 
 .pagination {
-    display: inline-block;
+    display: inline-flex;
 }
   
 .pagination a {
@@ -471,6 +471,7 @@
     transition: 0.5s;
     border: 1px solid var(--bs-secondary);
     margin: 0 4px;
+    border-radius: 50%;
 }
   
 .pagination a.active {

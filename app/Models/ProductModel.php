@@ -18,7 +18,7 @@ class ProductModel extends Model
         "description",
         "category_id"
     ];
-
+    protected $perPage = 9;
     
     public function getProducts(){
         return $this->findAll();

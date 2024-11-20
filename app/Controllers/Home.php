@@ -48,7 +48,7 @@ class Home extends BaseController
         $categories = $categoryModel->getAllCategories();
 
         $productModel = new ProductModel();
-        $products = $productModel->getProducts();
+        $products = $productModel->paginate(9);
 
         $attributesModel = new AttributesModel();
         $attributes = $attributesModel->getAllAttributes();
@@ -57,7 +57,13 @@ class Home extends BaseController
         $productAttributes = $productAttributesModel->getAllProductAttributes();
 
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
-          . view('shop/shop', ['message' => $message, 'categories' => $categories, 'products' => $products, 'images' => $images])
+          . view('shop/shop', [
+           'message' => $message,
+           'categories' => $categories,
+           'products' => $products,
+           'images' => $images,
+           'pager' => $productModel->pager
+           ])
           . view('shop-Include/footer');
             
     }
