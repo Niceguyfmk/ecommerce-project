@@ -97,6 +97,7 @@ class Home extends BaseController
 
         $productModel = new ProductModel();
         $product = $productModel->getProduct($id);
+        $relatedProducts = $productModel->getProducts();
 
     
         // Check if product exists
@@ -111,7 +112,7 @@ class Home extends BaseController
         $productAttributes = $productAttributesModel->getAllProductAttributes();
     
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
-          . view('shop/shop-detail', ['message' => $message, 'categories' => $categories, 'product' => $product, 'images' => $images])
+          . view('shop/shop-detail', ['message' => $message, 'categories' => $categories, 'product' => $product, 'relatedProducts' => $relatedProducts,'images' => $images])
            .view('shop-Include/footer');
             
     }

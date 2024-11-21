@@ -248,8 +248,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="rounded" style="width: 100px; height: 100px;">
-                                <img src="img/featur-2.jpg" class="img-fluid rounded" alt="">
-                            </div>
+                            <img src="<?= base_url('img/featur-1.jpg') ?>" class="img-fluid rounded" alt="Image">                            </div>
                             <div>
                                 <h6 class="mb-2">Big Banana</h6>
                                 <div class="d-flex mb-2">
@@ -267,8 +266,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="rounded" style="width: 100px; height: 100px;">
-                                <img src="img/featur-3.jpg" class="img-fluid rounded" alt="">
-                            </div>
+                            <img src="<?= base_url('img/featur-1.jpg') ?>" class="img-fluid rounded" alt="Image">                            </div>
                             <div>
                                 <h6 class="mb-2">Big Banana</h6>
                                 <div class="d-flex mb-2">
@@ -286,8 +284,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                <img src="img/vegetable-item-4.jpg" class="img-fluid rounded" alt="">
-                            </div>
+                            <img src="<?= base_url('img/featur-1.jpg') ?>" class="img-fluid rounded" alt="Image">                            </div>
                             <div>
                                 <h6 class="mb-2">Big Banana</h6>
                                 <div class="d-flex mb-2">
@@ -305,8 +302,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                <img src="img/vegetable-item-5.jpg" class="img-fluid rounded" alt="">
-                            </div>
+                            <img src="<?= base_url('img/featur-1.jpg') ?>" class="img-fluid rounded" alt="Image">                            </div>
                             <div>
                                 <h6 class="mb-2">Big Banana</h6>
                                 <div class="d-flex mb-2">
@@ -324,8 +320,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="rounded me-4" style="width: 100px; height: 100px;">
-                                <img src="img/vegetable-item-6.jpg" class="img-fluid rounded" alt="">
-                            </div>
+                            <img src="<?= base_url('img/featur-1.jpg') ?>" class="img-fluid rounded" alt="Image">                            </div>
                             <div>
                                 <h6 class="mb-2">Big Banana</h6>
                                 <div class="d-flex mb-2">
@@ -359,20 +354,37 @@
         <h1 class="fw-bold mb-0">Related products</h1>
         <div class="vesitable">
             <div class="owl-carousel vegetable-carousel justify-content-center">
-                <div class="border border-primary rounded position-relative vesitable-item">
-                    <div class="vesitable-img">
-                        <img src="img/vegetable-item-6.jpg" class="img-fluid w-100 rounded-top" alt="">
-                    </div>
-                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">Vegetable</div>
-                    <div class="p-4 pb-0 rounded-bottom">
-                        <h4>Parsely</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod te incididunt</p>
-                        <div class="d-flex justify-content-between flex-lg-wrap">
-                            <p class="text-dark fs-5 fw-bold">$4.99 / kg</p>
-                            <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-                        </div>
-                    </div>
-                </div>
+                <?php foreach($relatedProducts as $relatedProduct): ?>
+                    <?php if ($relatedProduct["category_id"] == $product["category_id"]): ?> 
+                        <?php foreach($categories as $category): ?>
+                            <?php if ($category["category_id"] == $relatedProduct["category_id"]): ?> 
+                            <div class="border border-primary rounded position-relative vesitable-item">
+                                <div class="vesitable-img">
+                                    <?php 
+                                        // Get the product image
+                                        $productRelatedImage = array_filter($images, fn($image) => $image["product_id"] === $relatedProduct["product_id"]);
+                                        $productRelatedImage = reset($productRelatedImage);
+                                    ?>
+                                    <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                        <img src="<?= base_url(relativePath: $productRelatedImage["image_url"]) ?>" class="img-fluid w-100 rounded-top" alt="">
+                                    </a>
+                                </div>
+                                <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;"><?= $category['category_name'] ?></div>
+                                <div class="p-4 pb-0 rounded-bottom">
+                                    <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                        <h4><?= $relatedProduct["name"] ?></h4>
+                                    </a>
+                                    <p><?= $relatedProduct["description"] ?></p>
+                                    <div class="d-flex justify-content-between flex-lg-wrap">
+                                        <p class="text-dark fs-5 fw-bold">$<?= $relatedProduct["base_price"] ?> / kg</p>
+                                        <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
