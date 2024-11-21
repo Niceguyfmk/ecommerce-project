@@ -2,38 +2,35 @@
 <div class="container-fluid page-header py-5">
     <h1 class="text-center text-white display-6">Shop</h1>
     <ol class="breadcrumb justify-content-center mb-0">
-        <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item"><a href="#">Pages</a></li>
-        <li class="breadcrumb-item active text-white">Shop</li>
+        <!-- Link to Home -->
+        <li class="breadcrumb-item"><a href="<?= base_url("/") ?>">Home</a></li>
+        
+        <!-- Link to Shop, with active styling based on category presence -->
+        <?php if (isset($categoryName)): ?>
+            <li class="breadcrumb-item"><a href="<?= base_url("/shop") ?>">Shop</a></li>
+            <li class="breadcrumb-item active text-white"><?= $categoryName; ?></li>
+        <?php else: ?>
+            <li class="breadcrumb-item active text-white">Shop</li>
+        <?php endif; ?>
     </ol>
 </div>
 <!-- Single Page Header End -->
 
-
 <!-- Fruits Shop Start-->
-<div class="container-fluid fruite py-5">
+<div class="container-fluid fruite py-4">
     <div class="container py-5">
         <div class="row g-4">
             <div class="col-lg-12">
-                <div class="row g-4">
-                    <div class="col-xl-3">
-                        <div class="input-group w-100 mx-auto d-flex">
-                            <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-                            <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                        </div>
-                    </div>
-                    <div class="col-6"></div>
-                    <div class="col-xl-3">
-                        <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
-                            <label for="fruits">Default Sorting:</label>
-                            <select id="fruits" name="fruitlist" class="border-0 form-select-sm bg-light me-3" form="fruitform">
-                                <option value="volvo">Nothing</option>
-                                <option value="saab">Popularity</option>
-                                <option value="opel">Price: High to Low</option>
-                                <option value="audi">Price: Low to High</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="row">
+                    <div class="col-9"></div>
+                    <div class="col-lg-3 mb-4">
+                        <form method="GET" action="/shop">
+                            <div class="input-group w-100 mx-auto d-flex">
+                                <input type="search" name="keyword" class="form-control p-3" placeholder="search products" aria-describedby="search-icon-1">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                            </div>
+                        </form>
+                    </div>                    
                 </div>
                 <div class="row g-4">
                     <div class="col-lg-3">
@@ -46,53 +43,17 @@
                                     <?php foreach ($categories as $category): ?>
                                         <li>
                                             <div class="d-flex justify-content-between fruite-name">
-                                                <a href="#"><i class="fas fa-apple-alt me-2"></i><?= $category['category_name']; ?></a>          
-                                                <?php $i = 0; ?>
-                                                <?php foreach ($products as $product): 
-                                                if ($product['category_id'] == $category['category_id']): 
-                                                    $i++;
-                                                endif;
-                                                endforeach; ?>
-                                                
-                                                <span>(<?php echo($i); ?>)</span>
+                                                <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                                    <i class="fas fa-apple-alt me-2"></i>
+                                                    <?= $category['category_name']; ?>
+                                                </a>                                                          
                                             </div>
                                         </li>
                                     <?php endforeach; ?>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-lg-12">
-                                <div class="mb-3">
-                                    <h4 class="mb-2">Price</h4>
-                                    <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500" value="0" oninput="amount.value=rangeInput.value">
-                                    <output id="amount" name="amount" min-velue="0" max-value="500" for="rangeInput">0</output>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="mb-3">
-                                    <h4>Additional</h4>
-                                    <div class="mb-2">
-                                        <input type="radio" class="me-2" id="Categories-1" name="Categories-1" value="Beverages">
-                                        <label for="Categories-1"> Organic</label>
-                                    </div>
-                                    <div class="mb-2">
-                                        <input type="radio" class="me-2" id="Categories-2" name="Categories-1" value="Beverages">
-                                        <label for="Categories-2"> Fresh</label>
-                                    </div>
-                                    <div class="mb-2">
-                                        <input type="radio" class="me-2" id="Categories-3" name="Categories-1" value="Beverages">
-                                        <label for="Categories-3"> Sales</label>
-                                    </div>
-                                    <div class="mb-2">
-                                        <input type="radio" class="me-2" id="Categories-4" name="Categories-1" value="Beverages">
-                                        <label for="Categories-4"> Discount</label>
-                                    </div>
-                                    <div class="mb-2">
-                                        <input type="radio" class="me-2" id="Categories-5" name="Categories-1" value="Beverages">
-                                        <label for="Categories-5"> Expired</label>
-                                    </div>
-                                </div>
-                            </div>
+
                             <div class="col-lg-12">
                                 <h4 class="mb-3">Featured products</h4>
                                 <div class="d-flex align-items-center justify-content-start">
@@ -176,7 +137,9 @@
                                     $productImage = reset($productImage);
                                     ?>   
                                     <div class="fruite-img">
-                                        <img src="<?= $productImage["image_url"] ?>" class="img-fluid w-100 rounded-top" alt="">
+                                        <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                            <img src="<?= $productImage["image_url"] ?>" class="img-fluid w-100 rounded-top" alt="">
+                                        </a>                                    
                                     </div>
                                     <?php
                                     $productCategory = array_filter($categories, fn($category) => $category["category_id"] === $product["category_id"]);
@@ -184,7 +147,7 @@
                                     ?>
                                     <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;"><?= $productCategory["category_name"] ?? "Uncategorized"; ?></div>
                                     <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                        <h4><?= $product["name"]; ?></h4>
+                                        <h4><a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>"><?= $product["name"]; ?></a></h4>
                                         <div class="rating">
                                             <i class="fas fa-star"></i>
                                             <i class="fas fa-star"></i>
@@ -204,6 +167,7 @@
                             <div class="col-12">
                                 <div class="pagination d-flex justify-content-center mt-5">
                                 <?= $pager->links('default', 'default_full') ?>
+
                                 </div>
                             </div>
                         </div>

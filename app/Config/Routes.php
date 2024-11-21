@@ -2,9 +2,11 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-
+//Shop Website
 $routes->get('/', 'Home::index');
 $routes->get('/shop', 'Home::shop');
+$routes->get('/shop-detail/(:num)', 'Home::detail/$1');
+
 $routes->get('/shop-detail', 'Home::detail');
 $routes->get('/cart', 'Home::cart');
 

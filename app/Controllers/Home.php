@@ -40,6 +40,9 @@ class Home extends BaseController
     {
         $message = session()->getFlashdata('message');
         $pageTitle = 'Organic Shop';
+        $keyword = $this->request->getGet('keyword'); // Get search keyword
+        $categoryFilter = $this->request->getGet('category'); // Get category filter
+        $categoryName =null;
 
         $imagesModel = new ImagesModel();
         $images = $imagesModel->getAllImages();
@@ -47,8 +50,15 @@ class Home extends BaseController
         $categoryModel = new ProductCategoriesModel;
         $categories = $categoryModel->getAllCategories();
 
+        // If a category filter is applied, get the category name
+        if ($categoryFilter) {
+            $categoryName = $categoryModel->getCategoryName($categoryFilter); 
+        } else {
+            $categoryName = null; // No category selected
+        }
+
         $productModel = new ProductModel();
-        $products = $productModel->paginate(9);
+        $products = $productModel->filterProducts($keyword, $categoryFilter);
 
         $attributesModel = new AttributesModel();
         $attributes = $attributesModel->getAllAttributes();
@@ -56,22 +66,28 @@ class Home extends BaseController
         $productAttributesModel = new ProductAttributesModel();
         $productAttributes = $productAttributesModel->getAllProductAttributes();
 
+        $pager = $productModel->pager;
+
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
           . view('shop/shop', [
            'message' => $message,
            'categories' => $categories,
            'products' => $products,
            'images' => $images,
-           'pager' => $productModel->pager
+           'pager' => $pager,
+           'categoryName' => $categoryName
            ])
           . view('shop-Include/footer');
-            
+          
     }
 
-    public function detail(): string
+      //Product Shop-Detail 
+    public function detail($id): string
     {
         $message = session()->getFlashdata('message');
         $pageTitle = 'Organic Shop-Detail';
+        $keyword = $this->request->getGet('keyword'); // Get search keyword
+        $categoryFilter = $this->request->getGet('category'); // Get category filter
 
         $imagesModel = new ImagesModel();
         $images = $imagesModel->getAllImages();
@@ -80,7 +96,13 @@ class Home extends BaseController
         $categories = $categoryModel->getAllCategories();
 
         $productModel = new ProductModel();
-        $products = $productModel->getProducts();
+        $product = $productModel->getProduct($id);
+
+    
+        // Check if product exists
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
 
         $attributesModel = new AttributesModel();
         $attributes = $attributesModel->getAllAttributes();
@@ -89,7 +111,7 @@ class Home extends BaseController
         $productAttributes = $productAttributesModel->getAllProductAttributes();
     
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
-          . view('shop/shop-detail', ['message' => $message, 'categories' => $categories, 'products' => $products, 'images' => $images])
+          . view('shop/shop-detail', ['message' => $message, 'categories' => $categories, 'product' => $product, 'images' => $images])
            .view('shop-Include/footer');
             
     }

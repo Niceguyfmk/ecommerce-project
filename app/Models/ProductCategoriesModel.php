@@ -20,4 +20,11 @@ class ProductCategoriesModel extends Model
 
         return $this->findAll();
     }
+
+    public function getCategoryName($categoryFilter){
+        $category = $this->where('category_id', $categoryFilter)->first();
+
+        // Return the category name if found, otherwise return null
+        return $category ? $category['category_name'] : null;
+    }
 }
