@@ -57,6 +57,69 @@ function initializeEditRoleModal() {
     // modal.show();  // To open the modal manually (if required)
 }
 
-// Wait for the DOM to fully load
+function setupCloning(options) {
+    const {
+        containerSelector,
+        addButtonSelector,
+        removeButtonSelector,
+        rowClass,
+        inputPattern,
+    } = options;
+
+    const container = document.querySelector(containerSelector);
+    const addButton = document.querySelector(addButtonSelector);
+    const removeButton = document.querySelector(removeButtonSelector);
+
+    let rowIndex = container.querySelectorAll(`.${rowClass}`).length;
+
+    // Add new row
+    addButton.addEventListener("click", () => {
+        rowIndex++;
+        const firstRow = container.querySelector(`.${rowClass}`);
+        const newRow = firstRow.cloneNode(true);
+
+        // Update the heading
+        const heading = newRow.querySelector(".attribute-heading");
+        if (heading) {
+            heading.textContent = `Attribute ${rowIndex}`;
+        }
+
+        // Clear inputs and update names
+        const inputs = newRow.querySelectorAll("input, select, textarea");
+        inputs.forEach((input) => {
+            const name = input.getAttribute("name");
+            if (name) {
+                input.setAttribute(
+                    "name",
+                    name.replace(inputPattern, `[${rowIndex}]`)
+                );
+            }
+            if (input.tagName.toLowerCase() !== "select") {
+                input.value = ""; // Clear value
+            }
+        });
+
+        // Append new row
+        container.appendChild(newRow);
+
+        // Enable remove button
+        if (removeButton) {
+            removeButton.disabled = container.children.length <= 1;
+        }
+    });
+
+    // Remove last row
+    if (removeButton) {
+        removeButton.addEventListener("click", () => {
+            if (container.children.length > 1) {
+                container.removeChild(container.lastElementChild);
+                rowIndex--;
+            }
+
+            // Disable remove button when only one row remains
+            removeButton.disabled = container.children.length <= 1;
+        });
+    }
+}
 
 

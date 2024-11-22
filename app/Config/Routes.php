@@ -50,5 +50,7 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->post('update/(:num)', 'ProductController::updateProduct/$1');
     $routes->get('delete/(:num)', 'ProductController::deleteProduct/$1');
     $routes->get('updateAttributes/(:num)', 'ProductController::updateAttributesView/$1');
+    $routes->get('updateMetaTable/(:num)', 'ProductController::updateMetaTableView/$1');
     $routes->post('attributes/(:num)', 'ProductController::saveAttributes/$1');
+    $routes->post('metaValues/(:num)', 'ProductController::saveMetaValues/$1');
 });

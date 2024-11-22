@@ -20,6 +20,17 @@
                 text-align: center; 
             }
         </style>
+            <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            setupCloning({
+                containerSelector: "#attributes-container",
+                addButtonSelector: "#add-attribute",
+                removeButtonSelector: "#remove-attribute",
+                rowClass: "attribute-row",
+                inputPattern: /\[\d+\]/, // Matches [0], [1], etc.
+            });
+        });
+    </script>
     </head>
     <body>
         <div class="wrapper">

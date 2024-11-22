@@ -8,6 +8,7 @@ use App\Models\ProductModel;
 use App\Models\ProductCategoriesModel;
 use App\Models\AttributesModel;
 use App\Models\ProductAttributesModel;
+use App\Models\ProductMetaModel;
 use App\Models\ImagesModel;
 class ProductController extends ResourceController
 {
@@ -61,6 +62,9 @@ class ProductController extends ResourceController
         $attributesModel = new AttributesModel();
         $attributes = $attributesModel->getAllAttributes();
 
+        $productAttributesModel = new ProductAttributesModel();
+        $enumValues  = $productAttributesModel->getEnum();
+
         $product = $this->model->getProduct($product_id);
 
         $pageTitle = 'Product Attributes';
@@ -70,7 +74,24 @@ class ProductController extends ResourceController
         . view('include/nav')
         . view('products/addProductAttributes', [
             'product' => $product,
-            'attributes' => $attributes
+            'attributes' => $attributes,
+            "enumValues" => $enumValues 
+        ])
+        . view('include/footer');
+    }
+    public function updateMetaTableView($product_id){
+        
+        $productMetaModel = new ProductMetaModel();
+
+        $product = $this->model->getProduct($product_id);
+
+        $pageTitle = 'Meta Table';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/addProductMeta', [
+            'product' => $product,
         ])
         . view('include/footer');
     }
@@ -183,6 +204,35 @@ class ProductController extends ResourceController
         }
     
         return redirect()->to('product/viewProducts');
+    }
+
+    public function saveMetaValues($product_id){
+        
+        $productMetaModel = new ProductMetaModel();
+        $productMeta = $this->request->getPost('attributes');
+        foreach ($productMeta as $meta) {
+        $existingMeta = $productMetaModel->where('product_id', $product_id)
+                                            ->where('meta_key', $meta['meta_key'])
+                                            ->first();
+            $data = [
+                'meta_key' => $meta['meta_key'],
+                'meta_value' => $meta['meta_value'],
+                ];
+
+                if ($existingMeta) {
+                // Update the existing record
+                $productMetaModel->update($existingMeta['meta_id'], $data);
+            } else {
+
+                $productMetaModel->addValues([
+                    'product_id' => $product_id,
+                    'meta_key' => $meta['meta_key'],
+                    'meta_value' => $meta['meta_value'],
+                ]);
+            }
+    
+        return redirect()->to('product/viewProducts');
+        }
     }
     
 

@@ -86,6 +86,8 @@
                                         data-product-description ="<?= esc($product['description']) ?>" class="btn btn-warning btn-sm">Edit</button>
                                         <a href="<?= site_url('/product/delete/' . $product['product_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                         <a href="<?= site_url('/product/updateAttributes/' . $product['product_id']) ?>" class="btn btn-primary btn-sm">Attributes</a>
+                                        <a href="<?= site_url('/product/updateMetaTable/' . $product['product_id']) ?>" class="btn btn-primary btn-sm">Meta Table</a>
+
                                 </td>
                             </tr>
                         <?php endforeach; ?>

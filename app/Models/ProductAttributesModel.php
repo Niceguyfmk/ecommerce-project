@@ -30,4 +30,21 @@ class ProductAttributesModel extends Model
     public function addAttributes($data){
         return $this->insert($data);
     }
+
+    public function getEnum(){
+        $query = $this->db->query("SHOW COLUMNS FROM product_attributes LIKE 'unit_type'");
+        $result = $query->getRow(); 
+
+        if ($result) {
+            // Use a regular expression to extract the ENUM values
+            preg_match("/^enum\((.*)\)$/", $result->Type, $matches);
+
+            if (!empty($matches[1])) {
+                // Convert the string of values into an array
+                $enumValues = str_getcsv($matches[1], ",", "'");
+            }
+        }
+        return($enumValues);
+
+    }
 }
