@@ -5,10 +5,17 @@
             <label for="name" class="form-label">Product Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
+
         <div class="mb-3">
             <label for="description" class="form-label">Product Description</label>
             <textarea class="form-control" id="description" name="description"></textarea>
         </div>
+
+        <div class="mb-3">
+            <label for="long_description" class="form-label">Long Description</label>
+            <textarea class="form-control" id="long_description" name="long_description"></textarea>
+        </div>
+
         <div class="mb-3">
             <label for="base_price" class="form-label">Base Price</label>
             <input type="number" step="0.01" class="form-control" id="base_price" name="base_price" required>
@@ -33,3 +40,4 @@
         <button type="submit" class="btn btn-primary">Save Product</button>
     </form>
 </div>
+

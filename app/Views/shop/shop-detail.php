@@ -365,13 +365,13 @@
                                         $productRelatedImage = array_filter($images, fn($image) => $image["product_id"] === $relatedProduct["product_id"]);
                                         $productRelatedImage = reset($productRelatedImage);
                                     ?>
-                                    <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                    <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
                                         <img src="<?= base_url(relativePath: $productRelatedImage["image_url"]) ?>" class="img-fluid w-100 rounded-top" alt="">
                                     </a>
                                 </div>
                                 <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;"><?= $category['category_name'] ?></div>
                                 <div class="p-4 pb-0 rounded-bottom">
-                                    <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                    <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
                                         <h4><?= $relatedProduct["name"] ?></h4>
                                     </a>
                                     <p><?= $relatedProduct["description"] ?></p>

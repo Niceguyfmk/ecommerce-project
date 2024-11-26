@@ -34,8 +34,8 @@ class AdminUserModel extends Model
 
     public function updateData($admin_id, $data)
     {
-        // Ensure that the admin_id is included in the data to correctly target the record
-        return $this->update($admin_id, $data); // Use update method
+
+        return $this->update($admin_id, $data); 
     }
 
     public function deleteAdminUserById($user_id){

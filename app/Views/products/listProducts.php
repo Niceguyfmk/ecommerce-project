@@ -83,7 +83,8 @@
                                         data-product-name ="<?= esc($product['name']) ?>"
                                         data-product-category = <?= esc($category_name) ?>
                                         data-product-price ="<?= esc($product['base_price']) ?>"
-                                        data-product-description ="<?= esc($product['description']) ?>" class="btn btn-warning btn-sm">Edit</button>
+                                        data-product-description ="<?= esc($product['description']) ?>"
+                                        data-product-long-description ="<?= htmlentities($product['long_description']) ?>" class="btn btn-warning btn-sm">Edit</button>
                                         <a href="<?= site_url('/product/delete/' . $product['product_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                         <a href="<?= site_url('/product/updateAttributes/' . $product['product_id']) ?>" class="btn btn-primary btn-sm">Attributes</a>
                                         <a href="<?= site_url('/product/updateMetaTable/' . $product['product_id']) ?>" class="btn btn-primary btn-sm">Meta Table</a>
@@ -122,6 +123,11 @@
 
                         <label for="description" class="form-label">Product Description</label>
                         <textarea class="form-control" id="productDescription" name="description" required></textarea>
+
+                        <div class="mb-3">
+                            <label for="long_description" class="form-label">Long Description</label>
+                            <textarea class="form-control" id="productLongDescription" name="long_description"></textarea>
+                        </div>
 
                         <label for="category" class="form-label">Category</label>
                         <select class="form-control" name="category_id" required>
@@ -162,6 +168,7 @@ function populateProductEditModal() {
             const productCategory = this.getAttribute('data-product-category');
             const productPrice = this.getAttribute('data-product-price');
             const productDescription = this.getAttribute('data-product-description');
+            const productLongDescription = this.getAttribute('data-product-long-description');
             const productImage = this.getAttribute('data-product-image'); // if you have this as a data attribute
 
             // Populate modal fields with the product data
@@ -169,12 +176,13 @@ function populateProductEditModal() {
             document.getElementById('productName').value = productName;
             document.getElementById('productBasePrice').value = productPrice;
             document.getElementById('productDescription').value = productDescription;
+            document.getElementById('productLongDescription').value = productLongDescription;
             document.getElementById('productCategory').value = productCategory;
         });
     });
 }
 
-// Call the function for populating the product modal (used in your page)
+
 populateProductEditModal();
 
 });

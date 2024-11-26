@@ -5,6 +5,7 @@ use App\Models\ProductModel;
 use App\Models\ProductCategoriesModel;
 use App\Models\AttributesModel;
 use App\Models\ProductAttributesModel;
+use App\Models\TempCartModel;
 use App\Models\ImagesModel;
 use Firebase\JWT\JWT;
 class Home extends BaseController
@@ -12,7 +13,20 @@ class Home extends BaseController
     //Shop related pages
     public function index(): string
     {
-        $message = session()->getFlashdata('message');
+        
+        // Retrieve the cookie value or create it if it doesn't exist
+        $uid = $this->request->getCookie('uid');
+
+        if (!$uid) {
+            // If no uid cookie, generate a unique uid
+            $uid = uniqid('cart_', true);
+            
+            // Set the cookie to expire in 1 week
+            $this->response->setCookie('uid', $uid, 60 * 60 * 24 * 7); 
+        } //expires in a week, 60sec * 60min=3600sec for 1 hour, so 604800sec in 1 week
+
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
         $pageTitle = 'Organic Home';
 
         $imagesModel = new ImagesModel();
@@ -29,11 +43,18 @@ class Home extends BaseController
 
         $productAttributesModel = new ProductAttributesModel();
         $productAttributes = $productAttributesModel->getAllProductAttributes();
+
+        $tempCartModel = new TempCartModel();
+        $cartItems = $tempCartModel->getTempCartItems($uid);
     
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
-          . view('shop/index', ['message' => $message, 'categories' => $categories, 'products' => $products, 'images' => $images])
-           .view('shop-Include/footer');
-            
+          . view('shop/index', ['message' => $message,
+           'errorMessage' => $errorMessage, 'categories' => $categories,
+           'products' => $products,
+           'images' => $images,
+           'cartItems' => $cartItems,
+           'uid' => $uid])
+           .view('shop-Include/footer');       
     }
 
     public function shop(): string
@@ -41,7 +62,7 @@ class Home extends BaseController
         $message = session()->getFlashdata('message');
         $pageTitle = 'Organic Shop';
         $keyword = $this->request->getGet('keyword'); // Get search keyword
-        $categoryFilter = $this->request->getGet('category'); // Get category filter
+        $categoryFilter = $this->request->getGet('category'); 
         $categoryName =null;
 
         $imagesModel = new ImagesModel();
@@ -145,15 +166,17 @@ class Home extends BaseController
 
     //Auth Related Pages
     public function login(){
-        
-        return view('login');
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
+        return view('login', ['message' => $message, 'errorMessage' => $errorMessage,]);
     }
     
     public function adminDashboard() {
-        $message = session()->getFlashdata('message');
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
         $pageTitle = 'Dashboard';
     
-        return view('include/header', ['pageTitle' => $pageTitle]) 
+        return view('include/header', ['pageTitle' => $pageTitle, 'message' => $message, 'errorMessage' => $errorMessage,]) 
             . view('include/sidebar') 
             . view('include/nav') 
             . view('index', ['message' => $message]) 

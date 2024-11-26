@@ -1,3 +1,14 @@
+<?php if (!empty($message)): ?>
+    <div class="alert alert-success">
+        <?= esc($message) ?>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($errorMessage)): ?>
+    <div class="alert alert-danger">
+        <?= esc($errorMessage) ?>
+    </div>
+<?php endif; ?>
 <!doctype html>
 <html lang="en" data-bs-theme="auto">
     <meta charset="utf-8">

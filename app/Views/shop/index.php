@@ -1,4 +1,14 @@
+<?php if (!empty($message)): ?>
+    <div class="alert alert-success">
+        <?= esc($message) ?>
+    </div>
+<?php endif; ?>
 
+<?php if (!empty($errorMessage)): ?>
+    <div class="alert alert-danger">
+        <?= esc($errorMessage) ?>
+    </div>
+<?php endif; ?>
         <!-- Hero Start -->
         <div class="container-fluid py-5 mb-5 hero-header">
             <div class="container py-5">
@@ -126,7 +136,16 @@
                             <div class="row g-4">
                                 <div class="col-lg-12">
                                     <div class="row g-4">
-                                        <?php foreach ($products as $product): ?>
+                                    <?php foreach ($products as $product): ?>
+                                        <?php    // Search for the product in the cart
+                                            
+                                            $cartItem = array_filter($cartItems, function ($item) use ($product) {
+                                                return $item['product_id'] == $product['product_id'];
+                                                });
+
+                                                // Reset to get the first match
+                                                $cartItem = reset($cartItem);
+                                        ?>
                                         <div class="col-md-6 col-lg-4 col-xl-3">
                                             <div class="rounded position-relative fruite-item">
                                                 <!-- Product Image -->
@@ -135,8 +154,9 @@
                                                 $productImage = reset($productImage);
                                                 ?>
                                                 <div class="fruite-img">
-                                                    <img src="<?= $productImage["image_url"] ?? 'img/default-image.jpg'; ?>" 
-                                                        class="img-fluid w-100 rounded-top" alt="">
+                                                    <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                        <img src="<?= $productImage["image_url"] ?? 'img/default-image.jpg'; ?>" class="img-fluid w-100 rounded-top" alt="">
+                                                    </a>
                                                 </div>
 
                                                 <!-- Product Category -->
@@ -151,18 +171,66 @@
 
                                                 <!-- Product Details -->
                                                 <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                    <h4><?= $product["name"]; ?></h4>
+                                                    <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                        <h4><?= $product["name"]; ?></h4>
+                                                    </a>
                                                     <p><?= $product["description"]; ?></p>
-                                                    <div class="d-flex justify-content-between flex-lg-wrap">
+                                                    <div class="product-price">
                                                         <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
-                                                        <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                            <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-                                                        </a>
                                                     </div>
+
+                                                    <div class="product-quantity">
+
+                                                        <!-- Add to Cart Button or Quantity Control -->
+                                                        <div id="cart-control-<?= $product['product_id']; ?>" class="d-flex align-items-center">
+                                                            <button
+                                                                id="add-to-cart-btn-<?= $product['product_id']; ?>"
+                                                                class="btn border border-secondary rounded-pill px-3 text-primary"
+                                                                onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
+                                                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                                                            </button>
+
+                                                            <!-- Plus-Minus Control (hidden by default) -->
+                                                            <div id="quantity-control-<?= $product['product_id']; ?>" class="d-none py-3">
+                                                                <form action="post">
+                                                                    
+                                                                </form>
+                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'decrement')">-</button>
+                                                                <input type="number" id="quantity-input-<?= $product['product_id']; ?>" value="1" class="form-control" readonly />
+                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
+                                                            </div>
+                                                            <!-- Inline CSS -->
+                                                            <style>
+                                                                #quantity-input-<?= $product['product_id']; ?> {
+                                                                    font-size: 1.1rem;
+                                                                    border-radius: 10px;
+                                                                    text-align: center;
+                                                                    margin: 5px;
+                                                                }
+                                                                #add-to-cart-btn-<?= $product['product_id']; ?> {
+                                                                    border-radius: 50px;
+                                                                    font-size: 1rem;
+                                                                    transition: background-color 0.3s ease;
+                                                                }
+                                                                
+                                                                #quantity-control-<?= $product['product_id']; ?> {
+                                                                    display: flex;
+                                                                    align-items: center;
+                                                                }
+                                                                #quantity-control-<?= $product['product_id']; ?> button {
+                                                                    width: 2.5rem;
+                                                                    height: 2.5rem;
+     
+                                                                }
+                                                            </style>
+                                                        </div>
+                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>
-                                        <?php endforeach; ?>
+                                    <?php endforeach; ?>
+
                                     </div>
                                 </div>
                             </div>
@@ -285,13 +353,17 @@
                                         $productImage = reset($productImage);
                                         ?>
                                         <div class="vesitable-img">
-                                            <img src="<?= $productImage['image_url'] ?? 'img/default-image.jpg'; ?>" class="img-fluid w-100 rounded-top" alt="">
+                                            <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                <img src="<?= $productImage['image_url'] ?? 'img/default-image.jpg'; ?>" class="img-fluid w-100 rounded-top" alt="">
+                                            </a>
                                         </div>
                                         <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
                                             <?= $category["category_name"]; ?> 
                                         </div>
                                         <div class="p-4 rounded-bottom">
-                                            <h4><?= $product["name"]; ?></h4> 
+                                            <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                <h4><?= $product["name"]; ?></h4> 
+                                            </a>
                                             <p><?= $product["description"]; ?></p> 
                                             <div class="d-flex justify-content-between flex-lg-wrap">
                                                 <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
@@ -587,93 +659,5 @@
         </div>
         <!-- Fact Start -->
 
-
-        <!-- Tastimonial Start -->
-        <div class="container-fluid testimonial py-5">
-            <div class="container py-5">
-                <div class="testimonial-header text-center">
-                    <h4 class="text-primary">Our Testimonial</h4>
-                    <h1 class="display-5 mb-5 text-dark">Our Client Saying!</h1>
-                </div>
-                <div class="owl-carousel testimonial-carousel">
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-item img-border-radius bg-light rounded p-4">
-                        <div class="position-relative">
-                            <i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
-                            <div class="mb-4 pb-4 border-bottom border-secondary">
-                                <p class="mb-0">Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
-                                </p>
-                            </div>
-                            <div class="d-flex align-items-center flex-nowrap">
-                                <div class="bg-secondary rounded">
-                                    <img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
-                                </div>
-                                <div class="ms-4 d-block">
-                                    <h4 class="text-dark">Client Name</h4>
-                                    <p class="m-0 pb-3">Profession</p>
-                                    <div class="d-flex pe-5">
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                        <i class="fas fa-star text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Tastimonial End -->
 
 

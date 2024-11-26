@@ -19,6 +19,11 @@ class CreateTempCartItemsTableMigration extends Migration
                 "constraint" => "255",
                 "null" => false,
             ],
+            "product_id" => [
+                "type" => "INT",
+                "null" => false,
+                "unsigned" => true
+            ],
             "product_attribute_id" => [
                 "type" => "INT",
                 "null" => false,

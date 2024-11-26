@@ -19,6 +19,20 @@ class ProductMetaModel extends Model
     ];
 
     public function addValues($data){
-        $this->insert( $data);
+        return $this->insert( $data);
+    }
+
+    public function allValues(){
+        return $this->findAll();
+    }
+
+    public function getValuebyID($id){
+        return $this->find($id);
+    }
+
+    public function deletebyID($id){
+        return $this->delete($id);
     }
 }
+
+    

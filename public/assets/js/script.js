@@ -57,6 +57,7 @@ function initializeEditRoleModal() {
     // modal.show();  // To open the modal manually (if required)
 }
 
+//cloning fields fo metavalues fields and attribute fields
 function setupCloning(options) {
     const {
         containerSelector,
@@ -121,5 +122,48 @@ function setupCloning(options) {
         });
     }
 }
+
+//delete metavalues or attributes dynamically
+function initializeDeleteButtons() {
+    // Select all delete buttons
+    const deleteButtons = document.querySelectorAll('.delete-meta');
+
+    // Add event listeners to each delete button
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const metaId = this.dataset.metaId; // Retrieve the meta_id from the button's dataset
+
+            if (confirm('Are you sure you want to delete this meta value?')) {
+                // Send an AJAX request to delete the row
+                fetch(`/product/deleteMeta/${metaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Remove the row from the DOM
+                            const rowToDelete = document.getElementById(`meta-row-${metaId}`);
+                            if (rowToDelete) {
+                                rowToDelete.remove();
+                            }
+                        } else {
+                            alert('Failed to delete the meta value. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+            }
+        });
+    });
+}
+
+
+
+
 
 

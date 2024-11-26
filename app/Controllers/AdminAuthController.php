@@ -50,9 +50,9 @@ class AdminAuthController extends ResourceController
             //store the token and data in session
             session()->set('jwtToken', $token);
             session()->set('userData', $userData);
-            session()->setFlashdata('message', 'Log in Success!');
-
-            return redirect()->to('auth/admin');
+            session()->set('message', 'Log in Success!');
+            
+            return redirect()->to('auth/admin')->with('userName', $userData['username']);
             /* return $this->respond([
                 "status" => true,
                 "message" => "logged in",
@@ -155,7 +155,7 @@ class AdminAuthController extends ResourceController
             session()->remove('jwtToken'); 
             session()->destroy();
 
-            return redirect()->to('/loginPage');
+            return redirect()->to('/loginPage')->with('success','logout successful');
         }else{
             
             return $this->respond([

@@ -18,7 +18,8 @@ class ProductModel extends Model
         "name",
         "base_price",
         "description",
-        "category_id"
+        "category_id",
+        'long_description',
     ];
 
     protected $perPage = 9;

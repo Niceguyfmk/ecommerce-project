@@ -65,6 +65,7 @@ class ProductController extends ResourceController
         $productAttributesModel = new ProductAttributesModel();
         $enumValues  = $productAttributesModel->getEnum();
 
+        $productAttributes = $productAttributesModel->where('product_id', $product_id)->getAllProductAttributes();
         $product = $this->model->getProduct($product_id);
 
         $pageTitle = 'Product Attributes';
@@ -75,14 +76,16 @@ class ProductController extends ResourceController
         . view('products/addProductAttributes', [
             'product' => $product,
             'attributes' => $attributes,
-            "enumValues" => $enumValues 
+            'enumValues' => $enumValues,
+            'productAttributes' => $productAttributes
         ])
         . view('include/footer');
     }
     public function updateMetaTableView($product_id){
         
         $productMetaModel = new ProductMetaModel();
-
+        $productMeta = $productMetaModel->where('product_id', $product_id)->allValues();
+        
         $product = $this->model->getProduct($product_id);
 
         $pageTitle = 'Meta Table';
@@ -92,6 +95,7 @@ class ProductController extends ResourceController
         . view('include/nav')
         . view('products/addProductMeta', [
             'product' => $product,
+            'productMeta' => $productMeta
         ])
         . view('include/footer');
     }
@@ -169,72 +173,109 @@ class ProductController extends ResourceController
     public function saveAttributes($product_id)
     {
         $productAttributesModel = new ProductAttributesModel();
+        $attributesModel = new AttributesModel(); // Load your Attributes model
         $attributes = $this->request->getPost('attributes');
     
         foreach ($attributes as $attribute) {
+            // Validate attribute_id exists
+            $isValidAttribute = $attributesModel->where('attribute_id', $attribute['attribute_id'])->first();
+    
+            if (!$isValidAttribute) {
+                // Skip this attribute or handle the error
+                return redirect()->back()->with('error', 'Invalid attribute selected.');
+            }
+    
             // Check if a record with this product_id and attribute_id already exists
             $existingAttribute = $productAttributesModel->where('product_id', $product_id)
-                                                       ->where('attribute_id', $attribute['attribute_id'])
-                                                       ->first();
+                                                        ->where('attribute_id', $attribute['attribute_id'])
+                                                        ->first();
+    
             $data = [
+                'product_id' => $product_id,
+                'attribute_id' => $attribute['attribute_id'],
                 'unit_type' => $attribute['unit_type'],
                 'unit_quantity' => $attribute['unit_quantity'],
                 'price' => $attribute['price'],
-                'discount_price' => $attribute['discount_price'],
+                'discount_price' => $attribute['discount_price'] ?? null,
                 'stock' => $attribute['stock'],
-                'is_default' => $attribute['is_default']
-                ];
-
-                if ($existingAttribute) {
+                'is_default' => $attribute['is_default'],
+            ];
+    
+            if ($existingAttribute) {
                 // Update the existing record
-                $productAttributesModel->update($existingAttribute['product_attribute_id'], $data);
+                $data['product_attribute_id'] = $existingAttribute['product_attribute_id']; 
+                $productAttributesModel->save($data);
             } else {
-                // If no existing record, insert a new one
-                $productAttributesModel->addAttributes([
-                    'product_id' => $product_id,
-                    'attribute_id' => $attribute['attribute_id'],
-                    'unit_type' => $attribute['unit_type'],
-                    'unit_quantity' => $attribute['unit_quantity'],
-                    'price' => $attribute['price'],
-                    'discount_price' => $attribute['discount_price'] ?? null,
-                    'stock' => $attribute['stock'],
-                    'is_default' => $attribute['is_default'],
-                ]);
+                // Insert a new record
+                $productAttributesModel->insert($data);
             }
         }
     
-        return redirect()->to('product/viewProducts');
+        return redirect()->to('product/viewProducts')->with('success', 'Attributes saved successfully.');
     }
+    
 
-    public function saveMetaValues($product_id){
+    public function deleteAttribute($attribute_id) {
+        $productAttributeModel = new ProductAttributesModel();
         
+        if ($productAttributeModel->deletebyID($attribute_id)) {
+            return $this->response->setStatusCode(200)->setBody('Attribute deleted successfully.');
+        } else {
+            return $this->response->setStatusCode(500)->setBody('Failed to delete attribute.');
+        }
+    }
+    
+    public function saveMetaValues($product_id)
+    {
         $productMetaModel = new ProductMetaModel();
         $productMeta = $this->request->getPost('attributes');
+        
+        // Loop through each meta data in the post values array
         foreach ($productMeta as $meta) {
-        $existingMeta = $productMetaModel->where('product_id', $product_id)
-                                            ->where('meta_key', $meta['meta_key'])
-                                            ->first();
+            // Check if the meta_key already exists for the given product_id
+            $existingMeta = $productMetaModel->where('product_id', $product_id)
+                                             ->where('meta_key', $meta['meta_key'])
+                                             ->first();
+            
             $data = [
+                'product_id' => $product_id, // Ensure product_id is included in both cases
                 'meta_key' => $meta['meta_key'],
-                'meta_value' => $meta['meta_value'],
-                ];
-
-                if ($existingMeta) {
-                // Update the existing record
-                $productMetaModel->update($existingMeta['meta_id'], $data);
+                'meta_value' => $meta['meta_value']
+            ];
+            
+            // If existingMeta is found, update the record
+            if ($existingMeta) {
+                
+                $data['meta_id'] = $existingMeta['meta_id']; // Ensure the meta_id is included for updating
+                $productMetaModel->save($data);  
             } else {
-
-                $productMetaModel->addValues([
-                    'product_id' => $product_id,
-                    'meta_key' => $meta['meta_key'],
-                    'meta_value' => $meta['meta_value'],
-                ]);
+                // Add a new record if no existing meta is found
+                $productMetaModel->addValues($data); 
             }
-    
-        return redirect()->to('product/viewProducts');
         }
+    
+        // After processing all the data, redirect to the viewProducts page
+        return redirect()->to('product/viewProducts');
     }
     
+    public function deleteMeta($meta_id)
+    {
+        $productMetaModel = new ProductMetaModel();
+    
+        // Find the meta record
+        $meta = $productMetaModel->getValuebyID($meta_id);
+    
+        if (!$meta) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'Meta not found']);
+        }
+    
+        // Delete the meta record
+        if ($productMetaModel->deletebyID($meta_id)) {
+            return $this->response->setStatusCode(200)->setJSON(['message' => 'Meta deleted successfully']);
+        } else {
+            return $this->response->setStatusCode(500)->setJSON(['message' => 'Failed to delete meta']);
+        }
+    }
 
     public function getSingleProduct($product_id){
         $product = $this->model->getProduct($product_id);
@@ -261,15 +302,15 @@ class ProductController extends ResourceController
 
     if ($product) {
         $updated_data = [];
-
+        $updated_data["product_id"] = $this->request->getPost("product_id") ? $this->request->getPost("product_id") : $product["product_id"]; 
         $updated_data["name"] = $this->request->getPost("name") ? $this->request->getPost("name") : $product["name"];        
         $updated_data["base_price"] = $this->request->getPost("base_price") ? $this->request->getPost("base_price") : $product["base_price"];
         $updated_data["category_id"] = $this->request->getPost("category_id") ? $this->request->getPost("category_id") : $product["category_id"];     
         $updated_data["description"] = $this->request->getPost("description") ? $this->request->getPost("description") : $product["description"];
+        $updated_data["long_description"] = $this->request->getPost("long_description") ? $this->request->getPost("long_description") : $product["long_description"];
         
         if(!empty($updated_data)){
-
-            $this->model->update($product_id, $updated_data);
+            $this->model->update($updated_data["product_id"], $updated_data);
 
             $imageFile = $this->request->getfile("image");
             $productImageURL = "";

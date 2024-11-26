@@ -16,7 +16,7 @@
             <div class="row g-0 w-100">
                 <div class="col-6">
                 <div class="p-3 m-1">
-                    <h4>Welcome Back</h4>
+                    <h4>Welcome Back <?= session()->get('userName') ?></h4>
                 </div>
                 </div>
                 <div class="col-6 align-self-end text-end">

@@ -47,4 +47,8 @@ class ProductAttributesModel extends Model
         return($enumValues);
 
     }
+
+    public function deletebyID($id){
+        return $this->delete($id);
+    }
 }
