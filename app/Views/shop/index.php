@@ -145,6 +145,9 @@
 
                                                 // Reset to get the first match
                                                 $cartItem = reset($cartItem);
+
+                                                // Determine quantity (default to 0 if not found)
+                                                $quantity = $cartItem ? $cartItem['quantity'] : 0;
                                         ?>
                                         <div class="col-md-6 col-lg-4 col-xl-3">
                                             <div class="rounded position-relative fruite-item">
@@ -183,20 +186,18 @@
 
                                                         <!-- Add to Cart Button or Quantity Control -->
                                                         <div id="cart-control-<?= $product['product_id']; ?>" class="d-flex align-items-center">
+                                                            <!-- Show/Hide Add to Cart Button based on Cart Quantity -->
                                                             <button
                                                                 id="add-to-cart-btn-<?= $product['product_id']; ?>"
-                                                                class="btn border border-secondary rounded-pill px-3 text-primary"
+                                                                class="btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
                                                                 onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
                                                                 <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
                                                             </button>
 
-                                                            <!-- Plus-Minus Control (hidden by default) -->
-                                                            <div id="quantity-control-<?= $product['product_id']; ?>" class="d-none py-3">
-                                                                <form action="post">
-                                                                    
-                                                                </form>
+                                                            <!-- Show/Hide Quantity Control based on Cart Quantity -->
+                                                            <div id="quantity-control-<?= $product['product_id']; ?>" class="d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
                                                                 <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'decrement')">-</button>
-                                                                <input type="number" id="quantity-input-<?= $product['product_id']; ?>" value="1" class="form-control" readonly />
+                                                                <input type="number" id="quantity-input-<?= $product['product_id']; ?>" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control" readonly />
                                                                 <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
                                                             </div>
                                                             <!-- Inline CSS -->

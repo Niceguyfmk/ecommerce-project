@@ -216,7 +216,7 @@ function updateQuantity(productId, action) {
         quantityInput.value = currentQuantity + 1;
         updateCartCount(1); // Increment the cart count
     } else if (action === 'decrement' && currentQuantity > 1) {
-            e = currentQuantity - 1;
+        quantityInput.value = currentQuantity - 1;
         updateCartCount(-1); // Decrement the cart count
     } else if (action === 'decrement' && currentQuantity === 1) {
         // Hide the quantity control, card count, and show the "Add to cart" button
