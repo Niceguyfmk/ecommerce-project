@@ -128,25 +128,6 @@
             $("#video").attr('src', $videoSrc);
         })
     });
-
-
-
-    // Product Quantity
-    $('.quantity button').on('click', function () {
-        var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
-        if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
-            }
-        }
-        button.parent().parent().find('input').val(newVal);
-    });
-
 })(jQuery);
 
 
@@ -206,36 +187,79 @@ function updateCartCount(change) {
 }
 
 function updateQuantity(productId, action) {
-    
-    // Get the current quantity input
+    // Get the current quantity input using the productId
     var quantityInput = document.getElementById('quantity-input-' + productId);
-    var currentQuantity = parseInt(quantityInput.value); // Ensure this is a number
+    if (!quantityInput) return;  // Check if the input element exists
 
+    var currentQuantity = parseInt(quantityInput.value) || 0;
+    var priceElement = document.querySelector(`#cart-item-${productId} td:nth-child(3)`); // Price cell
+    var price = parseFloat(priceElement.innerText.replace('$', '').trim());
+    
     // Perform actions based on the current state
     if (action === 'increment') {
-        quantityInput.value = currentQuantity + 1;
-        updateCartCount(1); // Increment the cart count
+        currentQuantity++;  
+        quantityInput.value = currentQuantity;
     } else if (action === 'decrement' && currentQuantity > 1) {
-        quantityInput.value = currentQuantity - 1;
-        updateCartCount(-1); // Decrement the cart count
+        currentQuantity--;  
+        quantityInput.value = currentQuantity;
     } else if (action === 'decrement' && currentQuantity === 1) {
-        // Hide the quantity control, card count, and show the "Add to cart" button
-        document.getElementById('add-to-cart-btn-' + productId).classList.remove('d-none');
-        document.getElementById('quantity-control-' + productId).classList.add('d-none');
-
-        updateCartCount(-1); // Decrease cart count when the product is removed
-
-        // Remove the item from the cart on the server
+        // Remove item from cart if quantity is 1
         removeItemFromCart(productId);
         return;
     }
 
-    // Ensure the updated value is reflected in the input field
-    quantityInput.value = Math.max(1, parseInt(quantityInput.value) || 1);
+    // Update the row total
+    var rowTotalElement = document.querySelector(`#cart-item-${productId} .total`);
+    if (rowTotalElement) {
+        rowTotalElement.innerText = (price * currentQuantity).toFixed(2) + ' $';
+    }
 
-    // Send updated quantity to the server
-    updateCartItem(productId, quantityInput.value);
+    // Recalculate the subtotal
+    recalculateSubtotal();
+
+    // Optionally, update the server with new quantity
+    updateCartItem(productId, currentQuantity);
 }
+
+function recalculateSubtotal() {
+    var totalSum = 0;
+
+    // Loop through all total elements
+    document.querySelectorAll('.total').forEach(function (totalElement) {
+        var value = parseFloat(totalElement.innerText.replace('$', '').trim());
+        totalSum += value;
+    });
+
+    // Determine the shipping cost
+    var shippingFee = totalSum < 20 ? 5 : 0;
+
+    // Calculate the grand total (totalSum + shippingFee)
+    var grandTotal = totalSum + shippingFee;
+
+    // Update the subtotal (totalSum) on the page
+    var subtotalElement = document.querySelector('.subtotal');
+    if (subtotalElement) {
+        subtotalElement.innerText = '$' + totalSum.toFixed(2);
+    }
+
+    // Update the shipping fee on the page
+    var shippingElement = document.querySelector('.shipping-rate');
+    if (shippingElement) {
+        shippingElement.innerText = '$' + shippingFee.toFixed(2);
+    }
+
+    // Update the grand total on the page
+    var grandTotalElement = document.querySelector('.grand-total');
+    if (grandTotalElement) {
+        grandTotalElement.innerText = '$' + grandTotal.toFixed(2);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Calculate initial total and grand total on page load
+    recalculateSubtotal();
+});
 
 
 function updateCartItem(productId, quantity) {
@@ -270,7 +294,14 @@ function removeItemFromCart(productId) {
     xhr.onload = function () {
         if (xhr.status === 200) {
             console.log('Item removed from cart:', xhr.responseText);
+
+            // On cart page: Find the row with the specific productId and remove it from the DOM
+            var row = document.getElementById('cart-item-' + productId);
+            if (row) {
+                row.remove(); 
+            }
             updateCartCount(-1); // Decrease cart count when the product is removed
+
         } else {
             console.error('Error removing item from cart:', xhr.statusText);
         }
@@ -278,6 +309,9 @@ function removeItemFromCart(productId) {
 
     xhr.send();
 }
+
+
+
 
 
 
