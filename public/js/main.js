@@ -141,8 +141,8 @@ function addToCart(productId, quantity, price) {
     }
 
     // Hide the "Add to Cart" button and show the quantity control and show card count
-    document.getElementById('add-to-cart-btn-' + productId).classList.add('d-none');
-    document.getElementById('quantity-control-' + productId).classList.remove('d-none');
+    document.querySelector('.add-to-cart-btn-' + productId).classList.add('d-none');
+    document.querySelector('.quantity-control-' + productId).classList.remove('d-none');
     document.querySelector('.cardCount').classList.remove('d-none');
     
     // Create a new XMLHttpRequest object
@@ -188,7 +188,7 @@ function updateCartCount(change) {
 }
 
 function updateQuantity(productId, action) {
-    const quantityInput = document.getElementById('quantity-input-' + productId);
+    const quantityInput = document.querySelector('.quantity-input-' + productId);
     let currentQuantity = parseInt(quantityInput.value) || 1;
 
     if (action === 'increment') {
@@ -198,8 +198,8 @@ function updateQuantity(productId, action) {
         currentQuantity--;
         updateCartCount(-1);
     } else if (action === 'decrement' && currentQuantity === 1) {
-        const addToCartBtn = document.getElementById('add-to-cart-btn-' + productId);
-        const quantityControl = document.getElementById('quantity-control-' + productId);
+        const addToCartBtn = document.querySelector('.add-to-cart-btn-' + productId);
+        const quantityControl = document.querySelector('.quantity-control-' + productId);
 
         if (addToCartBtn && quantityControl) {
             addToCartBtn.classList.remove('d-none');

@@ -40,10 +40,18 @@
                                     <h4>Categories</h4>
                                     
                                     <ul class="list-unstyled fruite-categorie">
+                                        <li>
+                                            <div class="d-flex justify-content-between fruite-name">
+                                                <a href="/shop">
+                                                    <i class="fas fa-apple-alt me-2"></i>
+                                                    All Categories
+                                                </a>                                                          
+                                            </div>
+                                        </li>
                                     <?php foreach ($categories as $category): ?>
                                         <li>
                                             <div class="d-flex justify-content-between fruite-name">
-                                                <a href="/shop?category=<?= $category['category_id']; ?>"">
+                                                <a href="/shop?category=<?= $category['category_id']; ?>">
                                                     <i class="fas fa-apple-alt me-2"></i>
                                                     <?= $category['category_name']; ?>
                                                 </a>                                                          
@@ -130,48 +138,80 @@
                     <div class="col-lg-9">
                         <div class="row g-4 justify-content-center">
                             <?php foreach ($products as $product): ?>
-                            <div class="col-md-6 col-lg-6 col-xl-4">
-                                <div class="rounded position-relative fruite-item">
-                                    <?php 
-                                    $productImage = array_filter($images, fn($image) => $image["product_id"] === $product["product_id"]);
-                                    $productImage = reset($productImage);
-                                    ?>   
-                                    <div class="fruite-img">
-                                        <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
-                                            <img src="<?= $productImage["image_url"] ?>" class="img-fluid w-100 rounded-top" alt="">
-                                        </a>                                    
-                                    </div>
-                                    <?php
-                                    $productCategory = array_filter($categories, fn($category) => $category["category_id"] === $product["category_id"]);
-                                    $productCategory = reset($productCategory);
-                                    ?>
-                                    <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;"><?= $productCategory["category_name"] ?? "Uncategorized"; ?></div>
-                                    <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                        <h4><a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>"><?= $product["name"]; ?></a></h4>
-                                        <div class="rating">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="far fa-star"></i>
+                                <?php
+                                    // Search for the product in the cart
+                                    $cartItem = array_filter($cartItems, function ($item) use ($product) {
+                                        return $item['product_id'] == $product['product_id'];
+                                    });
+
+                                    // Reset to get the first match
+                                    $cartItem = reset($cartItem);
+
+                                    // Determine quantity (default to 0 if not found)
+                                    $quantity = $cartItem ? $cartItem['quantity'] : 0;
+                                ?>
+                                <div class="col-md-6 col-lg-6 col-xl-4">
+                                    <div class="rounded position-relative fruite-item">
+                                        <?php 
+                                        $productImage = array_filter($images, fn($image) => $image["product_id"] === $product["product_id"]);
+                                        $productImage = reset($productImage);
+                                        ?>   
+                                        <div class="fruite-img">
+                                            <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                <img src="<?= $productImage["image_url"] ?>" class="img-fluid w-100 rounded-top" alt="">
+                                            </a>                                  
                                         </div>
-                                        <p><?= $product["description"]; ?></p>
-                                        <div class="d-flex justify-content-between flex-lg-wrap">
-                                            <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
-                                            <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+
+                                        <?php
+                                        $productCategory = array_filter($categories, fn($category) => $category["category_id"] === $product["category_id"]);
+                                        $productCategory = reset($productCategory);
+                                        ?>
+                                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;"><?= $productCategory["category_name"] ?? "Uncategorized"; ?></div>
+                                        
+                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
+                                            <h4><a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>"><?= $product["name"]; ?></a></h4>
+                                            <div class="rating">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <p><?= $product["description"]; ?></p>
+                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                                <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
+
+                                                <!-- Show Add to Cart Button or Quantity Control -->
+                                                <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">
+                                                    <!-- Add to Cart Button -->
+                                                    <button
+                                                        class="add-to-cart-btn-<?= $product['product_id']; ?> btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
+                                                        onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
+                                                        <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                                                    </button>
+
+                                                    <!-- Quantity Control -->
+                                                    <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'decrement')">-</button>
+                                                        <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="quantity-input-<?= $product['product_id']; ?> form-control" readonly />
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             <?php endforeach; ?>
+
+                            <!-- Pagination -->
                             <div class="col-12">
                                 <div class="pagination d-flex justify-content-center mt-5">
-                                <?= $pager->links('default', 'default_full') ?>
-
+                                    <?= $pager->links('default', 'default_full') ?>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
         </div>

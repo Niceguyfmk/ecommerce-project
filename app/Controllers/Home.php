@@ -13,7 +13,6 @@ class Home extends BaseController
     //Shop related pages
     public function index(): string
     {
-        
         // Retrieve the cookie value or create it if it doesn't exist
         $uid = $this->request->getCookie('uid');
 
@@ -59,9 +58,16 @@ class Home extends BaseController
 
     public function shop(): string
     {
+
+        // Retrieve the cookie value or create it if it doesn't exist
+        $uid = $this->request->getCookie('uid');
         $message = session()->getFlashdata('message');
         $pageTitle = 'Organic Shop';
         $keyword = $this->request->getGet('keyword'); // Get search keyword
+
+        $tempCartModel = new TempCartModel();
+        $cartItems = $tempCartModel->getTempCartItems($uid);
+
         $categoryFilter = $this->request->getGet('category'); 
         $categoryName =null;
 
@@ -96,7 +102,9 @@ class Home extends BaseController
            'products' => $products,
            'images' => $images,
            'pager' => $pager,
-           'categoryName' => $categoryName
+           'categoryName' => $categoryName,
+           'cartItems' => $cartItems,
+           'uid' => $uid
            ])
           . view('shop-Include/footer');
           

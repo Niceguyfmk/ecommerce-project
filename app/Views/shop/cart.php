@@ -49,7 +49,7 @@
                                             <i class="fa fa-minus"></i>
                                         </button>
                                     </div>
-                                    <input type="text" id="quantity-input-<?= $item['product_id']; ?>" class="form-control form-control-sm text-center border-0" value="<?= $item['quantity']; ?>" readonly>
+                                    <input type="text" class="quantity-input-<?= $item['product_id']; ?> form-control form-control-sm text-center border-0" value="<?= $item['quantity']; ?>" readonly>
                                     <div class="input-group-btn">
                                         <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, 'increment')">
                                             <i class="fa fa-plus"></i>
@@ -96,7 +96,7 @@
                                 <h5 class="mb-0 ps-4 me-4">Total</h5>
                                 <p class="mb-0 pe-4 grand-total">$99.00</p>
                             </div>
-                            <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</button>
+	                            <a class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button" href="<?= base_url('checkout') ?>">Proceed Checkout</a>
                         </div>
                     </div>
                 </div>
