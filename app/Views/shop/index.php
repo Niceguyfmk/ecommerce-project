@@ -202,23 +202,25 @@
                                                             </div>
                                                             <!-- Inline CSS -->
                                                             <style>
-                                                                #quantity-input-<?= $product['product_id']; ?> {
+                                                                .quantity-input-<?= $product['product_id']; ?> {
                                                                     font-size: 1.1rem;
                                                                     border-radius: 10px;
                                                                     text-align: center;
                                                                     margin: 5px;
+                                                                    display: inline-flex;
+                                                                    width: 50px;
                                                                 }
-                                                                #add-to-cart-btn-<?= $product['product_id']; ?> {
+                                                                .add-to-cart-btn-<?= $product['product_id']; ?> {
                                                                     border-radius: 50px;
                                                                     font-size: 1rem;
                                                                     transition: background-color 0.3s ease;
                                                                 }
                                                                 
-                                                                #quantity-control-<?= $product['product_id']; ?> {
+                                                                .quantity-control-<?= $product['product_id']; ?> {
                                                                     display: flex;
                                                                     align-items: center;
                                                                 }
-                                                                #quantity-control-<?= $product['product_id']; ?> button {
+                                                                .quantity-control-<?= $product['product_id']; ?> button {
                                                                     width: 2.5rem;
                                                                     height: 2.5rem;
      

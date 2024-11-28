@@ -109,7 +109,6 @@ class Home extends BaseController
           . view('shop-Include/footer');
           
     }
-
       //Product Shop-Detail 
     public function detail($id): string
     {
@@ -170,6 +169,60 @@ class Home extends BaseController
           . view('shop/cart', ['message' => $message, 'categories' => $categories, 'products' => $products, 'images' => $images])
            .view('shop-Include/footer');
             
+    }
+
+    public function checkout(): string
+    {
+
+        // Retrieve the cookie value or create it if it doesn't exist
+        $uid = $this->request->getCookie('uid');
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Checkout';
+        $keyword = $this->request->getGet('keyword'); // Get search keyword
+
+        $tempCartModel = new TempCartModel();
+        $cartItems = $tempCartModel->getTempCartItems($uid);
+
+        $categoryFilter = $this->request->getGet('category'); 
+        $categoryName =null;
+
+        $imagesModel = new ImagesModel();
+        $images = $imagesModel->getAllImages();
+
+        $categoryModel = new ProductCategoriesModel;
+        $categories = $categoryModel->getAllCategories();
+
+        // If a category filter is applied, get the category name
+        if ($categoryFilter) {
+            $categoryName = $categoryModel->getCategoryName($categoryFilter); 
+        } else {
+            $categoryName = null; // No category selected
+        }
+
+        $productModel = new ProductModel();
+        $products = $productModel->filterProducts($keyword, $categoryFilter);
+
+        $attributesModel = new AttributesModel();
+        $attributes = $attributesModel->getAllAttributes();
+
+        $productAttributesModel = new ProductAttributesModel();
+        $productAttributes = $productAttributesModel->getAllProductAttributes();
+
+        $pager = $productModel->pager;
+
+        return  view('shop-Include/header', ['pageTitle' => $pageTitle])
+          . view('shop/checkout', [
+           'message' => $message,
+           'categories' => $categories,
+           'products' => $products,
+           'images' => $images,
+           'pager' => $pager,
+           'categoryName' => $categoryName,
+           'cartItems' => $cartItems,
+           'uid' => $uid
+           ])
+          . view('shop-Include/footer');
+          
     }
 
     //Auth Related Pages

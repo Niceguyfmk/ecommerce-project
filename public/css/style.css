@@ -554,17 +554,12 @@
     display: inline-flex;
 }
 
-#quantity-control {
+.quantity-control {
     align-items: center;
     justify-content: center;
     padding: 10px;
     border: 1px solid #ced4da;
     border-radius: 5px; 
-}
-
-.form-control {
-    display: inline-flex;
-    width: 50px;
 }
 /* Button styling */
 

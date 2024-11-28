@@ -44,7 +44,7 @@
                                             <div class="d-flex justify-content-between fruite-name">
                                                 <a href="/shop">
                                                     <i class="fas fa-apple-alt me-2"></i>
-                                                    All Categories
+                                                    All Products
                                                 </a>                                                          
                                             </div>
                                         </li>
@@ -196,6 +196,32 @@
                                                         <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="quantity-input-<?= $product['product_id']; ?> form-control" readonly />
                                                         <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
                                                     </div>
+                                                                                                                <!-- Inline CSS -->
+                                                                                                                <style>
+                                                                .quantity-input-<?= $product['product_id']; ?> {
+                                                                    font-size: 1.1rem;
+                                                                    border-radius: 10px;
+                                                                    text-align: center;
+                                                                    margin: 5px;
+                                                                    display: inline-flex;
+                                                                    width: 50px;
+                                                                }
+                                                                .add-to-cart-btn-<?= $product['product_id']; ?> {
+                                                                    border-radius: 50px;
+                                                                    font-size: 1rem;
+                                                                    transition: background-color 0.3s ease;
+                                                                }
+                                                                
+                                                                .quantity-control-<?= $product['product_id']; ?> {
+                                                                    display: flex;
+                                                                    align-items: center;
+                                                                }
+                                                                .quantity-control-<?= $product['product_id']; ?> button {
+                                                                    width: 2.5rem;
+                                                                    height: 2.5rem;
+     
+                                                                }
+                                                            </style>
                                                 </div>
                                             </div>
                                         </div>

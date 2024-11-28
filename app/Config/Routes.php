@@ -23,8 +23,8 @@ $routes->group('user', ['namespace' => 'App\Controllers', 'filter' => 'jwt_auth'
 
 $routes->get('/shop', 'Home::shop');
 $routes->get('/shop-detail/(:num)', 'Home::detail/$1');
+$routes->get('/checkout', 'Home::checkout');
 
-$routes->get('/shop-detail', 'Home::detail');
 $routes->get('/cart', 'TempCartController::viewCart');
 $routes->get('items', 'TempCartController::getCartItems');
 
