@@ -23,7 +23,7 @@ class UserController extends ResourceController
 
         return  view('shop-Include/header', ['pageTitle' => $pageTitle])
           . view('shop/login', ['message' => $message, 'errorMessage' => $errorMessage,])
-           .view('shop-Include/footer');
+          . view('shop-Include/footer');
     }
 
     public function register(){

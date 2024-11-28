@@ -23,18 +23,18 @@ $routes->group('user', ['namespace' => 'App\Controllers', 'filter' => 'jwt_auth'
 
 $routes->get('/shop', 'Home::shop');
 $routes->get('/shop-detail/(:num)', 'Home::detail/$1');
-$routes->get('/checkout', 'Home::checkout');
+$routes->get('/checkout', 'CartItemsController::checkout');
 
 $routes->get('/cart', 'TempCartController::viewCart');
-$routes->get('items', 'TempCartController::getCartItems');
-
+/* $routes->get('items', 'TempCartController::getCartItems');
+ */
 $routes->group('cart', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->post('add/(:num)', 'TempCartController::addItem/$1');       
-    $routes->post('update/(:num)', 'TempCartController::updateItem/$1'); 
-    $routes->post('remove/(:num)', 'TempCartController::removeItem/$1'); 
+    $routes->post('add/(:num)', 'CartManagerController::addItem/$1');       
+    $routes->post('update/(:num)', 'CartManagerController::updateItem/$1'); 
+    $routes->post('remove/(:num)', 'CartManagerController::removeItem/$1'); 
 });
 
-$routes->delete('clear', 'TempCartController::clearCart');
+$routes->delete('clear', 'CartManagerController::clearCart');
 
 
 //Dashboard Links

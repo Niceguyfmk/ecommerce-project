@@ -85,39 +85,47 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <!-- Dynamically generated cart items -->
+                                <?php foreach ($cartItems as $item): 
+                                    $total = $item['price'] * $item['quantity']?>  
+                                <tr id="cart-item-<?= $item['product_id']; ?>">
                                     <th scope="row">
-                                        <div class="d-flex align-items-center mt-2">
-                                            <img src="img/vegetable-item-2.jpg" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                                        <div class="d-flex align-items-center">
+                                        <img src="<?= base_url($item['product_image']) ?>" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="">
                                         </div>
                                     </th>
-                                    <td class="py-5">Awesome Brocoli</td>
-                                    <td class="py-5">$69.00</td>
-                                    <td class="py-5">2</td>
-                                    <td class="py-5">$138.00</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <div class="d-flex align-items-center mt-2">
-                                            <img src="img/vegetable-item-5.jpg" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                                    <td>
+                                        <p class="mb-0 mt-4"><?= $item['product_name'] ?></p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 mt-4"><?= $item['price'] ?>$</p>
+                                    </td>
+                                    <td>
+                                        <div class="input-group quantity mt-4" style="width: 100px;">
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-sm btn-minus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, 'decrement')">
+                                                    <i class="fa fa-minus"></i>
+                                                </button>
+                                            </div>
+                                            <input type="text" class="quantity-input-<?= $item['product_id']; ?> form-control form-control-sm text-center border-0" value="<?= $item['quantity']; ?>" readonly>
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, 'increment')">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </th>
-                                    <td class="py-5">Potatoes</td>
-                                    <td class="py-5">$69.00</td>
-                                    <td class="py-5">2</td>
-                                    <td class="py-5">$138.00</td>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 mt-4 total"><?php echo ($total); ?> $</p>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-md rounded-circle bg-light border mt-4" onclick="removeItemFromCart(<?= $item['product_id']; ?>)">
+                                            <i class="fa fa-times text-danger"></i>
+                                        </button>
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <div class="d-flex align-items-center mt-2">
-                                            <img src="img/vegetable-item-3.png" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                        </div>
-                                    </th>
-                                    <td class="py-5">Big Banana</td>
-                                    <td class="py-5">$69.00</td>
-                                    <td class="py-5">2</td>
-                                    <td class="py-5">$138.00</td>
-                                </tr>
+                                <?php endforeach; ?>
+
                                 <tr>
                                     <th scope="row">
                                     </th>
@@ -128,28 +136,21 @@
                                     </td>
                                     <td class="py-5">
                                         <div class="py-3 border-bottom border-top">
-                                            <p class="mb-0 text-dark">$414.00</p>
+                                            <p class="mb-0 text-dark total subtotal">$414.00</p>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">
                                     </th>
+                                    <td class="py-5"></td>
+                                    <td class="py-5"></td>
                                     <td class="py-5">
-                                        <p class="mb-0 text-dark py-4">Shipping</p>
+                                        <p class="mb-0 text-dark py-3">Shipping</p>                                        
                                     </td>
                                     <td colspan="3" class="py-5">
-                                        <div class="form-check text-start">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-1" name="Shipping-1" value="Shipping">
-                                            <label class="form-check-label" for="Shipping-1">Free Shipping</label>
-                                        </div>
-                                        <div class="form-check text-start">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-2" name="Shipping-1" value="Shipping">
-                                            <label class="form-check-label" for="Shipping-2">Flat rate: $15.00</label>
-                                        </div>
-                                        <div class="form-check text-start">
-                                            <input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-3" name="Shipping-1" value="Shipping">
-                                            <label class="form-check-label" for="Shipping-3">Local Pickup: $8.00</label>
+                                        <div class="py-3 border-bottom border-top shipping-rate">
+                                            <p class="mb-0 text-dark">$0.00</p>
                                         </div>
                                     </td>
                                 </tr>

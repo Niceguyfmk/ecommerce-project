@@ -47,7 +47,7 @@
             </div>
         </div>
         <!-- Hero End -->
-
+        <?php var_dump(session()->get('userData'));  ?>
 
         <!-- Featurs Section Start -->
         <div class="container-fluid featurs py-5">

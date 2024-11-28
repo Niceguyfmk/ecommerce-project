@@ -5,52 +5,79 @@ use App\Models\ProductModel;
 use App\Models\TempCartModel;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 
-class TempCartController extends ResourceController
-{  
-    protected $model;
-
+class CartItemsController extends ResourceController
+{
     public function __construct()
     {
-        $this->model = new TempCartModel(); // Initialize the model
+        $this->model = new CartItemsModel(); 
     }
 
     //cart view page
-    public function viewCart()
+    public function checkout()
     {
-        // Set page title
-        $pageTitle = "Cart";
-        
-        // Check if user is logged in
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Checkout';
         $userData = session()->get('userData');
-        
+        // Check if user is logged in
         if (!$userData) {
-            // Guest user logic (use temp cart)
-            $uid = $this->request->getCookie('uid');
-            if (!$uid) {
-                return $this->response->setStatusCode(400, 'No UID cookie found');
-            }
-    
-            // Retrieve guest user's temporary cart items
-            $cartItems = $this->model->getTempCartItems($uid);
-    
-            return view('shop-Include/header', ['pageTitle' => $pageTitle])
-                . view('shop/cart', ['cartItems' => $cartItems])
-                . view('shop-Include/footer');  
+            // Redirect to login page if not logged in
+            return redirect()->to('user/login')->with('error', 'You must be logged in to checkout.');
         }
     
-        // Logged-in user logic (use permanent cart)
-        $userId = $userData['user_id'];  // Assuming userData contains `user_id`
+        // User is logged in, get the UID from the cookies
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            return $this->response->setStatusCode(400, 'No UID cookie found');
+        }
+
+        $userId = $userData['user_id']; 
+
+        // Check if a cart already exists for the user
+        $cartModel = new CartModel();
+        $cart = $cartModel->where('user_id', $userId)->first();
+
+        // If no cart exists, create one
+        if (!$cart) {
+            $cart = $cartModel->insert([
+                'user_id' => $userId,
+                'coupon_id' => null,  // or set any default coupon ID
+            ]);
+        }
         
-        $cartItemsModel = new CartItemsModel();
-        $cartItems = $cartItemsModel->getUserCart($userId);
+        // Get the user's temporary cart items
+        $tempCartModel = new TempCartModel();
+        $tempCartItems = $tempCartModel->getTempCartItems($uid);
+    
+        // Check if there are items in the temporary cart
+        if (!empty($tempCartItems)) {
+            // Transfer the temporary cart items to the permanent cart table
+            $cartItemsModel = new CartItemsModel();
+            foreach ($tempCartItems as $item) {
+                $data = [
+                    'cart_id'=>$cart['cart_id'],
+                    'uid' => $uid,
+                    'product_id'=> $item['product_id'],
+                    'product_attribute_id'=> $item['product_attribute_id'],
+                    'quantity'=> $item['quantity'],
+                    'price'=> $item['price']
+                ];
+                $cartItemsModel->addCartItem($data);
+            }
+    
+            // Optionally: Clear the temporary cart after transferring
+            //$tempCartModel->clearTempCart($uid);
+        }
+    
+        // Now, load the checkout page and pass the cart items
+        $cartItems = $cartItemsModel->getUserCart($uid);
     
         return view('shop-Include/header', ['pageTitle' => $pageTitle]) 
-            . view('shop/cart', ['cartItems' => $cartItems])
-            . view('shop-Include/footer');         
+        . view('shop/checkout', ['cartItems' => $cartItems])
+        . view('shop-Include/footer'); 
     }
-    
 
     public function addItem($productId)
     {
@@ -87,7 +114,7 @@ class TempCartController extends ResourceController
             ];
 
             // Add the item to the cart (TempCart model)
-            $this->model->addItemsToTempCart($product);
+            $this->model->addCartItem($product);
 
             // Respond with the updated cart count
             return $this->respond(['message' => 'Product added to cart successfully'], 200);

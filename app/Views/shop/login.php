@@ -1,14 +1,4 @@
-<?php if (!empty($message)): ?>
-    <div class="alert alert-success">
-        <?= esc($message) ?>
-    </div>
-<?php endif; ?>
 
-<?php if (!empty($errorMessage)): ?>
-    <div class="alert alert-danger">
-        <?= esc($errorMessage) ?>
-    </div>
-<?php endif; ?>
 <section class="login">
     <div class="container">
         <div class = "row">
@@ -33,5 +23,14 @@
                 </div>  
             </div>
         </div>
-    </div>
+    </div>   
 </section>
+<?php if (!empty($errorMessage)): ?>
+    <div class="alert alert-danger">
+        <?= esc($errorMessage) ?>
+    </div>
+<?php else: ?>
+    <div class="alert alert-success">
+        <?= esc($message) ?>
+    </div>
+<?php endif; ?>
