@@ -20,7 +20,7 @@ class TempCartController extends ResourceController
         
         //Set page title
         $pageTitle = "Cart";
-
+        $subtotal = 0;
         // Get the UID from the cookie
         $uid = $this->request->getCookie('uid');
         if (!$uid) {
@@ -31,7 +31,7 @@ class TempCartController extends ResourceController
         $cartItems = $this->model->getTempCartItems($uid);
 
         return view('shop-Include/header', ['pageTitle' => $pageTitle])
-            . view('shop/cart', ['cartItems' => $cartItems])
+            . view('shop/cart', ['cartItems' => $cartItems, 'subtotal' => $subtotal])
             . view('shop-Include/footer');  
     }
 
