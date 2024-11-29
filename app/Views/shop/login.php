@@ -29,8 +29,4 @@
     <div class="alert alert-danger">
         <?= esc($errorMessage) ?>
     </div>
-<?php else: ?>
-    <div class="alert alert-success">
-        <?= esc($message) ?>
-    </div>
 <?php endif; ?>

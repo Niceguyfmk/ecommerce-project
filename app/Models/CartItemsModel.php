@@ -42,7 +42,7 @@ class CartItemsModel extends Model
         if ($existingItem) {
             // If the item exists, update the quantity instead of inserting a new one
             $newQuantity = $existingItem['quantity'] + $data['quantity']; // Add the new quantity to existing quantity
-            return $this->update($existingItem['temp_cart_item_id'], ['quantity' => $newQuantity]);
+            return $this->update($existingItem['cart_item_id'], ['quantity' => $newQuantity]);
         } else {
             // Insert the new item into the cart
             return $this->insert($data);

@@ -24,28 +24,23 @@ class TempCartController extends ResourceController
         
         // Check if user is logged in
         $userData = session()->get('userData');
-        
-        if (!$userData) {
-            // Guest user logic (use temp cart)
-            $uid = $this->request->getCookie('uid');
-            if (!$uid) {
-                return $this->response->setStatusCode(400, 'No UID cookie found');
-            }
-    
-            // Retrieve guest user's temporary cart items
-            $cartItems = $this->model->getTempCartItems($uid);
-    
-            return view('shop-Include/header', ['pageTitle' => $pageTitle])
-                . view('shop/cart', ['cartItems' => $cartItems])
-                . view('shop-Include/footer');  
+
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            return $this->response->setStatusCode(400, 'No UID cookie found');
         }
-    
-        // Logged-in user logic (use permanent cart)
-        $userId = $userData['user_id'];  // Assuming userData contains `user_id`
-        
-        $cartItemsModel = new CartItemsModel();
-        $cartItems = $cartItemsModel->getUserCart($userId);
-    
+
+        if ($userData && isset($userData['user_id'])) {
+            // User is logged in, fetch cart items from permanent CartItemsModel
+            $userId = $userData['user_id'];
+            $cartItemsModel = new CartItemsModel();
+            $cartItems = $cartItemsModel->getUserCart($userId);
+        } else {
+            // Guest user, fetch cart items from TempCartModel
+            $tempCartModel = new TempCartModel();
+            $cartItems = $tempCartModel->getTempCartItems($uid);
+        }
+
         return view('shop-Include/header', ['pageTitle' => $pageTitle]) 
             . view('shop/cart', ['cartItems' => $cartItems])
             . view('shop-Include/footer');         

@@ -28,6 +28,7 @@
                         </thead>
 
                         <!-- Dynamically generated cart items -->
+                        
                         <?php foreach ($cartItems as $item): 
                             $total = $item['price'] * $item['quantity']?>  
                         <tr id="cart-item-<?= $item['product_id']; ?>">

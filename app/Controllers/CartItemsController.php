@@ -5,7 +5,6 @@ use App\Models\ProductModel;
 use App\Models\TempCartModel;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
-use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 
 class CartItemsController extends ResourceController
@@ -14,8 +13,8 @@ class CartItemsController extends ResourceController
     {
         $this->model = new CartItemsModel(); 
     }
-
-    //cart view page
+    
+    //checkout page
     public function checkout()
     {
         $message = session()->getFlashdata('message');

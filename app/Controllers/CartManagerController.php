@@ -84,7 +84,7 @@ class CartManagerController extends ResourceController
             $quantity = $this->request->getPost('quantity');
             $price = $this->request->getPost('price');
 
-            // Validate inputs
+            // Validate inputs                                                                              
             if (!$quantity || !$price) {
                 return $this->respond(['error' => 'Invalid input'], 400);
             }

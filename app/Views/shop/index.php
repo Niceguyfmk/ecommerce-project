@@ -1,14 +1,3 @@
-<?php if (!empty($message)): ?>
-    <div class="alert alert-success">
-        <?= esc($message) ?>
-    </div>
-<?php endif; ?>
-
-<?php if (!empty($errorMessage)): ?>
-    <div class="alert alert-danger">
-        <?= esc($errorMessage) ?>
-    </div>
-<?php endif; ?>
         <!-- Hero Start -->
         <div class="container-fluid py-5 mb-5 hero-header">
             <div class="container py-5">
@@ -47,8 +36,17 @@
             </div>
         </div>
         <!-- Hero End -->
-        <?php var_dump(session()->get('userData'));  ?>
+        <?php if (!empty($message)): ?>
+            <div class="alert alert-success">
+                <?= esc($message) ?>
+            </div>
+        <?php endif; ?>
 
+        <?php if (!empty($errorMessage)): ?>
+            <div class="alert alert-danger">
+                <?= esc($errorMessage) ?>
+            </div>
+        <?php endif; ?>
         <!-- Featurs Section Start -->
         <div class="container-fluid featurs py-5">
             <div class="container py-5">
