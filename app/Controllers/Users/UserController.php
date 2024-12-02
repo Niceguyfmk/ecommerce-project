@@ -47,14 +47,14 @@ class UserController extends ResourceController
                 ),
             ),
             "name" => array(
-                "rules" => "required|min_length[3]", // Corrected this line
+                "rules" => "required|min_length[3]", 
                 "errors" => array(
                     "required" => "Name is required",
                     "min_length" => "Name must be at least 3 characters"
                 ),
             ),
             "password" => array(
-                "rules" => "required|min_length[3]", // Corrected this line
+                "rules" => "required|min_length[3]", 
                 "errors" => array(
                     "required" => "Password is required",
                     "min_length" => "Password must be at least 3 characters long"
@@ -291,7 +291,43 @@ class UserController extends ResourceController
 
     public function updateUser($id)
     {
-        // Logic to update a user by ID
+        $user = $this->model->getUser($id);
+
+        if($user){
+
+            //get post data
+            $name = $this->request->getPost('name');
+            $address = $this->request->getPost('address');
+            $password = $this->request->getPost('password');
+            $confirm_password = $this->request->getPost('confirm_password');
+ 
+            // Fetch user record and verify password
+            if (!$user || !password_verify($password, $user['password'])) {
+                return $this->respond(['status' => 'error', 'message' => 'Invalid original password']);
+            }
+
+            if(!empty($confirm_password)){
+                // Hash new password and update data
+                $hashed_password = password_hash($confirm_password, PASSWORD_DEFAULT);
+                $data = [
+                    'name'=> $name,
+                    'address'=>$address,
+                    'password' => $hashed_password
+                ];
+
+                $this->model->updateUser($id, $data);
+            }
+        
+            // Hash old password and update data
+            $password = password_hash($confirm_password, PASSWORD_DEFAULT);
+            $data = [
+                'name'=> $name,
+                'address'=>$address,
+                'password' => $password
+            ];
+
+            $this->model->updateUser($id, $data);
+        }
     }
 
     public function deleteUser($id)

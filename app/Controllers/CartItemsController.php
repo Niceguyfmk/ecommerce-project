@@ -13,70 +13,115 @@ class CartItemsController extends ResourceController
     {
         $this->model = new CartItemsModel(); 
     }
+    public function viewCart()
+    {
+        // Set page title
+        $pageTitle = "Cart";
+    
+        // Retrieve UID from the cookie or return an error
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            return $this->response->setStatusCode(400, 'No UID cookie found');
+        }
+    
+        // Check if user is logged in
+        $userData = session()->get('userData');
+        $cartItems = [];
+    
+        if ($userData && isset($userData['user_id'])) {
+            // Logged-in user: Use CartItemsModel
+            $userId = $userData['user_id'];
+    
+            $cartModel = new CartModel();
+            $cart = $cartModel->where('user_id', $userId)->first();
+    
+            if ($cart) {
+                $cartId = $cart['cart_id'];
+                $cartItemsModel = new CartItemsModel();
+                $cartItems = $cartItemsModel->getUserCart($cartId);
+            }
+        } else {
+            // Guest user: Use TempCartModel
+            $tempCartModel = new TempCartModel();
+            $cartItems = $tempCartModel->getTempCartItems($uid);
+        }
+    
+        // Render views
+        return view('shop-Include/header', ['pageTitle' => $pageTitle]) 
+            . view('shop/cart', ['cartItems' => $cartItems]) 
+            . view('shop-Include/footer');
+    }
     
     //checkout page
     public function checkout()
     {
         $message = session()->getFlashdata('message');
         $pageTitle = 'Checkout';
-        $userData = session()->get('userData');
+    
         // Check if user is logged in
-        if (!$userData) {
-            // Redirect to login page if not logged in
+        $userData = session()->get('userData');
+        if (!$userData || !isset($userData['user_id'])) {
+            log_message('error', 'User is not logged in or userData is missing.');
             return redirect()->to('user/login')->with('error', 'You must be logged in to checkout.');
         }
     
-        // User is logged in, get the UID from the cookies
+        $userId = $userData['user_id']; 
+    
+        // Get UID from the cookie
         $uid = $this->request->getCookie('uid');
         if (!$uid) {
             return $this->response->setStatusCode(400, 'No UID cookie found');
         }
-
-        $userId = $userData['user_id']; 
-
-        // Check if a cart already exists for the user
+    
+        // Fetch or create a permanent cart for the logged-in user
         $cartModel = new CartModel();
         $cart = $cartModel->where('user_id', $userId)->first();
-
-        // If no cart exists, create one
+    
         if (!$cart) {
-            $cart = $cartModel->insert([
+            $cartId = $cartModel->insert([
                 'user_id' => $userId,
-                'coupon_id' => null,  // or set any default coupon ID
+                'coupon_id' => null,
             ]);
+    
+            $cart = $cartModel->find($cartId); // Retrieve the created cart
         }
-        
-        // Get the user's temporary cart items
+    
+        $cartId = $cart['cart_id'];
+    
+        // Transfer temporary cart items to permanent cart
         $tempCartModel = new TempCartModel();
         $tempCartItems = $tempCartModel->getTempCartItems($uid);
     
-        // Check if there are items in the temporary cart
         if (!empty($tempCartItems)) {
-            // Transfer the temporary cart items to the permanent cart table
             $cartItemsModel = new CartItemsModel();
+    
             foreach ($tempCartItems as $item) {
                 $data = [
-                    'cart_id'=>$cart['cart_id'],
-                    'uid' => $uid,
-                    'product_id'=> $item['product_id'],
-                    'product_attribute_id'=> $item['product_attribute_id'],
-                    'quantity'=> $item['quantity'],
-                    'price'=> $item['price']
+                    'cart_id' => $cartId,
+                    'product_id' => $item['product_id'],
+                    'product_attribute_id' => $item['product_attribute_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price']
                 ];
+    
+                // Add item to the permanent cart, ignore duplicates
                 $cartItemsModel->addCartItem($data);
             }
     
-            // Optionally: Clear the temporary cart after transferring
-            //$tempCartModel->clearTempCart($uid);
+            // Clear the temporary cart after transferring
+            $tempCartModel->clearTempCart($uid);
         }
     
-        // Now, load the checkout page and pass the cart items
-        $cartItems = $cartItemsModel->getUserCart($uid);
+        // Retrieve all items from the permanent cart
+        $cartItemsModel = new CartItemsModel();
+        $cartItems = $cartItemsModel->getUserCart($cartId);
     
-        return view('shop-Include/header', ['pageTitle' => $pageTitle]) 
-        . view('shop/checkout', ['cartItems' => $cartItems])
-        . view('shop-Include/footer'); 
+        // Load the checkout page with cart items
+        return view('shop-Include/header', ['pageTitle' => $pageTitle])
+            . view('shop/checkout', ['cartItems' => $cartItems, 'message' => $message])
+            . view('shop-Include/footer');
     }
+    
 
     public function addItem($productId)
     {
@@ -104,18 +149,52 @@ class CartItemsController extends ResourceController
         }
 
         try {
-            $product = [
+            // Check if user is logged in
+            $userData = session()->get('userData');
+            $cartModel = new CartModel();
+            $cartItemsModel = new CartItemsModel();
+
+            $cartId = null;
+
+            if ($userData && isset($userData['user_id'])) {
+                // Fetch cart for logged-in user
+                $userId = $userData['user_id'];
+                $cart = $cartModel->where('user_id', $userId)->first();
+
+                if (!$cart) {
+                    // Create a new cart if none exists
+                    $cartId = $cartModel->insert([
+                        'user_id' => $userId,
+                        'coupon_id' => null,  // Default value
+                    ], true); // Get the inserted ID
+                } else {
+                    $cartId = $cart['cart_id'];
+                }
+            } else {
+                // Fetch cart for guest using UID
+                $cart = $cartModel->where('uid', $uid)->first();
+
+                if (!$cart) {
+                    // Create a new cart for guest
+                    $cartId = $cartModel->insert([
+                        'uid' => $uid,
+                        'coupon_id' => null,
+                    ], true);
+                } else {
+                    $cartId = $cart['cart_id'];
+                }
+            }
+
+            // Insert product into cart_items table with the correct cart_id
+            $cartItemsModel->addCartItem([
+                'cart_id' => $cartId,
                 'product_id' => $productId,
                 'quantity' => $quantity,
                 'price' => $price,
-                'uid' => $uid, // Use UID instead of session_id
-                'product_attribute_id' => 6
-            ];
+                'uid' => $uid,
+                'product_attribute_id' => 6, // Default or dynamic value
+            ]);
 
-            // Add the item to the cart (TempCart model)
-            $this->model->addCartItem($product);
-
-            // Respond with the updated cart count
             return $this->respond(['message' => 'Product added to cart successfully'], 200);
         } catch (\Exception $e) {
             log_message('error', $e->getMessage());

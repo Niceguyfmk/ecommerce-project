@@ -15,26 +15,25 @@ $routes->group('user', function ($routes) {
 });
 
 $routes->group('user', ['namespace' => 'App\Controllers', 'filter' => 'jwt_auth'], function($routes) {
+    $routes->get('profile', 'Home::profile');    
     $routes->get('logout', 'Users\UserController::logout');
+    $routes->post('update/(:num)', 'Users\UserController::updateUser/$1');
 });
-
-
-
 
 $routes->get('/shop', 'Home::shop');
 $routes->get('/shop-detail/(:num)', 'Home::detail/$1');
 $routes->get('/checkout', 'CartItemsController::checkout');
 
-$routes->get('/cart', 'TempCartController::viewCart');
+$routes->get('/cart', 'CartItemsController::viewCart');
 /* $routes->get('items', 'TempCartController::getCartItems');
  */
 $routes->group('cart', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->post('add/(:num)', 'CartManagerController::addItem/$1');       
-    $routes->post('update/(:num)', 'CartManagerController::updateItem/$1'); 
-    $routes->post('remove/(:num)', 'CartManagerController::removeItem/$1'); 
+    $routes->post('add/(:num)', 'CartItemsController::addItem/$1');       
+    $routes->post('update/(:num)', 'CartItemsController::updateItem/$1'); 
+    $routes->post('remove/(:num)', 'CartItemsController::removeItem/$1'); 
 });
 
-$routes->delete('clear', 'CartManagerController::clearCart');
+$routes->delete('clear', 'CartItemsController::clearCart');
 
 
 //Dashboard Links
@@ -88,4 +87,9 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     
     
 }); */
+
+
+//Orders
+$routes->post('/order/create', 'OrdersController::create');
+
 

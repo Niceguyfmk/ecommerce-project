@@ -258,11 +258,6 @@ function recalculateSubtotal() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Calculate initial total and grand total on page load
-    recalculateSubtotal();
-});
-
 function updateCartItem(productId, quantity) {
 
     // Send AJAX request to update item quantity in the cart
@@ -312,11 +307,51 @@ function removeItemFromCart(productId) {
     xhr.send();
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    recalculateSubtotal();
 
+    // The DOM is now fully loaded, so we can safely add the event listener
+    document.getElementById('place-order-btn').addEventListener('click', createOrder);
+});
 
+function createOrder() {
+    // Fetch and format the necessary data
+    var grandTotalElement = document.querySelector('.grand-total');
+    var grandTotal = grandTotalElement ? grandTotalElement.textContent : null;
 
+    if (!grandTotal) {
+        alert('Grand total is missing');
+        return;
+    }
 
+    var grandTotalAmount = parseFloat(grandTotal.replace('$', '').trim());
+    var paymentMethod = document.querySelector('input[name="payment_method"]:checked');
 
+    if (!paymentMethod) {
+        alert('Please select a payment method.');
+        return;
+    }
+
+    var formData = {
+        grand_total: grandTotalAmount,
+        payment_method: paymentMethod.value
+    };
+
+    // Send an AJAX request
+    fetch('http://localhost:8080/order/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => console.log('Order created successfully:', data))
+    .catch(error => console.error('Error creating order:', error));
+}
 
 
 

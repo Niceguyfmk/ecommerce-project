@@ -66,4 +66,10 @@ class TempCartModel extends Model
         $builder->where('temp_cart_items.uid', $uid);
         return $builder->get()->getResultArray();
     }
+
+    public function clearTempCart($uid)
+    {
+        // Delete all items associated with the provided UID
+        return $this->where('uid', $uid)->delete();
+    }
 }

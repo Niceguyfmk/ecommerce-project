@@ -22,7 +22,7 @@ class CartItemsModel extends Model
         'price'
     ];
 
-    public function getUserCart($uid) {
+    public function getUserCart($cart_id) {
         // Retrieve all cart items based on UID
         /* return $this->where('uid', $uid)->findAll(); */
         $builder = $this->db->table('cart_items');
@@ -30,7 +30,7 @@ class CartItemsModel extends Model
         $builder->join('product_attributes', 'cart_items.product_attribute_id = product_attributes.product_attribute_id');
         $builder->join('products', 'cart_items.product_id = products.product_id');
         $builder->join('images', 'products.product_id = images.product_id');
-        $builder->where('cart_items.uid', $uid);
+        $builder->where('cart_items.cart_id', $cart_id);
         return $builder->get()->getResultArray();
     }
 
@@ -38,7 +38,6 @@ class CartItemsModel extends Model
     {
         // Check if the item already exists in the cart based on UID and product ID
         $existingItem = $this->where(['product_id' => $data['product_id'], 'uid' => $data['uid']])->first();
-       
         if ($existingItem) {
             // If the item exists, update the quantity instead of inserting a new one
             $newQuantity = $existingItem['quantity'] + $data['quantity']; // Add the new quantity to existing quantity
