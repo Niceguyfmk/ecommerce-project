@@ -13,7 +13,9 @@
 
         <div class="mb-3">
             <label for="long_description" class="form-label">Long Description</label>
-            <textarea class="form-control" id="long_description" name="long_description"></textarea>
+            <div id="editor">
+                <textarea class="form-control" id= "long_description" name="long_description"></textarea>
+            </div>
         </div>
 
         <div class="mb-3">

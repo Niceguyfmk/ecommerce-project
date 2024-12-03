@@ -206,13 +206,6 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
     display: none;
 }
 
-/* CK-EDITOR */
-
-.ck-editor__editable {
-    min-height: 200px; 
-    color: black;
-}
-
 .form-container {
     margin-left: 20px !important;
     padding-left: 0 !important; /* Override the container padding */
@@ -233,3 +226,18 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
 .card-header{
     text-align: center;
 }
+
+/*Quill Editor*/
+
+#editor {
+    height: 300px;
+    width: 100%;
+    background-color:darkslategrey;
+    color: #fff;
+}
+
+.ql-toolbar.ql-snow {
+    background-color:ivory;
+}
+
+/*Quill Editor Ends*/

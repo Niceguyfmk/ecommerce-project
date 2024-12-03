@@ -24,4 +24,13 @@ class OrdersModel extends Model
     public function createOrder($data){
         return $this->insert($data); 
     }
+
+    public function getOrders($order_id){
+        $builder = $this->db->table('orders');
+
+        $builder->select('orders.*, users.email');
+        $builder->join('users', 'users.user_id = orders.user_id');
+        $builder->where('orders.order_id', $order_id);
+        return $builder->get()->getResultArray();
+    }
 }

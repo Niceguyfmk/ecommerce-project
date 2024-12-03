@@ -31,11 +31,11 @@
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link collapsed" data-bs-target="#jobs" data-bs-toggle="collapse"
+                            <a href="#" class="sidebar-link collapsed" data-bs-target="#products" data-bs-toggle="collapse"
                                 aria-expanded="false"><i class="fa-solid fa-file-lines pe-2"></i>
                                 Products
                             </a>
-                            <ul id="jobs" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <ul id="products" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                                 <li class="sidebar-item">
                                     <a href="<?=  site_url(relativePath: '/product/createProduct') ?>" class="sidebar-link">Create Product</a>
                                 </li>
@@ -46,18 +46,18 @@
                         </li>
 
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link collapsed" data-bs-target="#category" data-bs-toggle="collapse"
+                        <a href="#" class="sidebar-link collapsed" data-bs-target="#orders" data-bs-toggle="collapse"
                             aria-expanded="false"><i class="fa-solid fa-sliders pe-2"></i>
                             Orders
                         </a>
-                        <!-- <ul id="category" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <ul id="orders" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                             <li class="sidebar-item">
-                                <a href="#" class="sidebar-link">Create Category</a>
+                                <a href="<?=  site_url(relativePath: '/order/viewOrders') ?>" class="sidebar-link">View Orders</a>
                             </li>
                             <li class="sidebar-item">
-                                <a href="#" class="sidebar-link">View Category</a>
+                                <a href="<?=  site_url(relativePath: '/order/viewOrders') ?>" class="sidebar-link">Order Status</a>
                             </li>
-                        </ul> -->
+                        </ul>
                     </li>
 
                     <li class="sidebar-item">

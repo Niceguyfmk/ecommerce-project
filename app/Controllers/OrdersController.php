@@ -72,5 +72,43 @@ class OrdersController extends ResourceController
         return $this->response->setStatusCode(201)->setJSON(['message' => 'Order created successfully']);
     }
     
+    public function viewTable(){
+        
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Orders Table';
+
+        // Retrieve UID from the cookie or return an error
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            return $this->response->setStatusCode(400, 'No UID cookie found');
+        }
+    
+        // Check if user is logged in
+        $userData = session()->get('userData');
+        
+        if ($userData && isset($userData['user_id'])) {
+            $userId = $userData['user_id'];
+
+            $order = $this->model->where('user_id', $userId)->first();
+
+            if($order){
+                $orderId = $order['order_id'];
+                $orders = $this->model->getOrders($orderId);
+            }
+        }else{
+            return $this->respond([
+                "status" => false,
+                "message" => "user data error"
+            ]);
+        }
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('orders/ordersTable', [
+            'orders' => $orders,
+            'message' => $message
+        ])
+        . view('include/footer'); 
+    }
     
 }
