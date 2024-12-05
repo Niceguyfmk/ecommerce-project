@@ -178,6 +178,7 @@
                                                     </a>
                                                     <p><?= $product["description"]; ?></p>
                                                     <div class="product-price">
+                                                    <?php print_r($cartItem); ?>
                                                         <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
                                                     </div>
 
@@ -190,7 +191,7 @@
                                             
                                                                 class="add-to-cart-btn-<?= $product['product_id']; ?> btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
                                                                 onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
-                                                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                                                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart 
                                                             </button>
 
                                                             <!-- Show/Hide Quantity Control based on Cart Quantity -->

@@ -46,13 +46,13 @@
                             <td>
                                 <div class="input-group quantity mt-4" style="width: 100px;">
                                     <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, 'decrement')">
+                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, <?= $item['price']; ?> , 'decrement')">
                                             <i class="fa fa-minus"></i>
                                         </button>
                                     </div>
                                     <input type="text" class="quantity-input-<?= $item['product_id']; ?> form-control form-control-sm text-center border-0" value="<?= $item['quantity']; ?>" readonly>
                                     <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, 'increment')">
+                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, <?= $item['price']; ?> , 'increment')">
                                             <i class="fa fa-plus"></i>
                                         </button>
                                     </div>

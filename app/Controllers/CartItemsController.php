@@ -90,26 +90,30 @@ class CartItemsController extends ResourceController
     
         // Transfer temporary cart items to permanent cart
         $tempCartModel = new TempCartModel();
+        //for displaying on page
         $tempCartItems = $tempCartModel->getTempCartItems($uid);
-    
+
         if (!empty($tempCartItems)) {
             $cartItemsModel = new CartItemsModel();
     
             foreach ($tempCartItems as $item) {
-                $data = [
-                    'cart_id' => $cartId,
-                    'product_id' => $item['product_id'],
-                    'product_attribute_id' => $item['product_attribute_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price']
-                ];
-    
-                // Add item to the permanent cart, ignore duplicates
-                $cartItemsModel->addCartItem($data);
+                var_dump($item['status']);
+                if($item['status'] == 0){
+                    $data = [
+                        'cart_id' => $cartId,
+                        'product_id' => $item['product_id'],
+                        'product_attribute_id' => $item['product_attribute_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price']
+                    ];
+        
+                    // Add item to the permanent cart, ignore duplicates
+                    $cartItemsModel->addCartItem($data);
+                }
             }
-    
-            // Clear the temporary cart after transferring
-            $tempCartModel->clearTempCart($uid);
+
+            // Update the temporary cart products status after transferring using uid
+            $tempCartModel->upadateStatusUsingUID($uid);
         }
     
         // Retrieve all items from the permanent cart
@@ -121,8 +125,6 @@ class CartItemsController extends ResourceController
             . view('shop/checkout', ['cartItems' => $cartItems, 'message' => $message])
             . view('shop-Include/footer');
     }
-    
-
     public function addItem($productId)
     {
         //Ajax request or not
@@ -261,11 +263,11 @@ class CartItemsController extends ResourceController
                 $updateModel = new TempCartModel();
                 //check status of uid
                 $status = $updateModel->getCartStatus($productId, $uid);
-
-                if($status == 0){
+                //echo('status: ' . $status);
+                if($status === '0'){
                     // Update the cart item in the model if status is 0
+                    //echo(" id: " . $productId. " quantity: " . $quantity);
                     $updateStatus = $updateModel->updateCartItem($productId, $uid, $quantity);
-                    
                     if ($updateStatus) {
                         // Respond with success if the update was successful
                         return $this->response->setJSON(['status' => 'success', 'message' => 'Cart item updated successfully']);
@@ -274,6 +276,8 @@ class CartItemsController extends ResourceController
                         return $this->response->setStatusCode(500, 'Error updating cart item');
                     }
                 } else{
+                    //echo("status: 1");
+                    
                     //if status is 1, use tempCart to insert new row
                     $cartItemsModel = new TempCartModel();
         

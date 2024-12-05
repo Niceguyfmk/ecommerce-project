@@ -12,21 +12,13 @@ class TempCartModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['uid', 'product_attribute_id', 'quantity', 'price', 'product_id'];
+    protected $allowedFields    = ['uid', 'product_attribute_id', 'quantity', 'price', 'product_id', 'status'];
 
     public function addItemsToTempCart($data)
     {
-        // Check if the item already exists in the cart based on UID and product ID
-        $existingItem = $this->where(['product_id' => $data['product_id'], 'uid' => $data['uid']])->first();
+        
+        return $this->insert($data);
 
-        if ($existingItem) {
-            // If the item exists, update the quantity instead of inserting a new one
-            $newQuantity = $existingItem['quantity'] + $data['quantity']; // Add the new quantity to existing quantity
-            return $this->update($existingItem['temp_cart_item_id'], ['quantity' => $newQuantity]);
-        } else {
-            // Insert the new item into the cart
-            return $this->insert($data);
-        }
     }
 
     public function updateCartItem($productId, $uid, $quantity)
@@ -34,8 +26,9 @@ class TempCartModel extends Model
         // Find the cart item based on product ID and UID
         $cartItem = $this->where('product_id', $productId)
                          ->where('uid', $uid)
+                         ->where('status', 0)
                          ->first();
-
+        
         if (!$cartItem) {
 
             // If the item doesn't exist in the cart, return an error
@@ -64,7 +57,10 @@ class TempCartModel extends Model
         $builder->join('product_attributes', 'temp_cart_items.product_attribute_id = product_attributes.product_attribute_id');
         $builder->join('products', 'temp_cart_items.product_id = products.product_id');
         $builder->join('images', 'products.product_id = images.product_id');
-        $builder->where('temp_cart_items.uid', $uid);
+        $builder->where([
+            'temp_cart_items.uid' => $uid,
+            'temp_cart_items.status' => 0
+        ]);
         return $builder->get()->getResultArray();
     }
 
@@ -74,22 +70,36 @@ class TempCartModel extends Model
         return $this->where('uid', $uid)->delete();
     }
 
-    public function getCartStatus($productId, $uid){
+    public function getCartStatus($productId, $uid)
+    {
+        $status = $this->where('product_id', $productId)
+                       ->where('uid', $uid)
+                       ->where('status', 0)
+                       ->get()
+                       ->getRow('status');
+    
+        return $status;
+    }
+    
+    
+
+    public function upadateStatusUsingUID($uid){
 
         // Find the cart item based on product ID and UID
-        $cartItem = $this->where('product_id', $productId)
-                         ->where('uid', $uid)
-                         ->first();
+        $cartItems = $this->where('uid', $uid)
+        ->where('status','0')
+        ->get();
 
-        if (!$cartItem) {
-
-            // If the item doesn't exist in the cart, return an error
+        if (!$cartItems) {
+            // If no matching items found, return an error or false
             return false; 
         }
-        
-        $status = "";
-        $status = $cartItem['status'];
 
-        return $status;
+        // Update the status of all matching rows to 1
+        $builder = $this->db->table('temp_cart_items');
+        $builder->set('status','1');
+        $builder->where('status', '0');
+        return $builder->update();
+        
     }
 }
