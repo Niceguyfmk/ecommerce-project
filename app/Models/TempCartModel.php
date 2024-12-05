@@ -37,8 +37,9 @@ class TempCartModel extends Model
                          ->first();
 
         if (!$cartItem) {
+
             // If the item doesn't exist in the cart, return an error
-            return false; // Indicate failure
+            return false; 
         }
 
         // Update the quantity in the cart item
@@ -71,5 +72,24 @@ class TempCartModel extends Model
     {
         // Delete all items associated with the provided UID
         return $this->where('uid', $uid)->delete();
+    }
+
+    public function getCartStatus($productId, $uid){
+
+        // Find the cart item based on product ID and UID
+        $cartItem = $this->where('product_id', $productId)
+                         ->where('uid', $uid)
+                         ->first();
+
+        if (!$cartItem) {
+
+            // If the item doesn't exist in the cart, return an error
+            return false; 
+        }
+        
+        $status = "";
+        $status = $cartItem['status'];
+
+        return $status;
     }
 }

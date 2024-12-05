@@ -125,6 +125,7 @@ class CartItemsController extends ResourceController
 
     public function addItem($productId)
     {
+        //Ajax request or not
         if (!$this->request->isAJAX()) {
             return $this->response->setStatusCode(400, 'Bad Request');
         }
@@ -135,6 +136,7 @@ class CartItemsController extends ResourceController
             return $this->respond(['error' => 'UID cookie not found'], 400);
         }
 
+        //Get POST VALUES
         $quantity = $this->request->getPost('quantity');
         $price = $this->request->getPost('price');
 
@@ -152,12 +154,10 @@ class CartItemsController extends ResourceController
             // Check if user is logged in
             $userData = session()->get('userData');
             $cartModel = new CartModel();
-            $cartItemsModel = new CartItemsModel();
-
             $cartId = null;
-
-            if ($userData && isset($userData['user_id'])) {
-                // Fetch cart for logged-in user
+            
+            if($userData && isset($userData['user_id'])){
+                $cartItemsModel = new CartItemsModel();
                 $userId = $userData['user_id'];
                 $cart = $cartModel->where('user_id', $userId)->first();
 
@@ -170,32 +170,36 @@ class CartItemsController extends ResourceController
                 } else {
                     $cartId = $cart['cart_id'];
                 }
-            } else {
-                // Fetch cart for guest using UID
-                $cart = $cartModel->where('uid', $uid)->first();
 
-                if (!$cart) {
-                    // Create a new cart for guest
-                    $cartId = $cartModel->insert([
-                        'uid' => $uid,
-                        'coupon_id' => null,
-                    ], true);
-                } else {
-                    $cartId = $cart['cart_id'];
-                }
+                 // Insert product into cart_items table with the correct cart_id
+                $cartItemsModel->addCartItem([
+                    'cart_id' => $cartId,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'uid' => $uid,
+                    'product_attribute_id' => 6, // Default or dynamic value
+                ]);
+
+                return $this->respond(['message' => 'Product added to cart successfully'], 200);
+
+            }else{
+                //if not logged in use tempCart to save items
+                $cartItemsModel = new TempCartModel();
+    
+                // Add the item to the cart (TempCart model)
+                $cartItemsModel->addItemsToTempCart([
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'uid' => $uid, // Use UID instead of session_id
+                    'product_attribute_id' => 6
+                ]);
+    
+                // Respond with the updated cart count
+                return $this->respond(['message' => 'Product added to cart successfully'], 200);
             }
 
-            // Insert product into cart_items table with the correct cart_id
-            $cartItemsModel->addCartItem([
-                'cart_id' => $cartId,
-                'product_id' => $productId,
-                'quantity' => $quantity,
-                'price' => $price,
-                'uid' => $uid,
-                'product_attribute_id' => 6, // Default or dynamic value
-            ]);
-
-            return $this->respond(['message' => 'Product added to cart successfully'], 200);
         } catch (\Exception $e) {
             log_message('error', $e->getMessage());
             return $this->respond(['error' => 'Internal Server Error'], 500);
@@ -208,11 +212,19 @@ class CartItemsController extends ResourceController
             return $this->response->setStatusCode(400, 'Bad Request');
         }
 
+        //get Quantity & Price by Post
         $quantity = $this->request->getPost('quantity');
         $quantity = (int) $quantity;
+        $price = $this->request->getPost('price');
 
-        if (!$quantity || $quantity < 1) {
-            return $this->response->setStatusCode(400, 'Invalid Quantity');
+        // Validate inputs
+        if (!$quantity || !$price) {
+            return $this->respond(['error' => 'Invalid input'], 400);
+        }   
+
+        // Validate quantity to be a positive integer
+        if (!is_numeric($quantity) || $quantity <= 0) {
+            return $this->respond(['error' => 'Invalid quantity value'], 400);
         }
 
         // Get the UID from the cookie
@@ -221,15 +233,68 @@ class CartItemsController extends ResourceController
             return $this->respond(['error' => 'UID cookie not found'], 400);
         }
 
-        // Update the cart item in the model
-        $updateStatus = $this->model->updateCartItem($productId, $uid, $quantity);
+        try {
+            // Check if user is logged in
+            $userData = session()->get('userData');
+            $cartModel = new CartModel();
+            //model to use: if logged in or not
+            $updateModel = "";
+            
+            if($userData && isset($userData['user_id'])){
+                $updateModel = new CartItemsModel();
+                $userId = $userData['user_id'];
+                //$cart = $cartModel->where('user_id', $userId)->first();
 
-        if ($updateStatus) {
-            // Respond with success if the update was successful
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Cart item updated successfully']);
-        } else {
-            // Respond with error if the update failed
-            return $this->response->setStatusCode(500, 'Error updating cart item');
+                // Update the cart item in the model
+                $updateStatus = $updateModel->updateCartItem($productId, $quantity);
+
+                if ($updateStatus) {
+                    // Respond with success if the update was successful
+                    return $this->response->setJSON(['status' => 'success', 'message' => 'Cart item updated successfully']);
+                } else {
+                    // Respond with error if the update failed
+                    return $this->response->setStatusCode(500, 'Error updating cart item');
+                }
+
+            }else{
+                //if not logged in use tempCart to save items
+                $updateModel = new TempCartModel();
+                //check status of uid
+                $status = $updateModel->getCartStatus($productId, $uid);
+
+                if($status == 0){
+                    // Update the cart item in the model if status is 0
+                    $updateStatus = $updateModel->updateCartItem($productId, $uid, $quantity);
+                    
+                    if ($updateStatus) {
+                        // Respond with success if the update was successful
+                        return $this->response->setJSON(['status' => 'success', 'message' => 'Cart item updated successfully']);
+                    } else {
+                        // Respond with error if the update failed
+                        return $this->response->setStatusCode(500, 'Error updating cart item');
+                    }
+                } else{
+                    //if status is 1, use tempCart to insert new row
+                    $cartItemsModel = new TempCartModel();
+        
+                    // Add the item to the cart (TempCart model)
+                    $cartItemsModel->addItemsToTempCart([
+                        'product_id' => $productId,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                        'uid' => $uid, // Use UID instead of session_id
+                        'product_attribute_id' => 6
+                    ]);
+        
+                    // Respond with the updated cart count
+                    return $this->respond(['message' => 'Product added to cart successfully'], 200);
+                }
+
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', $e->getMessage());
+            return $this->respond(['error' => 'Internal Server Error'], 500);
         }
     }
 
@@ -245,15 +310,48 @@ class CartItemsController extends ResourceController
             return $this->respond(['error' => 'UID cookie not found'], 400);
         }
 
-        $remove = $this->model->removeCartItem($productId, $uid);
+        try {
+            // Check if user is logged in
+            $userData = session()->get('userData');
+            $cartModel = new CartModel();
+            //model to use: if logged in or not
+            $deleteModel = "";
+            
+            if($userData && isset($userData['user_id'])){
+                $deleteModel = new CartItemsModel();
+                $userId = $userData['user_id'];
 
-        if ($remove) {
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Item removed from cart']);
-        } else {
-            return $this->respond([
-                'status'=> 'error',
-                'message'=> 'Failed to remove item'
-            ]);
+                $remove = $deleteModel->removeCartItem($productId, $uid);
+
+                if ($remove) {
+                    return $this->response->setJSON(['status' => 'success', 'message' => 'Item removed from cart']);
+                } else {
+                    return $this->respond([
+                        'status'=> 'error',
+                        'message'=> 'Failed to remove item'
+                    ]);
+                }
+
+            }else{
+                //if not logged in use tempCart to save items
+                $deleteModel = new TempCartModel();
+
+                $remove = $deleteModel->removeCartItem($productId, $uid);
+
+                //check status of uid
+                if ($remove) {
+                    return $this->response->setJSON(['status' => 'success', 'message' => 'Item removed from cart']);
+                } else {
+                    return $this->respond([
+                        'status'=> 'error',
+                        'message'=> 'Failed to remove item'
+                    ]);
+                }
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', $e->getMessage());
+            return $this->respond(['error' => 'Internal Server Error'], 500);
         }
     }
 }

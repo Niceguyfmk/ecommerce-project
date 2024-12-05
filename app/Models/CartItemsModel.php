@@ -49,11 +49,10 @@ class CartItemsModel extends Model
         
     }
 
-    public function updateCartItem($productId, $uid, $quantity)
+    public function updateCartItem($productId, $quantity)
     {
         // Find the cart item based on product ID and UID
         $cartItem = $this->where('product_id', $productId)
-                         ->where('uid', $uid)
                          ->first();
 
         if (!$cartItem) {

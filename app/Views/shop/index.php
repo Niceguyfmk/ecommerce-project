@@ -195,9 +195,9 @@
 
                                                             <!-- Show/Hide Quantity Control based on Cart Quantity -->
                                                             <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
-                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'decrement')">-</button>
+                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?>, 'decrement')">-</button>
                                                                 <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control quantity-input-<?= $product['product_id']; ?>" readonly />
-                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
+                                                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?> , 'increment')">+</button>
                                                             </div>
                                                             <!-- Inline CSS -->
                                                             <style>

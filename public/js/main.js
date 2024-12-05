@@ -187,7 +187,7 @@ function updateCartCount(change) {
     }
 }
 
-function updateQuantity(productId, action) {
+function updateQuantity(productId, cost, action) {
     const quantityInput = document.querySelector('.quantity-input-' + productId);
     let currentQuantity = parseInt(quantityInput.value) || 1;
 
@@ -220,7 +220,8 @@ function updateQuantity(productId, action) {
     }
 
     recalculateSubtotal();
-    updateCartItem(productId, currentQuantity);  // Backend call
+
+    updateCartItem(productId, currentQuantity, cost);  // Backend call
 }
 
 
@@ -258,7 +259,7 @@ function recalculateSubtotal() {
     }
 }
 
-function updateCartItem(productId, quantity) {
+function updateCartItem(productId, quantity, price) {
 
     // Send AJAX request to update item quantity in the cart
     var xhr = new XMLHttpRequest();
@@ -275,7 +276,7 @@ function updateCartItem(productId, quantity) {
     };
 
     // Send data
-    var data = 'quantity=' + encodeURIComponent(quantity);
+    var data = 'quantity=' + encodeURIComponent(quantity) + '&price=' + encodeURIComponent(price);
     xhr.send(data);
 }
 
@@ -306,13 +307,6 @@ function removeItemFromCart(productId) {
 
     xhr.send();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    recalculateSubtotal();
-
-    // The DOM is now fully loaded, so we can safely add the event listener
-    document.getElementById('place-order-btn').addEventListener('click', createOrder);
-});
 
 function createOrder() {
     // Fetch and format the necessary data
@@ -352,6 +346,16 @@ function createOrder() {
     .then(data => console.log('Order created successfully:', data))
     .catch(error => console.error('Error creating order:', error));
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+   
+    recalculateSubtotal();
+    
+    var orderBtn = document.getElementById('place-order-btn');
+    if(orderBtn){
+        orderBtn.addEventListener('click', createOrder);
+    }
+});
 
 
 
