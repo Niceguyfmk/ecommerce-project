@@ -131,6 +131,7 @@ class UserController extends ResourceController
             //store the token and data in session
             session()->set('jwtToken', $token);
             session()->set('userData', $userData);
+            session()->set('userRole', 'user');
             session()->setFlashdata('message', 'Log in Success!');
 
             return redirect()->to(base_url('/'))->with('success', 'Logged in successfully.');

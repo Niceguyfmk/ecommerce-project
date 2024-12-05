@@ -240,4 +240,15 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
     background-color:ivory;
 }
 
+.order-details-table th{
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.order-details-table tbody td{
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: -webkit-left;
+    padding-left: 10px;
+}
 /*Quill Editor Ends*/

@@ -3,6 +3,7 @@
         <?= esc($message) ?>
     </div>
 <?php endif; ?>
+
 <div class="container">
     <!-- Add a Card for the Table -->
     <div class="card">
@@ -15,7 +16,6 @@
                 </div>
             </div>
         </div>
-        <?php echo var_dump($orderItems); die(); ?>
         <div class="card-body">
             <!-- Table to display user records -->
             <table class="table table-striped table-bordered table-hover" id="myTable">
@@ -33,23 +33,21 @@
                             <td colspan="5" class="text-center">No orderItems found.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($orderItems as $orderItem): ?>
-                            <tr>
-                                <td><?= esc($orderItem['order_id']) ?></td>
-                                <td><?= esc($orderItem['email']) ?></td>
-                                <td><?= esc($orderItem['total_amount']) ?></td>
-                                <td><?= esc($orderItem['created_at']) ?></td>
-
-                            </tr>
-                        <?php endforeach; ?>
+                        <?php $totalAmount = $orderItems[0]['total_amount']; ?>
+                        <tr>
+                            <td><?= esc($orderItems[0]['order_id']) ?></td>
+                            <td><?= esc($orderItems[0]['email']) ?></td>
+                            <td><?= esc($orderItems[0]['total_amount']) ?></td>
+                            <td><?= esc($orderItems[0]['created_at']) ?></td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
 
-            <h3>Items</h3>
-            <form action="/admin/orders/update/12345" method="post">
-                <table>
-                    <thead>
+            <h3>Items List</h3>
+            <form action="<?= site_url('/order/orderUpdate/' . $orderItems[0]['order_id']) ?>" method="post">
+                <table class="order-details-table table-striped table-bordered table-hover" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead> 
                         <tr>
                             <th>Product</th>
                             <th>Quantity</th>
@@ -66,24 +64,15 @@
                             </td>
 
                         </tr>
-                        <tr>
-                            <td>Product B</td>
-                            <td>
-                                <input type="number" name="items[1][quantity]" value="1" min="1">
-                            </td>
-                            <td>$15.00</td>
-                            <td>$15.00</td>
-                        </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
 
-                <h3>Total: $35.00</h3>
+                <h3>Total: $<?= $totalAmount; ?></h3>
 
                 <label for="order-status">Order Status:</label>
                 <select id="order-status" name="order_status">
                     <option value="pending" selected>Pending</option>
-                    <option value="shipped">Shipped</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>

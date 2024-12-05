@@ -10,8 +10,7 @@ use CodeIgniter\RESTful\ResourceController;
 class OrderItemsController extends ResourceController
 {
 
-    
-    public function orderItemDetail(){
+    public function orderItemDetail($orderId){
         $ordersModel = new OrdersModel();
         $orderItemsModel = new OrderItemsModel();
 
@@ -22,21 +21,12 @@ class OrderItemsController extends ResourceController
         // Retrieve UID from the cookie or return an error
         $uid = $this->request->getCookie('uid');
         if (!$uid) {
+
             return $this->response->setStatusCode(400, 'No UID cookie found');
         }
     
-        // Check if user is logged in
-        $userData = session()->get('userData');
-        
-        if ($userData && isset($userData['user_id'])) {
-            $userId = $userData['user_id'];
-
-            $order = $ordersModel->where('user_id', $userId)->first();
-
-            if($order){
-                $orderId = $order['order_id'];
+        if($orderId){
                 $orderItems = $orderItemsModel->getItem($orderId);
-            }
         }else{
             return $this->respond([
                 "status" => false,

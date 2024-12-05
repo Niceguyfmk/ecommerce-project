@@ -1,6 +1,7 @@
 <div class="container mt-5 py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
+
             <h2 class="mb-4 text-center py-3"><?= $heading ?></h2>
             <form method="post" action="<?= base_url('/user/update/' . $userData['user_id']) ?>">
                 <div class="mb-3">

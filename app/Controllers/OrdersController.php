@@ -5,8 +5,10 @@ use App\Models\CartItemsModel;
 use App\Models\CartModel;
 use App\Models\OrderItemsModel;
 use App\Models\OrdersModel;
+use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
+
 
 class OrdersController extends ResourceController
 {
@@ -82,25 +84,25 @@ class OrdersController extends ResourceController
         if (!$uid) {
             return $this->response->setStatusCode(400, 'No UID cookie found');
         }
-    
-        // Check if user is logged in
-        $userData = session()->get('userData');
-        
-        if ($userData && isset($userData['user_id'])) {
-            $userId = $userData['user_id'];
 
-            $order = $this->model->where('user_id', $userId)->first();
 
-            if($order){
-                $orderId = $order['order_id'];
-                $orders = $this->model->getOrders($orderId);
-            }
-        }else{
-            return $this->respond([
-                "status" => false,
-                "message" => "user data error"
-            ]);
-        }
+            /* if ($userData && isset($userData['user_id'])) {
+                $userId = $userData['user_id'];
+
+                $order = $this->model->where('user_id', $userId)->first();
+
+                if($order){
+                    $orderId = $order['order_id'];
+                    $orders = $this->model->getOrders($orderId);
+                }
+            }else{
+                return $this->respond([
+                    "status" => false,
+                    "message" => "user data error"
+                ]);
+            } */
+
+        $orders = $this->model->getOrders();
         return view('include/header', ['pageTitle' => $pageTitle]) 
         . view('include/sidebar')
         . view('include/nav')
@@ -111,4 +113,39 @@ class OrdersController extends ResourceController
         . view('include/footer'); 
     }
     
+    public function orderStatusUpdate($order_id){
+
+        $orderStatus = $this->request->getPost('order_status');
+
+        if (!$orderStatus) {
+            return $this->response->setStatusCode(400, 'Bad Request')->setJSON(['error' => 'Order status is required']);
+        }
+
+        $order = $this->model->updateOrder($order_id, ['status' => $orderStatus]);
+
+        if ($orderStatus === 'completed') {
+            $cartModel = new CartModel();
+            $cartItemsModel = new CartItemsModel();
+    
+            // Retrieve user_id associated with the order
+            $order = $this->model->find($order_id);
+            $userId = $order['user_id'];
+    
+            // Get user's cart
+            $cart = $cartModel->where('user_id', $userId)->first();
+            if ($cart) {
+                $cartId = $cart['cart_id'];
+    
+                // Delete cart items first
+                $cartItemsModel->where('cart_id', $cartId)->delete();
+    
+                // Then delete the cart
+                $cartModel->delete($cartId);
+            }
+        }
+
+        if ($order) {
+            return redirect()->to('order/viewOrders')->with('message', 'status updated successfully!');
+        }
+    }
 }

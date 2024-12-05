@@ -14,6 +14,7 @@ class CartModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'user_id',
+        'cart_id',
         'coupon_id',
         'created_at'
     ];

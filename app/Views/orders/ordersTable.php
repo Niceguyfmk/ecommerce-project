@@ -44,9 +44,9 @@
                                 <td><?= esc($order['status']) ?></td>
                                 <td><?= esc($order['created_at']) ?></td>
                                 <td>
+                                    
                                     <a href="<?= site_url('/order/delete/' . $order['order_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this order?');">Delete</a>
                                     <a href="<?= site_url('/order/orderDetails/' . $order['order_id']) ?>" class="btn btn-info btn-sm">Details</a>
-                                    <a href="<?= site_url('/order/orderStatus/' . $order['order_id']) ?>" class="btn btn-warning btn-sm">Status</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

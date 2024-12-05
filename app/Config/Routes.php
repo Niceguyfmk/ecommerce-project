@@ -91,9 +91,12 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
 
 //Orders
 $routes->post('/order/create', 'OrdersController::create');
+
 $routes->group("order", ["namespace" => "App\Controllers", 'filter' => 'jwt_auth'], function($routes){
     $routes->get('viewOrders', 'OrdersController::viewTable');
-    $routes->get('orderDetails', 'OrdersController::viewTable');
+    $routes->get('orderDetails/(:num)', 'OrderItemsController::orderItemDetail/$1');
+    $routes->post('orderUpdate/(:num)', 'OrdersController::orderStatusUpdate/$1');
+
 });
 
 

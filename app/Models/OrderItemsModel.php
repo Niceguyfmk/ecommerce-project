@@ -22,12 +22,12 @@ class OrderItemsModel extends Model
     public function getItem($order_id){
         $builder = $this->db->table('order_items');
 
-        $builder->select('order_items.*, order.*, products.name, users.email');
+        $builder->select('order_items.*, orders.*, products.name, users.email');
         $builder->join('orders', 'orders.order_id = order_items.order_id');
         $builder->join('users', 'users.user_id = orders.user_id');
         $builder->join('product_attributes', 'product_attributes.product_attribute_id = order_items.product_attribute_id');
-        $builder->join('product', 'product.product_id = product_attributes.product_id');
-        $builder->where('orders.order_id', $order_id);
+        $builder->join('products', 'products.product_id = product_attributes.product_id');
+        $builder->where('order_items.order_id', $order_id);
         return $builder->get()->getResultArray();
     }
 }
