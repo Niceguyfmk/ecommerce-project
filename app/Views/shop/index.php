@@ -178,12 +178,11 @@
                                                     </a>
                                                     <p><?= $product["description"]; ?></p>
                                                     <div class="product-price">
-                                                    <?php print_r($cartItem); ?>
+                                                    
                                                         <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
                                                     </div>
 
                                                     <div class="product-quantity">
-
                                                         <!-- Add to Cart Button or Quantity Control -->
                                                         <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">
                                                             <!-- Show/Hide Add to Cart Button based on Cart Quantity -->
@@ -208,7 +207,7 @@
                                                                     text-align: center;
                                                                     margin: 5px;
                                                                     display: inline-flex;
-                                                                    width: 50px;
+                                                                    min-width: 50px;
                                                                 }
                                                                 .add-to-cart-btn-<?= $product['product_id']; ?> {
                                                                     border-radius: 50px;
@@ -279,13 +278,34 @@
 
                                                         <!-- Product Details -->
                                                         <div class="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                            <h4><?= $product["name"]; ?></h4>
+                                                            <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
+                                                                <h4><?= $product["name"]; ?></h4>
+                                                            </a>
                                                             <p><?= $product["description"]; ?></p>
-                                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                                            <div class="product-price">
+                                                            
                                                                 <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
-                                                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-                                                                </a>
+                                                            </div>
+
+                                                            <div class="product-quantity">
+
+                                                                <!-- Add to Cart Button or Quantity Control -->
+                                                                <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">
+                                                                    <!-- Show/Hide Add to Cart Button based on Cart Quantity -->
+                                                                    <button
+                                                    
+                                                                        class="add-to-cart-btn-<?= $product['product_id']; ?> btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
+                                                                        onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
+                                                                        <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart 
+                                                                    </button>
+
+                                                                    <!-- Show/Hide Quantity Control based on Cart Quantity -->
+                                                                    <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
+                                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?>, 'decrement')">-</button>
+                                                                        <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control quantity-input-<?= $product['product_id']; ?>" readonly />
+                                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?> , 'increment')">+</button>
+                                                                    </div>   
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -361,6 +381,18 @@
                         <?php if ($category["category_id"] == 2): ?> <!-- category is vegetables -->
                             <?php foreach ($products as $product): ?>
                                 <?php if ($product["category_id"] == 2): ?> <!-- Check if the product is vegetables -->
+								<?php    // Search for the product in the cart
+                                            
+                                            $cartItem = array_filter($cartItems, function ($item) use ($product) {
+                                                return $item['product_id'] == $product['product_id'];
+                                                });
+
+                                                // Reset to get the first match
+                                                $cartItem = reset($cartItem);
+
+                                                // Determine quantity (default to 0 if not found)
+                                                $quantity = $cartItem ? $cartItem['quantity'] : 0;
+                                        ?>
                                     <div class="border border-primary rounded position-relative vesitable-item">
                                         <?php 
                                         // Get the product image
@@ -375,17 +407,62 @@
                                         <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
                                             <?= $category["category_name"]; ?> 
                                         </div>
-                                        <div class="p-4 rounded-bottom">
+                                        <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                             <a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>">
-                                                <h4><?= $product["name"]; ?></h4> 
+                                                <h4><?= $product["name"]; ?></h4>
                                             </a>
-                                            <p><?= $product["description"]; ?></p> 
-                                            <div class="d-flex justify-content-between flex-lg-wrap">
+                                            <p><?= $product["description"]; ?></p>
+                                            <div class="product-price">
+                                            
                                                 <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
-                                                <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary">
-                                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-                                                </a>
                                             </div>
+
+                                            <div class="product-quantity">
+                                                <!-- Add to Cart Button or Quantity Control -->
+                                                <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">
+                                                    <!-- Show/Hide Add to Cart Button based on Cart Quantity -->
+                                                    <button
+                                    
+                                                        class="add-to-cart-btn-<?= $product['product_id']; ?> btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
+                                                        onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
+                                                        <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart 
+                                                    </button>
+
+                                                    <!-- Show/Hide Quantity Control based on Cart Quantity -->
+                                                    <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?>, 'decrement')">-</button>
+                                                        <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control quantity-input-<?= $product['product_id']; ?>" readonly />
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?> , 'increment')">+</button>
+                                                    </div>
+                                                    <!-- Inline CSS -->
+                                                    <style>
+                                                        .quantity-input-<?= $product['product_id']; ?> {
+                                                            font-size: 1.1rem;
+                                                            border-radius: 10px;
+                                                            text-align: center;
+                                                            margin: 5px;
+                                                            display: inline-flex;
+                                                            min-width: 50px;
+                                                        }
+                                                        .add-to-cart-btn-<?= $product['product_id']; ?> {
+                                                            border-radius: 50px;
+                                                            font-size: 1rem;
+                                                            transition: background-color 0.3s ease;
+                                                        }
+                                                        
+                                                        .quantity-control-<?= $product['product_id']; ?> {
+                                                            display: flex;
+                                                            align-items: center;
+                                                        }
+                                                        .quantity-control-<?= $product['product_id']; ?> button {
+                                                            width: 2.5rem;
+                                                            height: 2.5rem;
+
+                                                        }
+                                                    </style>
+                                                </div>
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                 <?php endif; ?>

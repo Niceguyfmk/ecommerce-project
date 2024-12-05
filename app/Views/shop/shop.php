@@ -190,38 +190,37 @@
                                                         <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
                                                     </button>
 
-                                                    <!-- Quantity Control -->
                                                     <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
-                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'decrement')">-</button>
-                                                        <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="quantity-input-<?= $product['product_id']; ?> form-control" readonly />
-                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, 'increment')">+</button>
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?>, 'decrement')">-</button>
+                                                        <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control quantity-input-<?= $product['product_id']; ?>" readonly />
+                                                        <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?> , 'increment')">+</button>
                                                     </div>
-                                                                                                                <!-- Inline CSS -->
-                                                                                                                <style>
-                                                                .quantity-input-<?= $product['product_id']; ?> {
-                                                                    font-size: 1.1rem;
-                                                                    border-radius: 10px;
-                                                                    text-align: center;
-                                                                    margin: 5px;
-                                                                    display: inline-flex;
-                                                                    width: 50px;
-                                                                }
-                                                                .add-to-cart-btn-<?= $product['product_id']; ?> {
-                                                                    border-radius: 50px;
-                                                                    font-size: 1rem;
-                                                                    transition: background-color 0.3s ease;
-                                                                }
-                                                                
-                                                                .quantity-control-<?= $product['product_id']; ?> {
-                                                                    display: flex;
-                                                                    align-items: center;
-                                                                }
-                                                                .quantity-control-<?= $product['product_id']; ?> button {
-                                                                    width: 2.5rem;
-                                                                    height: 2.5rem;
-     
-                                                                }
-                                                            </style>
+                                                    <!-- Inline CSS -->
+                                                    <style>
+                                                        .quantity-input-<?= $product['product_id']; ?> {
+                                                            font-size: 1.1rem;
+                                                            border-radius: 10px;
+                                                            text-align: center;
+                                                            margin: 5px;
+                                                            display: inline-flex;
+                                                            width: 50px;
+                                                        }
+                                                        .add-to-cart-btn-<?= $product['product_id']; ?> {
+                                                            border-radius: 50px;
+                                                            font-size: 1rem;
+                                                            transition: background-color 0.3s ease;
+                                                        }
+                                                        
+                                                        .quantity-control-<?= $product['product_id']; ?> {
+                                                            display: flex;
+                                                            align-items: center;
+                                                        }
+                                                        .quantity-control-<?= $product['product_id']; ?> button {
+                                                            width: 2.5rem;
+                                                            height: 2.5rem;
+
+                                                        }
+                                                    </style>
                                                 </div>
                                             </div>
                                         </div>

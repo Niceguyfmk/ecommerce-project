@@ -62,6 +62,7 @@ class CartItemsController extends ResourceController
         $userData = session()->get('userData');
         if (!$userData || !isset($userData['user_id'])) {
             log_message('error', 'User is not logged in or userData is missing.');
+            
             return redirect()->to('user/login')->with('error', 'You must be logged in to checkout.');
         }
     
@@ -92,13 +93,12 @@ class CartItemsController extends ResourceController
         $tempCartModel = new TempCartModel();
         //for displaying on page
         $tempCartItems = $tempCartModel->getTempCartItems($uid);
-
+        
         if (!empty($tempCartItems)) {
             $cartItemsModel = new CartItemsModel();
     
             foreach ($tempCartItems as $item) {
-                var_dump($item['status']);
-                if($item['status'] == 0){
+                if($item['status'] === '0'){
                     $data = [
                         'cart_id' => $cartId,
                         'product_id' => $item['product_id'],

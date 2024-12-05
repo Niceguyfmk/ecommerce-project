@@ -140,10 +140,18 @@ function addToCart(productId, quantity, price) {
         return;
     }
 
-    // Hide the "Add to Cart" button and show the quantity control and show card count
-    document.querySelector('.add-to-cart-btn-' + productId).classList.add('d-none');
-    document.querySelector('.quantity-control-' + productId).classList.remove('d-none');
-    document.querySelector('.cardCount').classList.remove('d-none');
+    // Hide the "Add to Cart" button and show the quantity control
+    document.querySelectorAll('.add-to-cart-btn-' + productId).forEach(function(button) {
+        button.classList.add('d-none'); // Hides all buttons with that class
+    });
+
+    document.querySelectorAll('.quantity-control-' + productId).forEach(function(control) {
+        control.classList.remove('d-none'); // Shows the quantity control
+    });
+
+    document.querySelectorAll('.cardCount').forEach(function(cartCount) {
+        cartCount.classList.remove('d-none'); // Shows the cart count
+    });
     
     // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
@@ -189,8 +197,8 @@ function updateCartCount(change) {
 
 function updateQuantity(productId, cost, action) {
     const quantityInput = document.querySelector('.quantity-input-' + productId);
-    let currentQuantity = parseInt(quantityInput.value) || 1;
 
+    let currentQuantity = parseInt(quantityInput.value) || 1;
     if (action === 'increment') {
         currentQuantity++;
         updateCartCount(1);
@@ -198,19 +206,27 @@ function updateQuantity(productId, cost, action) {
         currentQuantity--;
         updateCartCount(-1);
     } else if (action === 'decrement' && currentQuantity === 1) {
-        const addToCartBtn = document.querySelector('.add-to-cart-btn-' + productId);
-        const quantityControl = document.querySelector('.quantity-control-' + productId);
+        const addToCartBtn = document.querySelectorAll('.add-to-cart-btn-' + productId);
+        const quantityControl = document.querySelectorAll('.quantity-control-' + productId);
 
         if (addToCartBtn && quantityControl) {
-            addToCartBtn.classList.remove('d-none');
-            quantityControl.classList.add('d-none');
+            addToCartBtn.forEach(function(button) {
+                button.classList.remove('d-none');
+            });
+            
+            quantityControl.forEach(function(control) {
+                control.classList.add('d-none');
+            });
         }
+
         removeItemFromCart(productId);
         return;
     }
-
-    quantityInput.value = currentQuantity;
-
+    document.querySelectorAll('.quantity-input-' + productId).forEach(function(element) {
+        element.value = currentQuantity;
+        console.log(element.value);  // Log the value of each input
+    });
+    
     // Update row total dynamically
     const priceElement = document.querySelector(`#cart-item-${productId} td:nth-child(3)`);
     const rowTotalElement = document.querySelector(`#cart-item-${productId} .total`);
