@@ -6,7 +6,7 @@ use App\Models\TempCartModel;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
 use CodeIgniter\RESTful\ResourceController;
-
+use Stripe;
 class CartItemsController extends ResourceController
 {
     public function __construct()
@@ -357,5 +357,56 @@ class CartItemsController extends ResourceController
             log_message('error', $e->getMessage());
             return $this->respond(['error' => 'Internal Server Error'], 500);
         }
+    }
+
+    public function payment()
+    {
+        $total = $this->request->getVar('total');
+        $totalAmount = intval($total * 100); //stripe expects amount in cents so 5.99 = 599
+        try {
+            // Set Stripe API Key
+            $stripeKey = getenv('STRIPE_SECRET');
+            if (!$stripeKey) {
+                throw new \Exception('Stripe API Key is not set in the environment variables.');
+            }
+            \Stripe\Stripe::setApiKey($stripeKey);
+    
+            // Create Checkout Session
+            $session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [
+                    [
+                        'price_data' => [
+                            'currency' => 'usd',
+                            'product_data' => [
+                                'name' => 'Test Product',
+                            ],
+                            'unit_amount' => $totalAmount, 
+                        ],
+                        'quantity' => 1,
+                    ],
+                ],
+                'mode' => 'payment', 
+                'success_url' => base_url('success'), 
+                'cancel_url' => base_url('cancel'),   
+            ]);
+    
+            // Return the session URL for redirection
+            return $this->response->setJSON(['url' => $session->url]);
+    
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            log_message('error', 'Stripe Checkout error: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'An error occurred: ' . $e->getMessage()]);
+        }
+    }
+    
+    public function success()
+    {
+        return view('success'); // Success page view
+    }
+
+    public function cancel()
+    {
+        return view('cancel'); // Cancel page view
     }
 }

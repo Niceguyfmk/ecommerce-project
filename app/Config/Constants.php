@@ -92,3 +92,7 @@ define('EVENT_PRIORITY_NORMAL', 100);
  * @deprecated Use \CodeIgniter\Events\Events::PRIORITY_HIGH instead.
  */
 define('EVENT_PRIORITY_HIGH', 10);
+
+
+defined("STRIPE_KEY") || define("STRIPE_KEY", getenv('STRIPE_KEY') ?: '');
+defined("STRIPE_SECRET") || define("STRIPE_SECRET",getenv('STRIPE_SECRET'?: ''));

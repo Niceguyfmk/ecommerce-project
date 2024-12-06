@@ -16,7 +16,6 @@
         <h1 class="mb-4">Checkout  details</h1>
         <form action="#">
             <div class="row g-5">
-
                 <div class="col-md-12 col-lg-12 col-xl-12">
                     <div class="table-responsive">
                         <table class="table">
@@ -131,14 +130,14 @@
                                 <label class="form-check-label" for="Delivery-1">Cash On Delivery</label>
                             </div>
                             <div class="form-check text-start my-3">
-                                <input type="radio" class="form-check-input bg-primary border-0" id="Paypal-1" name="payment_method" value="PayPal">
-                                <label class="form-check-label" for="Paypal-1">PayPal</label>
+                                <input type="radio" class="form-check-input bg-primary border-0" id="Stripe-1" name="payment_method" value="Stripe">
+                                <label class="form-check-label" for="Stripe-1">Stripe</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-4 text-center align-items-center justify-content-center pt-4">
-                        <button type="button" id="place-order-btn" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary">Place Order</button>
+                        <button type="button" id="payButton" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary place-order-btn">Place Order</button>
                     </div>
                 </div>
             </div>

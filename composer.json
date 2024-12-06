@@ -17,7 +17,8 @@
         "paypal/paypal-checkout-sdk": "^1.0",
         "paypal/paypal-server-sdk": "^0.6.1",
         "paypal/rest-api-sdk-php": "^1.6",
-        "razorpay/razorpay": "^2.9"
+        "razorpay/razorpay": "^2.9",
+        "tatter/stripe": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",

@@ -41,6 +41,7 @@ class Autoload extends AutoloadConfig
      */
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
+        'Stripe' => ROOTPATH . 'vendor/stripe/stripe-php/init.php'
     ];
 
     /**

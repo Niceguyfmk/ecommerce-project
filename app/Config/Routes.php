@@ -98,3 +98,9 @@ $routes->group("order", ["namespace" => "App\Controllers", 'filter' => 'jwt_auth
     $routes->post('orderUpdate/(:num)', 'OrdersController::orderStatusUpdate/$1');
 
 });
+
+
+//$routes->get('stripe', 'StripeController::stripe');
+$routes->get('success', 'CartItemsController::success');
+$routes->get('cancel', 'CartItemsController::cancel');
+$routes->post('payment', 'CartItemsController::payment');

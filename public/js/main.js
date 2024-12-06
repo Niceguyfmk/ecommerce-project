@@ -364,12 +364,50 @@ function createOrder() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-   
     recalculateSubtotal();
-    
-    var orderBtn = document.getElementById('place-order-btn');
-    if(orderBtn){
-        orderBtn.addEventListener('click', createOrder);
+    var grandTotalElement = document.querySelector('.grand-total');
+
+    var grandTotal = grandTotalElement ? grandTotalElement.textContent : null;
+    var grandTotalAmount = parseFloat(grandTotal.replace('$', '').trim());
+    var orderBtn = document.querySelector('.place-order-btn');
+    if (orderBtn) {
+        orderBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            //createOrder(); // First, create the order
+
+            
+            // Check which payment method is selected
+            var paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (paymentMethod) {
+                if (paymentMethod.value === 'COD') {
+                    // If 'Cash On Delivery' is selected, redirect to success view
+                    window.location.href = '/success'; // Replace with your success page URL
+                } else if (paymentMethod.value === 'Stripe') {
+                    // If 'Stripe' is selected, call the createOrder function and Stripe payment
+
+                    $.ajax({
+                        url: 'payment', // Endpoint for Stripe checkout
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            total: grandTotalAmount
+                        }),
+                        success: function(data) {
+                            if (data.url) {
+                                window.location.href = data.url; // Redirect to the Stripe checkout page
+                            } else {
+                                console.error('Error creating checkout session:', data.error);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error during payment API call:', error);
+                        }
+                    });
+                }
+            } else {
+                console.error('No payment method selected');
+            }
+        });
     }
 });
 
