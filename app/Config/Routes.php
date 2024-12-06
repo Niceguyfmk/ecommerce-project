@@ -98,6 +98,3 @@ $routes->group("order", ["namespace" => "App\Controllers", 'filter' => 'jwt_auth
     $routes->post('orderUpdate/(:num)', 'OrdersController::orderStatusUpdate/$1');
 
 });
-
-
-

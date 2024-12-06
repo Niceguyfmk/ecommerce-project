@@ -13,7 +13,7 @@
 <!-- Checkout Page Start -->
 <div class="container-fluid py-5">
     <div class="container py-5">
-        <h1 class="mb-4">Checkout    details</h1>
+        <h1 class="mb-4">Checkout  details</h1>
         <form action="#">
             <div class="row g-5">
 
@@ -131,8 +131,8 @@
                                 <label class="form-check-label" for="Delivery-1">Cash On Delivery</label>
                             </div>
                             <div class="form-check text-start my-3">
-                                <input type="radio" class="form-check-input bg-primary border-0" id="Paypal-1" name="payment_method" value="Rayzorpay">
-                                <label class="form-check-label" for="Paypal-1">Rayzorpay</label>
+                                <input type="radio" class="form-check-input bg-primary border-0" id="Paypal-1" name="payment_method" value="PayPal">
+                                <label class="form-check-label" for="Paypal-1">PayPal</label>
                             </div>
                         </div>
                     </div>
