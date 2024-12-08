@@ -80,6 +80,8 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->get('updateMetaTable/(:num)', 'ProductController::updateMetaTableView/$1');
     $routes->post('metaValues/(:num)', 'ProductController::saveMetaValues/$1');
     $routes->delete('deleteMeta/(:num)', 'ProductController::deleteMeta/$1');
+    //Coupons
+    $routes->get('coupons', 'ProductController::couponsView');
 
 });
 

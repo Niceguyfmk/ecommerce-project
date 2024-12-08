@@ -213,7 +213,6 @@ class ProductController extends ResourceController
     
         return redirect()->to('product/viewProducts')->with('success', 'Attributes saved successfully.');
     }
-    
 
     public function deleteAttribute($attribute_id) {
         $productAttributeModel = new ProductAttributesModel();
@@ -223,8 +222,7 @@ class ProductController extends ResourceController
         } else {
             return $this->response->setStatusCode(500)->setBody('Failed to delete attribute.');
         }
-    }
-    
+    }    
     public function saveMetaValues($product_id)
     {
         $productMetaModel = new ProductMetaModel();
@@ -257,7 +255,6 @@ class ProductController extends ResourceController
         // After processing all the data, redirect to the viewProducts page
         return redirect()->to('product/viewProducts');
     }
-    
     public function deleteMeta($meta_id)
     {
         $productMetaModel = new ProductMetaModel();
@@ -276,7 +273,6 @@ class ProductController extends ResourceController
             return $this->response->setStatusCode(500)->setJSON(['message' => 'Failed to delete meta']);
         }
     }
-
     public function getSingleProduct($product_id){
         $product = $this->model->getProduct($product_id);
         
@@ -360,4 +356,91 @@ class ProductController extends ResourceController
         }
     }
     
+    //coupons view
+    public function couponsView(){
+        // Load the category model
+        $categoryModel = new ProductCategoriesModel;
+        $categories = $categoryModel->getAllCategories();
+        $pageTitle = 'Coupons';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/couponForm', [
+            'categories' => $categories,
+            ])
+        . view('include/footer'); 
+    }
+
+    //Add Coupon
+    public function addCoupon(){
+        
+        //validation
+        $validationRules = [
+            "name" => [
+                "rules" => "required|min_length[5]",
+                "errors" => [
+                    "required" => "Product Title is required",
+                    "min_length" => "Title must be greater than 5 characters",
+                ]
+            ],
+            "base_price" => [
+                "rules" => "required|decimal|greater_than[0]",
+                "errors" => [
+                    "required" => "Please provide the price of the product",
+                    "decimal" => "price must be a decimal value",
+                    "greater_than" => "Product price must be greater than 0 value"
+                ]
+            ],
+        ];
+
+        if (!$this->validate($validationRules)) {
+            log_message('error', 'Validation errors: ' . print_r($this->validator->getErrors(), true));
+            return $this->fail($this->validator->getErrors());
+        }
+
+        //getPost()
+        $ProductData = [
+            "name" => $this->request->getVar("name"), 
+            "base_price" => $this->request->getVar("base_price"),
+            "description" => $this->request->getVar("description"), 
+            "category_id" =>  $this->request->getVar("category"), 
+        ];
+ 
+        $ProductID = $this->model->insert($ProductData);
+        
+        //if product is successfully inserted
+        if($ProductID){
+
+            //save image next to image table
+            $imageFile = $this->request->getfile("image");
+
+            $productImageURL = "";
+    
+            if($imageFile){
+                //file available
+                $newProductImageName = $imageFile->getRandomName();
+                $imageFile->move(FCPATH . "uploads/products/", $newProductImageName);
+                $productImageURL = "uploads/products/" . $newProductImageName;
+                $imageModel = new ImagesModel();
+                $imageModel->insertImage($productImageURL, $ProductID);
+                
+                session()->setFlashdata('message', 'Product added successfully');
+                return redirect()->to('auth/admin');
+            }else{
+                return $this->respond([
+                    "status" => false,
+                    "message" => "Failed to insert image",
+                ]);
+            }
+  
+        }else{
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to insert product",
+            ]);
+        }
+    }
+
+
 }

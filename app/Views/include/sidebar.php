@@ -42,6 +42,9 @@
                                 <li class="sidebar-item">
                                 <a href="<?=  site_url(relativePath: '/product/viewProducts') ?>" class="sidebar-link">View Product List</a>
                                 </li>
+                                <li class="sidebar-item">
+                                <a href="<?=  site_url(relativePath: '/product/coupons') ?>" class="sidebar-link">Coupons</a>
+                                </li>
                             </ul>
                         </li>
 
