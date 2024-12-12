@@ -240,7 +240,6 @@ function updateQuantity(productId, cost, action) {
     updateCartItem(productId, currentQuantity, cost);  // Backend call
 }
 
-
 function recalculateSubtotal() {
     var totalSum = 0;
 
@@ -265,7 +264,7 @@ function recalculateSubtotal() {
     // Update the shipping fee on the page
     var shippingElement = document.querySelector('.shipping-rate');
     if (shippingElement) {
-        shippingElement.innerText = '$' + shippingFee.toFixed(2);
+        shippingElement.innerText = '+ $' + shippingFee.toFixed(2);
     }
 
     // Update the grand total on the page
@@ -324,16 +323,16 @@ function removeItemFromCart(productId) {
     xhr.send();
 }
 
-function createOrder() {
+async function createOrder() {
     // Fetch and format the necessary data
     var grandTotalElement = document.querySelector('.grand-total');
     var grandTotal = grandTotalElement ? grandTotalElement.textContent : null;
+    var couponCode = document.querySelector('input[name="coupon_code"]').value.trim();
 
     if (!grandTotal) {
         alert('Grand total is missing');
         return;
     }
-
     var grandTotalAmount = parseFloat(grandTotal.replace('$', '').trim());
     var paymentMethod = document.querySelector('input[name="payment_method"]:checked');
 
@@ -342,10 +341,31 @@ function createOrder() {
         return;
     }
 
-    var formData = {
-        grand_total: grandTotalAmount,
-        payment_method: paymentMethod.value
-    };
+    let couponID = null;
+    if (couponCode) {
+        try {
+            couponID = await getCouponId(couponCode);
+            console.log('Coupon ID:', couponID);
+        } catch (error) {
+            console.error('Error getting coupon ID:', error);
+            alert(error);
+            return;
+        }
+    }
+    
+    if(!couponID){
+        var formData = {
+            grand_total: grandTotalAmount,
+            payment_method: paymentMethod.value
+        };
+    }else{
+        var formData = {
+            grand_total: grandTotalAmount,
+            payment_method: paymentMethod.value,
+            coupon_id: couponID
+        };
+        console.log('Form Data :',formData);
+    }
 
     // Send an AJAX request
     fetch('http://localhost:8080/order/create', {
@@ -365,26 +385,25 @@ function createOrder() {
 
 document.addEventListener('DOMContentLoaded', function() {
     recalculateSubtotal();
-    var grandTotalElement = document.querySelector('.grand-total');
 
-    var grandTotal = grandTotalElement ? grandTotalElement.textContent : null;
-    var grandTotalAmount = parseFloat(grandTotal.replace('$', '').trim());
     var orderBtn = document.querySelector('.place-order-btn');
     if (orderBtn) {
         orderBtn.addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default form submission
-            //createOrder(); // First, create the order
+            var grandTotalElement = document.querySelector('.grand-total');
+            var grandTotal = grandTotalElement ? grandTotalElement.textContent : null;
+            var grandTotalAmount = parseFloat(grandTotal.replace('$', '').trim());
 
-            
+             // First, create the order            
             // Check which payment method is selected
             var paymentMethod = document.querySelector('input[name="payment_method"]:checked');
             if (paymentMethod) {
                 if (paymentMethod.value === 'COD') {
-                    // If 'Cash On Delivery' is selected, redirect to success view
-                    window.location.href = '/success'; // Replace with your success page URL
+                    
+                    createOrder(); 
                 } else if (paymentMethod.value === 'Stripe') {
                     // If 'Stripe' is selected, call the createOrder function and Stripe payment
-
+                    createOrder();
                     $.ajax({
                         url: 'payment', // Endpoint for Stripe checkout
                         method: 'POST',
@@ -411,6 +430,112 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+//coupons
+function applyCoupon() {
+    var couponCode = document.querySelector('input[name="coupon_code"]').value.trim();
+    var subTotalElement = document.querySelector('.subtotal');
+    var subTotal = subTotalElement ? subTotalElement.textContent : null;
+    
+    if (!couponCode) {
+        alert("Please enter a coupon code.");
+        return;
+    }
+    
+    if (!subTotal) {
+        alert("Unable to calculate discount. Sub total is missing.");
+        return;
+    }
 
+    var subTotalAmount = parseFloat(subTotal.replace('$', '').trim());
+    
+    // Send AJAX request to validate and apply the coupon
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/product/applyCoupon', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                var disc = parseFloat(response.discount);
+                updateCouponBlock(disc); 
+                recalculateSubtotal();
+            } else {
+                alert(response.message); 
+            }
+        } else {
+            console.error('Error applying coupon:', xhr.statusText);
+        }
+    };
 
+    var data = 'coupon_code=' + encodeURIComponent(couponCode) + '&sub-total=' + encodeURIComponent(subTotalAmount);
+    xhr.send(data);
+}
 
+function updateCouponBlock(discount) {
+    //var couponBlock = document.getElementById('coupon-block');
+    var couponDiscountElement = document.getElementById('coupon-discount');
+
+    //couponBlock.classList.remove('d-none');
+    couponDiscountElement.innerText = '- $' + discount.toFixed(2); //update discount value
+
+    setTimeout(function() {
+        
+        // Run your update function after DOM content is loaded and the grand total is set
+        updateGrandTotalWithCoupon(discount);
+    }, 100);
+}
+
+function updateGrandTotalWithCoupon(discount) {
+    // Get the grand total element
+    var grandTotalElement = document.querySelector('.grand-total');
+
+    // Make sure the grand total element exists
+    if (grandTotalElement) {
+        // Parse the existing grand total from the element
+        var grandTotal = parseFloat(grandTotalElement.innerText.replace('$', '').trim());
+
+        // Subtract the discount from the grand total
+        var newGrandTotal = grandTotal - discount;
+
+        // Update the grand total element with the new value
+        grandTotalElement.innerText = '$' + newGrandTotal.toFixed(2);
+
+    } else {
+        console.error('Grand total element not found!');
+    }
+}
+
+function getCouponId(coupon) {
+    return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/product/couponID', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        resolve(response.couponID);
+                    } else {
+                        reject(response.message);
+                    }
+                } catch (e) {
+                    reject('Invalid JSON response: ' + xhr.responseText);
+                }
+            } else {
+                reject('Request failed with status: ' + xhr.status);
+            }
+        };
+
+        xhr.onerror = function () {
+            reject('Request error');
+        };
+
+        var data = 'coupon_code=' + encodeURIComponent(coupon);
+        xhr.send(data);
+    });
+}

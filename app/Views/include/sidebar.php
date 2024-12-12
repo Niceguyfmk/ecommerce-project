@@ -17,7 +17,7 @@
 
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link collapsed" data-bs-target="#pages" data-bs-toggle="collapse"
-                                aria-expanded="false"><i class="fa-solid fa-file-lines pe-2"></i>
+                                aria-expanded="false"><i class="fa-solid fa-user pe-2"></i>
                                 Users
                             </a>
                             <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
@@ -32,7 +32,7 @@
 
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link collapsed" data-bs-target="#products" data-bs-toggle="collapse"
-                                aria-expanded="false"><i class="fa-solid fa-file-lines pe-2"></i>
+                                aria-expanded="false"><i class="fa-solid fa-tag pe-2"></i>
                                 Products
                             </a>
                             <ul id="products" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
@@ -50,7 +50,7 @@
 
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed" data-bs-target="#orders" data-bs-toggle="collapse"
-                            aria-expanded="false"><i class="fa-solid fa-sliders pe-2"></i>
+                            aria-expanded="false"><i class="fa-solid fa-clipboard-list pe-2"></i>
                             Orders
                         </a>
                         <ul id="orders" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
@@ -60,12 +60,16 @@
                             <li class="sidebar-item">
                                 <a href="<?=  site_url(relativePath: '/order/viewOrders') ?>" class="sidebar-link">Order Status</a>
                             </li>
+                            <li class="sidebar-item">
+                                <a href="<?=  site_url(relativePath: '/order/order-tracking') ?>" class="sidebar-link">Order Tracking Home</a>
+                            </li>
+            
                         </ul>
                     </li>
 
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed" data-bs-target="#auth" data-bs-toggle="collapse"
-                            aria-expanded="false"><i class="fa-regular fa-user pe-2"></i>
+                            aria-expanded="false"><i class="fa-regular fa-file-lines pe-2"></i>
                             Reviews
                         </a>
                         <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">

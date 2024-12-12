@@ -72,8 +72,8 @@
                 </div>
 
                 <div class="mt-5">
-                    <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Coupon Code">
-                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Apply Coupon</button>
+                    <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" name="coupon_code" placeholder="Coupon Code">
+                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button" onclick="applyCoupon()">Apply Coupon</button>
                 </div>
                 
                 <div class="row g-4 justify-content-end">
@@ -82,20 +82,26 @@
                         <div class="bg-light rounded">
                             <div class="p-4">
                                 <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
-                                <div class="d-flex justify-content-between mb-4">
+                                <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4">Subtotal:</h5>
                                     <p class="mb-0 total subtotal">$0.00</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex justify-content-between mt-4">
                                     <h5 class="mb-0 me-4">Shipping</h5>
                                     <div class="shipping-rate">
                                         <p class="mb-0">$0.00</p>
                                     </div>
                                 </div>
+                                <div class="d-flex justify-content-between d-none mt-4" id="coupon-block">
+                                    <h5 class="mb-0 me-4">Coupon</h5>
+                                    <div class="coupon-rate">
+                                        <p class="mb-0" id="coupon-discount">$0.00</p>
+                                    </div>
+                                </div>
                             </div>
                             <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                 <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                <p class="mb-0 pe-4 grand-total">$99.00</p>
+                                <p class="mb-0 pe-4 grand-total" id="final-total">$0.00</p>
                             </div>
 	                            <a class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button" href="<?= base_url('checkout') ?>">Proceed Checkout</a>
                         </div>

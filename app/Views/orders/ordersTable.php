@@ -11,9 +11,9 @@
                 <div class="row justify-content">
                     <div class="row">
                         <h2>Orders Table:</h2>
+                    </div>
                 </div>
             </div>
-    </div>
         </div>
         <div class="card-body">
             <!-- Table to display user records -->
@@ -56,3 +56,12 @@
         </div>
     </div>
 </div>
+
+<script>
+let table = new DataTable('#myTable');
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize the Edit Role Modal functionality
+    initializeEditRoleModal();
+});
+</script>

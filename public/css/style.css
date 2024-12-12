@@ -563,3 +563,6 @@
 }
 /* Button styling */
 
+#coupon-input{
+    border: 1px solid var(--bs-secondary) ;
+}

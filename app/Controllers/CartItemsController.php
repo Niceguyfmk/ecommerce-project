@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Controllers;
+use App\Models\OrdersModel;
 use App\Models\ProductModel;
 use App\Models\TempCartModel;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
+use App\Models\TransactionsModel;
 use CodeIgniter\RESTful\ResourceController;
+
 use Stripe;
 class CartItemsController extends ResourceController
 {
@@ -399,14 +402,124 @@ class CartItemsController extends ResourceController
             return $this->response->setJSON(['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
-    
+    //stripe webhook endpoint
+    public function stripeWebhook()
+    {
+        // Get the webhook secret from environment variables
+        $endpointSecret = getenv('STRIPE_WEBHOOK_SECRET');
+
+        // Get the payload and the signature header from the incoming request
+        $payload = @file_get_contents('php://input');
+        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? null;
+
+        $event = null;
+
+        try {
+            // Verify the webhook signature using Stripe's SDK
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sigHeader,
+                $endpointSecret
+            );
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature, log and exit
+            log_message('error', 'Webhook signature verification failed: ' . $e->getMessage());
+            http_response_code(400);
+            exit();
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload, log and exit
+            log_message('error', 'Invalid payload: ' . $e->getMessage());
+            http_response_code(400);
+            exit();
+        }
+
+        // Handle the verified event
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object; // Stripe PaymentIntent object
+                
+                $this->handlePaymentIntentSucceeded($paymentIntent);//payment success
+                break;
+            case 'payment_intent.payment_failed':
+                $paymentIntent = $event->data->object; 
+                
+                $this->handlePaymentIntentFailed($paymentIntent); //payment failed
+                break;
+            case 'checkout.session.completed':
+                $session = $event->data->object; // Stripe Checkout Session object
+                
+                // Update order and transaction as completed
+                $this->handleCheckoutSessionCompleted($session);
+                break;
+            default:
+                // Log or handle other event types if needed
+                log_message('info', 'Received unknown event type: ' . $event->type);
+        }
+
+        // Send a 200 response to acknowledge receipt of the event
+        http_response_code(200);
+    }
     public function success()
     {
+
         return view('success'); // Success page view
     }
-
     public function cancel()
     {
         return view('cancel'); // Cancel page view
+    }
+
+    /**
+     * Handle successful payment intent
+    */
+    function handlePaymentIntentSucceeded($paymentIntent)
+    {
+        $transactionsModel = new TransactionsModel();
+
+        // Update database for a successful transaction
+        $transactionId = $paymentIntent->id;
+        $amountReceived = $paymentIntent->amount_received;
+        
+        $transactionStatus = $transactionsModel->updateStatus($transactionId);
+        if(!$transactionStatus){
+            $message = 'Failed to update transaction status for Transaction ID.';
+        }
+
+        /* $orderStatus = $this->model->updateStatus($orderId);
+        if(!$orderStatus){
+            $message = 'Failed to update order status for Order ID';
+        } */
+        // Logic to update transactions and orders in your database
+        // e.g., updateTransactionStatus($transactionId, 'success', $amountReceived);
+
+        log_message('info', 'Payment succeeded for Transaction ID: ' . $transactionId);
+    }
+
+    /**
+     * Handle failed payment intent
+    */
+    function handlePaymentIntentFailed($paymentIntent)
+    {
+        $transactionId = $paymentIntent->id;
+        $errorMessage = $paymentIntent->last_payment_error->message ?? 'Unknown error';
+
+        // Logic to handle failed payments in your database
+        // e.g., updateTransactionStatus($transactionId, 'failed', $errorMessage);
+
+        log_message('error', 'Payment failed for Transaction ID: ' . $transactionId . '. Error: ' . $errorMessage);
+    }
+
+    /**
+     * Handle checkout session completion
+     */
+    function handleCheckoutSessionCompleted($session)
+    {
+        $sessionId = $session->id;
+        $customerEmail = $session->customer_email;
+
+        // Logic to update orders as completed in your database
+        // e.g., updateOrderStatus($sessionId, 'completed');
+
+        log_message('info', 'Checkout session completed for Session ID: ' . $sessionId . ' (Customer Email: ' . $customerEmail . ')');
     }
 }

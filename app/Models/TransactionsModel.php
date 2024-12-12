@@ -19,4 +19,18 @@ class TransactionsModel extends Model
         'payment_date'
     ];
 
+    public function createTransaction($transactionData){
+        return $this->insert($transactionData);
+    }
+    public function updatePayment($order_id, $data){
+        return $this->update($order_id, $data);
+
+    }
+    //updating transaction status
+    public function updateStatus($transaction_id){
+        
+        $data = ['payment_status' => 'completed']; 
+        return $this->update($transaction_id, $data);
+    }
+
 }

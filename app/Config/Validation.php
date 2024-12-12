@@ -25,6 +25,7 @@ class Validation extends BaseConfig
         FormatRules::class,
         FileRules::class,
         CreditCardRules::class,
+        CustomRules::class, //our custom rules
     ];
 
     /**
@@ -41,4 +42,22 @@ class Validation extends BaseConfig
     // --------------------------------------------------------------------
     // Rules
     // --------------------------------------------------------------------
+
+}
+
+class CustomRules
+{
+    /**
+     * Validates if a date is in the future.
+     *
+     * @param string $value The date to validate.
+     * @param string $fields Not used here, but required by the signature.
+     * @param array $data The full data array (optional).
+     *
+     * @return bool True if the date is in the future, false otherwise.
+     */
+    public function check_future_date(string $value, string $fields=null, array $data=[]): bool
+    {
+        return strtotime($value) > time();
+    }
 }

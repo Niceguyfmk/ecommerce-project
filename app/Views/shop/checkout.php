@@ -14,7 +14,7 @@
 <div class="container-fluid py-5">
     <div class="container py-5">
         <h1 class="mb-4">Checkout  details</h1>
-        <form action="#">
+        <form action="#" method="post">
             <div class="row g-5">
                 <div class="col-md-12 col-lg-12 col-xl-12">
                     <div class="table-responsive">
@@ -26,7 +26,6 @@
                                     <th scope="col">Price</th>
                                     <th scope="col">Quantity</th>
                                     <th scope="col">Total</th>
-                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,30 +46,21 @@
                                     </td>
                                     <td>
                                         <div class="input-group quantity mt-4" style="width: 100px;">
-                                            <div class="input-group-btn">
-                                                <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, <?= $item['price']; ?> , 'decrement')">
-                                                    <i class="fa fa-minus"></i>
-                                                </button>
-                                            </div>
+
                                             <input type="text" class="quantity-input-<?= $item['product_id']; ?> form-control form-control-sm text-center border-0" value="<?= $item['quantity']; ?>" readonly>
-                                            <div class="input-group-btn">
-                                                <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity(<?= $item['product_id']; ?>, <?= $item['price']; ?> , 'increment')">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            </div>
+
                                         </div>
                                     </td>
                                     <td>
                                         <p class="mb-0 mt-4 total"><?php echo ($total); ?> $</p>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-md rounded-circle bg-light border mt-4" onclick="removeItemFromCart(<?= $item['product_id']; ?>)">
-                                            <i class="fa fa-times text-danger"></i>
-                                        </button>
-                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
-
+                                <tr>
+                                    <input type="text" class="rounded me-5 py-3 mb-4" name="coupon_code" placeholder="Coupon Code" id="coupon-input">
+                                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button" onclick="applyCoupon()">Apply Coupon</button>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <th scope="row">
                                     </th>
@@ -81,7 +71,7 @@
                                     </td>
                                     <td colspan="3" class="py-5">
                                         <div class="py-3 border-bottom border-top">
-                                            <p class="mb-0 text-dark total subtotal">$414.00</p>
+                                            <p class="mb-0 text-dark total subtotal">$0.00</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -96,6 +86,20 @@
                                     <td colspan="3" class="py-5">
                                         <div class="py-3 border-bottom border-top shipping-rate">
                                             <p class="mb-0 text-dark">$0.00</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr colspan="3">
+                                    <th scope="row">
+                                    </th>
+                                    <td class="py-5"></td>
+                                    <td class="py-5"></td>
+                                    <td class="py-5">
+                                        <p class="mb-0 text-dark py-3">Coupon Discount</p>                                        
+                                    </td>
+                                    <td colspan="3" class="py-5">
+                                        <div class="py-3 border-bottom border-top coupon-rate">
+                                            <p class="mb-0 text-dark" id="coupon-discount">$0.00</p>
                                         </div>
                                     </td>
                                 </tr>

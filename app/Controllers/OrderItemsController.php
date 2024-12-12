@@ -14,17 +14,9 @@ class OrderItemsController extends ResourceController
         $ordersModel = new OrdersModel();
         $orderItemsModel = new OrderItemsModel();
 
-
         $message = session()->getFlashdata('message');
         $pageTitle = 'Order Item Detail';
-
-        // Retrieve UID from the cookie or return an error
-        $uid = $this->request->getCookie('uid');
-        if (!$uid) {
-
-            return $this->response->setStatusCode(400, 'No UID cookie found');
-        }
-    
+   
         if($orderId){
                 $orderItems = $orderItemsModel->getItem($orderId);
         }else{

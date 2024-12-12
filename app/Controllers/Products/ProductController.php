@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Products;
 
+use App\Models\CouponModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\ProductModel;
@@ -10,6 +11,7 @@ use App\Models\AttributesModel;
 use App\Models\ProductAttributesModel;
 use App\Models\ProductMetaModel;
 use App\Models\ImagesModel;
+use App\Config\Validation;
 class ProductController extends ResourceController
 {
     protected $modelName = ProductModel::class;
@@ -56,7 +58,7 @@ class ProductController extends ResourceController
         ])
         . view('include/footer'); 
     }
-
+    //Load Attributes View
     public function updateAttributesView($product_id){
         
         $attributesModel = new AttributesModel();
@@ -81,6 +83,7 @@ class ProductController extends ResourceController
         ])
         . view('include/footer');
     }
+    //Load Meta Table View
     public function updateMetaTableView($product_id){
         
         $productMetaModel = new ProductMetaModel();
@@ -99,7 +102,6 @@ class ProductController extends ResourceController
         ])
         . view('include/footer');
     }
-
     // Add a product
     public function addProduct(){
         
@@ -290,7 +292,6 @@ class ProductController extends ResourceController
         }
         
     }    
-
     // Update Product using ID
     public function updateProduct($product_id){
          
@@ -338,7 +339,6 @@ class ProductController extends ResourceController
             ]);
         }
     }
-
     // Delete Product
     public function deleteProduct($product_id) {
         // Fetch the product
@@ -355,7 +355,6 @@ class ProductController extends ResourceController
             return redirect()->to('/viewProducts')->with('error', 'Product not found.');
         }
     }
-    
     //coupons view
     public function couponsView(){
         // Load the category model
@@ -371,76 +370,161 @@ class ProductController extends ResourceController
             ])
         . view('include/footer'); 
     }
-
     //Add Coupon
-    public function addCoupon(){
-        
-        //validation
+    public function addCoupon()
+    {
+        $couponModel = new CouponModel();
+    
+        // Validation rules
         $validationRules = [
-            "name" => [
-                "rules" => "required|min_length[5]",
+            "code" => [
+                "rules" => "required|is_unique[coupons.code]",
                 "errors" => [
-                    "required" => "Product Title is required",
-                    "min_length" => "Title must be greater than 5 characters",
+                    "required" => "Coupon Code is required.",
+                    "is_unique" => "Coupon Code must be unique.",
                 ]
             ],
-            "base_price" => [
-                "rules" => "required|decimal|greater_than[0]",
+            "discount_type" => [
+                "rules" => "required|in_list[percentage,fixed]",
                 "errors" => [
-                    "required" => "Please provide the price of the product",
-                    "decimal" => "price must be a decimal value",
-                    "greater_than" => "Product price must be greater than 0 value"
+                    "required" => "Discount Type is required.",
+                    "in_list" => "Discount Type must be either 'percentage' or 'fixed'.",
+                ]
+            ],
+            "discount_value" => [
+                "rules" => "required|greater_than[0]|decimal",
+                "errors" => [
+                    "required" => "Discount Value is required.",
+                    "greater_than" => "Discount Value must be greater than 0.",
+                    "decimal" => "Discount Value must be a valid number.",
+                ]
+            ],
+            "max_discount_value" => [
+                "rules" => "permit_empty|decimal|greater_than[0]",
+                "errors" => [
+                    "decimal" => "Maximum Discount Value must be a valid number.",
+                    "greater_than" => "Maximum Discount Value must be greater than 0.",
+                ]
+            ],
+            "expiry_date" => [
+                "rules" => "required|valid_date[Y-m-d]|check_future_date",
+                "errors" => [
+                    "required" => "Expiry Date is required.",
+                    "valid_date" => "Expiry Date must be in a valid format (YYYY-MM-DD).",
+                    "check_future_date" => "Expiry Date must be a future date.",
+                ]
+            ],
+            "min_order_amount" => [
+                "rules" => "permit_empty|decimal|greater_than_equal_to[0]",
+                "errors" => [
+                    "decimal" => "Minimum Order Amount must be a valid number.",
+                    "greater_than_equal_to" => "Minimum Order Amount cannot be negative.",
+                ]
+            ],
+            "max_usage" => [
+                "rules" => "permit_empty|integer|greater_than[0]",
+                "errors" => [
+                    "integer" => "Maximum Usage must be a whole number.",
+                    "greater_than" => "Maximum Usage must be greater than 0.",
                 ]
             ],
         ];
-
+    
+        // Validate input
         if (!$this->validate($validationRules)) {
             log_message('error', 'Validation errors: ' . print_r($this->validator->getErrors(), true));
             return $this->fail($this->validator->getErrors());
         }
-
-        //getPost()
-        $ProductData = [
-            "name" => $this->request->getVar("name"), 
-            "base_price" => $this->request->getVar("base_price"),
-            "description" => $this->request->getVar("description"), 
-            "category_id" =>  $this->request->getVar("category"), 
-        ];
- 
-        $ProductID = $this->model->insert($ProductData);
-        
-        //if product is successfully inserted
-        if($ProductID){
-
-            //save image next to image table
-            $imageFile = $this->request->getfile("image");
-
-            $productImageURL = "";
     
-            if($imageFile){
-                //file available
-                $newProductImageName = $imageFile->getRandomName();
-                $imageFile->move(FCPATH . "uploads/products/", $newProductImageName);
-                $productImageURL = "uploads/products/" . $newProductImageName;
-                $imageModel = new ImagesModel();
-                $imageModel->insertImage($productImageURL, $ProductID);
-                
-                session()->setFlashdata('message', 'Product added successfully');
-                return redirect()->to('auth/admin');
-            }else{
-                return $this->respond([
-                    "status" => false,
-                    "message" => "Failed to insert image",
-                ]);
-            }
-  
-        }else{
+        // Prepare data
+        $couponData = [
+            "code" => $this->request->getPost("code"),
+            "discount_type" => $this->request->getPost("discount_type"),
+            "discount_value" => $this->request->getPost("discount_value"),
+            "max_discount_value" => $this->request->getPost("discount_type") === "percentage"
+                ? $this->request->getPost("max_discount_value")
+                : null, // Only store max_discount_value if discount_type is percentage
+            "expiry_date" => $this->request->getPost("expiry_date"),
+            "min_order_amount" => $this->request->getPost("min_order_amount"),
+            "max_usage" => $this->request->getPost("max_usage"),
+        ];
+        // var_dump($couponData); die();
+        // Insert coupon
+        $couponID = $couponModel->insert($couponData);
+    
+        if ($couponID) {
+            session()->setFlashdata('message', 'Coupon added successfully');
+            return redirect()->to('auth/admin');
+        } else {
             return $this->respond([
                 "status" => false,
-                "message" => "Failed to insert product",
+                "message" => "Failed to insert coupon.",
             ]);
         }
     }
+    //Apply Coupon
+    public function applyCoupon()
+    {
+        $couponModel = new CouponModel();
 
+        $couponCode = $this->request->getPost('coupon_code');
+        $total = $this->request->getPost('sub-total');
+        
+        // Validate coupon code from the database
+        $coupon = $couponModel->getCouponByCode($couponCode);
+        if (!$coupon) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid coupon code.']);
+        }
+        // Check if the coupon is valid
+        $currentDate = date('Y-m-d');
+        if ($coupon['expiry_date'] < $currentDate) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Coupon has expired.']);
+        }
+        //Validation for max_usage of coupons
+        if (isset($coupon['max_usage']) && $coupon['max_usage'] <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => "This coupon has reached its usage limit."]);
+        }
+
+        //Validation for min_order_amount
+        if ($total < $coupon['min_order_amount']) {
+            return $this->response->setJSON(['success' => false,
+             'message' => "Order does not meet the minimum amount of {$coupon['min_order_amount']}."]);
+        }
+        
+        // Calculate the discount value based on the coupon type (percentage or fixed)
+        $discount = 0;
+        if ($coupon['discount_type'] === 'percentage') {
+            $discount = $total * ($coupon['discount_value']);
+            
+            //keep % discount in check using max_discount_value
+            if (($discount) > $coupon['max_discount_value']){
+                $discount = $coupon['max_discount_value']; 
+                 
+            }else {
+            $discount = $total *$coupon['discount_value'];
+            }
+        }else {
+            $discount = $coupon['discount_value'];
+            }
+        // Return the discount value
+        return $this->response->setJSON(['success' => true, 'discount' => $discount]);
+    }
+
+    public function getCouponId()
+    {
+        $couponModel = new CouponModel();
+        $couponCode = $this->request->getPost('coupon_code');
+
+        if (!$couponCode) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Missing coupon code']);
+        }
+
+        $couponID = $couponModel->getCouponId($couponCode);
+
+        if (!$couponCode) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error getting coupon ID']);
+        }
+        return $this->response->setJSON(['success' => true, 'couponID' => $couponID]);
+    }
 
 }

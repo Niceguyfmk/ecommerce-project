@@ -82,7 +82,7 @@ class Home extends BaseController
             ])
             . view('shop-Include/footer');  
     }
-
+    //products page ... /shop
     public function shop(): string
     {
         // Retrieve the cookie value or create it if it doesn't exist
@@ -163,7 +163,6 @@ class Home extends BaseController
             ])
             . view('shop-Include/footer');
     }
-    
       //Product Shop-Detail 
     public function detail($id): string
     {
@@ -198,15 +197,14 @@ class Home extends BaseController
            .view('shop-Include/footer');
             
     }
-
+    //Customer Profile in shop
     public function profile(){
         $message = session()->getFlashdata('success');  
         $errorMessage = session()->getFlashdata('error');
         $pageTitle = 'Profile';
         
         $userData = session()->get('userData'); 
-
-
+        
         return view('shop-include/header', ['pageTitle' => $pageTitle]) 
 
         . view('shop/profile', [
@@ -217,7 +215,15 @@ class Home extends BaseController
             ])
         . view('shop-include/footer');
     }
-   
+
+    /**
+     * 
+     * 
+     * Dashboard Admin Side
+     * 
+     * 
+    **/
+
     //Auth Related Pages
     public function login(){
         $message = session()->getFlashdata('success');  

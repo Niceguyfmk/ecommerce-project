@@ -14,6 +14,7 @@ class OrdersModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'order_id',
+        'unique_order_id',
         'user_id',
         'coupon_id',
         'total_amount',
@@ -35,6 +36,15 @@ class OrdersModel extends Model
 
     public function updateOrder($order_id, $data){
         return $this->update($order_id, $data);
-        
+
+    }
+    public function updateStatus($order_id, $detailsOrderTracking, $paymentStatus){
+
+        $data = ['status' => 'completed'];
+        return $this->update($order_id, $data);
+    }
+
+    public function deleteOrder($order_id){
+        return $this->delete($order_id);
     }
 }

@@ -82,6 +82,9 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->delete('deleteMeta/(:num)', 'ProductController::deleteMeta/$1');
     //Coupons
     $routes->get('coupons', 'ProductController::couponsView');
+    $routes->post('addCoupons', 'ProductController::addCoupon');
+    $routes->post('applyCoupon', 'ProductController::applyCoupon');
+    $routes->post('couponID', 'ProductController::getCouponId');
 
 });
 
@@ -98,11 +101,18 @@ $routes->group("order", ["namespace" => "App\Controllers", 'filter' => 'jwt_auth
     $routes->get('viewOrders', 'OrdersController::viewTable');
     $routes->get('orderDetails/(:num)', 'OrderItemsController::orderItemDetail/$1');
     $routes->post('orderUpdate/(:num)', 'OrdersController::orderStatusUpdate/$1');
+    $routes->get('delete/(:num)', 'OrdersController::deleteOrder/$1');
 
+    $routes->get('order-tracking', 'OrderTrackingController::index');
+    $routes->post('order-tracking/updateTrackingStatus', 'OrderTrackingController::updateTrackingStatus');
+    $routes->get('order-tracking/timeline/(:num)', 'OrderTrackingController::viewTimeline/$1');
+    $routes->get('order-tracking/delete/(:num)', 'OrderTrackingController::deleteStatus/$1');
 });
-
 
 //$routes->get('stripe', 'StripeController::stripe');
 $routes->get('success', 'CartItemsController::success');
 $routes->get('cancel', 'CartItemsController::cancel');
 $routes->post('payment', 'CartItemsController::payment');
+$routes->post('stripe/webhook', 'CartItemsController::stripeWebhook');
+$routes->post('payment', 'CartItemsController::handlePaymentIntentSucceeded');
+$routes->post('payment', 'CartItemsController::handlePaymentIntentFailed');

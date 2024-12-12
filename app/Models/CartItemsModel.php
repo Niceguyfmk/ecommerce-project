@@ -46,7 +46,6 @@ class CartItemsModel extends Model
             // Insert the new item into the cart
             return $this->insert($data);
         }
-        
     }
 
     public function updateCartItem($productId, $quantity)

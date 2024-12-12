@@ -3,12 +3,14 @@
 namespace App\Controllers;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
+use App\Models\CouponModel;
 use App\Models\OrderItemsModel;
 use App\Models\OrdersModel;
+use App\Models\TransactionsModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
-
+use App\Libraries\idGenerator;
 
 class OrdersController extends ResourceController
 {
@@ -18,11 +20,18 @@ class OrdersController extends ResourceController
 
     public function create()
     {
+        $IdGenerator = new idGenerator();
+
         $data = json_decode(file_get_contents('php://input'), true);
 
         $grandTotal = $data['grand_total'];
         $paymentMethod = $data['payment_method'];
-
+        if (isset($data['coupon_id'])) {
+            $couponId = $data['coupon_id'];
+        } else {
+            $couponId = null; 
+        }
+        $uniqueOrderId = $IdGenerator->generateId();
         //get the cookies
         $uid = $this->request->getCookie('uid');
 
@@ -44,16 +53,41 @@ class OrdersController extends ResourceController
             // Create the order
         $orderModel = new OrdersModel();
         $orderData = [
+            'unique_order_id'=> $uniqueOrderId,
             'user_id' => $userId,
             'total_amount' => $grandTotal,
-            'status' => 'pending',
             'payment_method' => $paymentMethod,
-            'coupon_id' => NULL
+            'coupon_id' => $couponId
         ];
 
         $orderId = $orderModel->createOrder($orderData);  
         if (!$orderId) {
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to create order.']);
+        }
+        //update coupon usage 
+        $couponModel = new CouponModel();
+        if($couponId){
+            $couponUsage = $couponModel->updateCouponUsageById($couponId);
+        }
+        //Transactions
+        $transactionsModel = new TransactionsModel();
+        $transactionData = [
+            'order_id'=> $orderId,
+            'amount' => $grandTotal,
+        ];
+        $transactionId = $transactionsModel->createTransaction($transactionData);  
+        //if payment method is COD
+        if($paymentMethod === "COD"){
+            /* $transactionStatus = $transactionsModel->updateStatus($transactionId);
+            if(!$transactionStatus){
+                $message = 'Failed to update transaction status for Transaction ID.';
+            }
+    
+            $orderStatus = $this->model->updateStatus($orderId);
+            if(!$orderStatus){
+                $message = 'Failed to update order status for Order ID';
+            } */
+            redirect()->to('/success');
         }
         // Add items to the order
         $orderItemsModel = new OrderItemsModel();
@@ -69,22 +103,24 @@ class OrdersController extends ResourceController
                 return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to add order items.']);
             }
         }
-        
+
+        // Clear the cart after the order is created
+        if ($cartId) {
+            // Remove cart items
+            $cartItemsModel->where('cart_id', $cartId)->delete();
+
+            // Optionally, remove the cart record itself
+            $cartModel->where('cart_id', $cartId)->delete();
+        }
+            
         // Simulate order processing logic here
         return $this->response->setStatusCode(201)->setJSON(['message' => 'Order created successfully']);
-    }
+        }
     
     public function viewTable(){
         
         $message = session()->getFlashdata('message');
         $pageTitle = 'Orders Table';
-
-        // Retrieve UID from the cookie or return an error
-        $uid = $this->request->getCookie('uid');
-        if (!$uid) {
-            return $this->response->setStatusCode(400, 'No UID cookie found');
-        }
-
 
             /* if ($userData && isset($userData['user_id'])) {
                 $userId = $userData['user_id'];
@@ -148,4 +184,35 @@ class OrdersController extends ResourceController
             return redirect()->to('order/viewOrders')->with('message', 'status updated successfully!');
         }
     }
+
+   /*  public function success($transactionID, $orderID){
+        $transactionsModel = new TransactionsModel();
+        $ordersModel = new OrdersModel();
+        $pageTitle = 'Payment Successful';
+
+        $transactionStatus = $transactionsModel->updateStatus($transactionID);
+        if(!$transactionStatus){
+            $message = 'Failed to update transaction status for Transaction ID.';
+        }
+
+        $orderStatus = $ordersModel->updateStatus($orderID);
+        if(!$orderStatus){
+            $message = 'Failed to update order status for Order ID';
+        }
+
+        $message = 'Successfully updated both status';
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('success', ['message' => $message])
+        . view('include/footer'); 
+    } */
+
+    public function deleteOrder($order_id){
+        $ordersModel = new OrdersModel(); 
+        $ordersModel->deleteOrder($order_id);
+    
+        return redirect()->to('/order/viewOrders')->with('success', 'successfully deleted order');
+    }
+    
 }
