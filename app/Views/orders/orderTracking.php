@@ -28,7 +28,7 @@
             <select name="order_id" id="order_id">
                 <?php foreach ($orders as $order): ?>
                     <?php if ($order['status'] !== "completed"): ?>
-                    <option value="<?= $order['order_id'] ?>"><?= $order['unique_order_id'] ?> - <?= $order['total_amount'] ?></option>
+                    <option value="<?= $order['order_id'] ?>"><?= "ORDER ID: ".$order['order_id'] ?> - <?= '$'.$order['total_amount'] ?></option>
                     <?php endif ?>
                 <?php endforeach; ?>
             </select>
@@ -87,7 +87,7 @@
                                 <td>
                 
                                     <a href="<?= site_url('/order/order-tracking/delete/' . $track['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this order?');">Delete</a>
-                                    <a href="<?= site_url('/order/order-tracking/timeline/' . $track['order_tracking_id']) ?>" class="btn btn-info btn-sm">Details</a>
+                                    <a href="<?= site_url('/order/order-tracking/timeline/' . $track['order_id']) ?>" class="btn btn-info btn-sm">Details</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

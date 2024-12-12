@@ -3,12 +3,14 @@
 namespace App\Controllers;
 use App\Models\CartModel;
 use App\Models\CartItemsModel;
+use App\Models\OrderItemsModel;
 use App\Models\ProductModel;
 use App\Models\ProductCategoriesModel;
 use App\Models\AttributesModel;
 use App\Models\ProductAttributesModel;
 use App\Models\TempCartModel;
 use App\Models\ImagesModel;
+use App\Models\OrdersModel;
 use Firebase\JWT\JWT;
 class Home extends BaseController
 {
@@ -202,14 +204,19 @@ class Home extends BaseController
         $message = session()->getFlashdata('success');  
         $errorMessage = session()->getFlashdata('error');
         $pageTitle = 'Profile';
-        
         $userData = session()->get('userData'); 
+        $userID = $userData['user_id'];
+
+        $ordersModel = new OrdersModel();
+        $orders = $ordersModel->getOrdersByID($userID);
         
         return view('shop-include/header', ['pageTitle' => $pageTitle]) 
 
         . view('shop/profile', [
-            "heading" => "User Profile Information",
+            "heading" => "User Profile",
+            "pageTitle" => $pageTitle,
             "userData" => $userData,
+            "orders" => $orders,
             "errorMessage"=> $errorMessage,
             "message"=> $message
             ])

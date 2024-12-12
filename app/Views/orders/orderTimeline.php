@@ -6,24 +6,24 @@
             <div class="card bg-light shadow-lg border border-dark rounded-lg py-3 px-5 my-5">
                 <div class="row d-flex justify-content-between mx-5 pt-3 my-3">
                     <div class="container text-center">
-                        <p class="h3 text-success mb-3"> Customer: <?= $statusChanges[0]['name'] ?? 'No Order Found' ?> </p>
+                        <p class="h3 text-success mb-3"> Customer: <?= $statusChanges['name'] ?? 'No Order Found' ?> </p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <div class="d-flex">
                             <p class="h5 text-dark">
                             <!-- we use the unique order id -->
                             <i class="text-primary fa-solid fa-cart-shopping fa-lg mr-1"></i> Order ID : <span class="text-success font-weight-bold">
-                                <i class="text-secondary fa-solid fa-hashtag mr-1"></i><?= $statusChanges[0]['unique_id'] ?></span>
+                                <i class="text-secondary fa-solid fa-hashtag mr-1"></i><?= $statusChanges['unique_id'] ?></span>
                             </p>
                         </div>
                         <div class="d-flex flex-column text-sm-right h5">
                             <p class="h5 text-dark">
                             <i class="text-primary fa-solid fa-calendar fa-lg mr-2"></i> Last Updated : <span class="text-success font-weight-bold">
-                                <i class="text-secondary fa-solid mr-1"></i><?= $statusChanges[0]['created_at'] ?></span>
+                                <i class="text-secondary fa-solid mr-1"></i><?= $statusChanges['created_at'] ?></span>
                             </p>
                             <p class="h5 text-dark">
                             <i class="text-primary fa-solid fa-car fa-lg mr-2"></i> Tracking ID  : <span class="text-success font-weight-bold">
-                                <i class="text-secondary fa-solid fa-hashtag mr-1"></i><?= $statusChanges[0]['order_tracking_id'] ?></span>
+                                <i class="text-secondary fa-solid fa-hashtag mr-1"></i><?= $statusChanges['order_tracking_id'] ?></span>
                             </p> 
                         </div>
                     </div>
@@ -35,7 +35,8 @@
                             <div class="container-fluid p-2 align-items-center">
                                 <div class="d-flex justify-content-around align-items-center">
                                         <?php
-                                        $order_status = $statusChanges[0]['order_tracking_status']; // Assuming order_tracking_status contains the current status.
+                                        $order_status = $statusChanges['order_tracking_status']; // Assuming order_tracking_status contains the current status.
+                                        //var_dump($statusChanges);
                                         ?>
 
                                         <!-- Order Confirmed -->

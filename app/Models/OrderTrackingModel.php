@@ -27,7 +27,9 @@ class OrderTrackingModel extends Model
                 $builder -> join('orders', 'orders.order_id = order_tracking.order_id');
                 $builder -> join('users', 'users.user_id = orders.user_id');
                 $builder -> where('order_tracking.order_id', $orderId);
-        return  $builder -> get()->getResultArray();
+                $builder->orderBy('order_tracking.created_at', 'DESC'); // Assuming `updated_at` is the timestamp column
+                $builder->limit(1); // Fetch only the latest record
+                return $builder->get()->getRowArray();
     }
 
     public function deleteStatusById($id){

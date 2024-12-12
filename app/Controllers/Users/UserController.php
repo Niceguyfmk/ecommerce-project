@@ -8,6 +8,7 @@ use App\Models\UserModel;
 use Config\Google;
 use Google\Client as GoogleClient;
 use Firebase\JWT\JWT;
+use App\Models\OrderItemsModel;
 use App\Models\TokenBlacklisted;
 
 class UserController extends ResourceController
@@ -293,47 +294,95 @@ class UserController extends ResourceController
     public function updateUser($id)
     {
         $user = $this->model->getUser($id);
-
-        if($user){
-
-            //get post data
+    
+        if ($user) {
+            // Get post data
             $name = $this->request->getPost('name');
             $address = $this->request->getPost('address');
             $password = $this->request->getPost('password');
             $confirm_password = $this->request->getPost('confirm_password');
- 
-            // Fetch user record and verify password
-            if (!$user || !password_verify($password, $user['password'])) {
+    
+            // Verify original password
+            if (!password_verify($password, $user['password'])) {
                 return $this->respond(['status' => 'error', 'message' => 'Invalid original password']);
             }
-
-            if(!empty($confirm_password)){
-                // Hash new password and update data
-                $hashed_password = password_hash($confirm_password, PASSWORD_DEFAULT);
-                $data = [
-                    'name'=> $name,
-                    'address'=>$address,
-                    'password' => $hashed_password
-                ];
-
-                $this->model->updateUser($id, $data);
-            }
-        
-            // Hash old password and update data
-            $password = password_hash($confirm_password, PASSWORD_DEFAULT);
+    
+            // Prepare data for update
             $data = [
-                'name'=> $name,
-                'address'=>$address,
-                'password' => $password
+                'name' => $name,
+                'address' => $address
             ];
-
+    
+            // Update password only if a new one is provided
+            if (!empty($confirm_password)) {
+                // Hash new password
+                $hashed_password = password_hash($confirm_password, PASSWORD_DEFAULT);
+                $data['password'] = $hashed_password;
+            }
+    
+            // Update user data
             $this->model->updateUser($id, $data);
+            // Update the session data to reflect changes
+            $session = session();
+            $session->set('user_id', $id);
+            $session->set('name', $name);
+            $session->set('address', $address);
+            // fetch the updated user data to return to the view
+            $userData = [
+                'name' => $session->get('name'),
+                'address' => $session->get('address'),
+                'user_id' => $session->get('user_id')
+            ];
+            
+/*             $pageTitle = 'Organic Shop-Detail';
+            $message = session()->getFlashdata('success');  
+            $errorMessage = session()->getFlashdata('error');
+            $pageTitle = 'Profile';
+            
+            $userData = session()->get('userData'); 
+            
+            return view('shop-include/header', ['pageTitle' => $pageTitle]) 
+    
+            . view('shop/profile', [
+                "heading" => "User Profile",
+                "pageTitle" => $pageTitle,
+                "userData" => $userData,
+                "errorMessage"=> $errorMessage,
+                "message"=> $message
+                ])
+            . view('shop-include/footer'); */
+            return redirect()->to('/');
         }
     }
+    
 
     public function deleteUser($id)
     {
         // Logic to delete a user by ID
+    }
+
+    public function profileOrderDetail($orderId){
+        $pageTitle = 'Organic Item Details';
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
+        
+        $userData = session()->get('userData'); 
+        $userID = $userData['user_id'];
+
+        $ordersItemsModel = new OrderItemsModel();
+        $orderItems = $ordersItemsModel->getOrderItemDetails($orderId);
+        
+        return view('shop-include/header', ['pageTitle' => $pageTitle]) 
+
+        . view('shop/order-details', [
+            "heading" => "User Profile",
+            "pageTitle" => $pageTitle,
+            "userData" => $userData,
+            "orderItems" => $orderItems,
+            "errorMessage"=> $errorMessage,
+            "message"=> $message
+            ])
+        . view('shop-include/footer');
     }
 
     

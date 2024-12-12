@@ -94,6 +94,7 @@ class OrdersController extends ResourceController
         foreach ($cartItems as $item) {
             $insertSuccess = $orderItemsModel->insert([
                 'order_id' => $orderId,
+                'product_id' => $item['product_id'],
                 'product_attribute_id' => $item['product_attribute_id'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],

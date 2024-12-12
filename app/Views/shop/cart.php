@@ -70,11 +70,6 @@
                         <?php endforeach; ?>
                     </table>
                 </div>
-
-                <div class="mt-5">
-                    <input type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" name="coupon_code" placeholder="Coupon Code">
-                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button" onclick="applyCoupon()">Apply Coupon</button>
-                </div>
                 
                 <div class="row g-4 justify-content-end">
                     <div class="col-8"></div>

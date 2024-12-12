@@ -34,6 +34,14 @@ class OrdersModel extends Model
         return $builder->get()->getResultArray();
     }
 
+    public function getOrdersByID($userID){
+        $builder = $this->db->table('orders');
+
+        $builder->select('orders.*');
+        $builder->where('orders.user_id', $userID);
+        return $builder->get()->getResultArray();
+    }
+
     public function updateOrder($order_id, $data){
         return $this->update($order_id, $data);
 

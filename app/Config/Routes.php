@@ -18,6 +18,7 @@ $routes->group('user', ['namespace' => 'App\Controllers', 'filter' => 'jwt_auth'
     $routes->get('profile', 'Home::profile');    
     $routes->get('logout', 'Users\UserController::logout');
     $routes->post('update/(:num)', 'Users\UserController::updateUser/$1');
+    $routes->get('pastOrders/(:num)', 'Users\UserController::profileOrderDetail/$1');
 });
 
 $routes->get('/shop', 'Home::shop');
@@ -114,5 +115,5 @@ $routes->get('success', 'CartItemsController::success');
 $routes->get('cancel', 'CartItemsController::cancel');
 $routes->post('payment', 'CartItemsController::payment');
 $routes->post('stripe/webhook', 'CartItemsController::stripeWebhook');
-$routes->post('payment', 'CartItemsController::handlePaymentIntentSucceeded');
-$routes->post('payment', 'CartItemsController::handlePaymentIntentFailed');
+$routes->post('payment/intentSuccess', 'CartItemsController::handlePaymentIntentSucceeded');
+$routes->post('payment/intentFailed', 'CartItemsController::handlePaymentIntentFailed');
