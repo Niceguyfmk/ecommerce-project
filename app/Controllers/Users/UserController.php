@@ -81,7 +81,7 @@ class UserController extends ResourceController
             "address" => $this->request->getVar("address"),
         ];
 
-        //Save Author 
+        //Save  
         if($this->model->registerUser($UserData)){
             session()->setFlashdata('message', 'User Registered Successfully');
             return redirect()->to(base_url('/'))->with('success', 'User Registered Successfully');
@@ -99,16 +99,18 @@ class UserController extends ResourceController
         //Validation
         $validationRules = array(
             "email" => array(
-                "rules" => "required",
+                "rules" => "required|valid_email",
                 "errors" => array(
                     "required" => "Email is required",
+                    "valid_email" => "Please enter a valid email address",
                 ),
             ),
             "password" => array(
-                "rules" => "required",
+                "rules" => "required|min_length[6]", 
                 "errors" => array(
                     "required" => "Password is required",
-                ),
+                    "min_length" => "Password must be at least 6 characters"
+                )
             )
         );
 
@@ -123,12 +125,24 @@ class UserController extends ResourceController
         
         //The first() method retrieves the first matching record
         $userData = $this->model->where("email", $this->request->getVar("email"))->first();
-    
+        
+        if (!$userData) {
+            // Log potential security event
+            log_message('info', 'Login attempt with non-existent email: ' . $this->request->getVar("email"));
+            
+            return $this->respond([
+                "status" => false,
+                "message" => "Incorrect email or password"
+            ]);
+        }
+
         // Validate user and password
         //You can access the user's hashed password using $authorData['password'].
-        if ($userData && password_verify($this->request->getVar("password"), $userData['password'])) {
+        if (password_verify($this->request->getVar("password"), $userData['password'])) {
 
             $token = $this->generateToken($userData);
+            //Security: Regenerate session ID to prevent session fixation
+            session()->regenerate();
             //store the token and data in session
             session()->set('jwtToken', $token);
             session()->set('userData', $userData);
@@ -383,7 +397,5 @@ class UserController extends ResourceController
             "message"=> $message
             ])
         . view('shop-include/footer');
-    }
-
-    
+    }    
 }

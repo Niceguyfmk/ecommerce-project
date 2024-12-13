@@ -30,6 +30,10 @@ class ProductMetaModel extends Model
         return $this->find($id);
     }
 
+    public function getValuebyProductID($product_id){
+        return $this->where('product_id',$product_id)->get()->getResultArray();
+    }
+
     public function deletebyID($id){
         return $this->delete($id);
     }

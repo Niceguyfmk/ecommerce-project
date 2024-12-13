@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Products;
 
+use App\Models\ProductRatingModel;
 use App\Models\CouponModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
@@ -355,6 +356,15 @@ class ProductController extends ResourceController
             return redirect()->to('/viewProducts')->with('error', 'Product not found.');
         }
     }
+
+    /*** 
+    **
+    **
+    ** Product Coupons
+    **
+    **
+    **/
+    
     //coupons view
     public function couponsView(){
         // Load the category model
@@ -462,7 +472,7 @@ class ProductController extends ResourceController
             ]);
         }
     }
-    //Apply Coupon
+    
     public function applyCoupon()
     {
         $couponModel = new CouponModel();
@@ -527,4 +537,116 @@ class ProductController extends ResourceController
         return $this->response->setJSON(['success' => true, 'couponID' => $couponID]);
     }
 
+    /*** 
+    **
+    **
+    ** Product Ratings
+    **
+    **
+    **/
+    public function productRating()
+    {
+        
+        log_message('info', 'Rating Submission Attempt');
+        // Validate the request is an AJAX request
+        if (!$this->request->isAJAX()) {
+            log_message('error', 'Non-AJAX request received');
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Invalid request type']);
+        }
+
+        // Log all received POST data for debugging
+        log_message('info', 'Received POST Data: ' . print_r($this->request->getPost(), true));
+
+        // Get the posted data
+        $rating = $this->request->getPost('rating');
+        $comment = $this->request->getPost('comment');
+        $productId = $this->request->getPost('productId');
+        
+        // Log extracted values
+        log_message('info', "Extracted Values - Rating: $rating, ProductId: $productId");
+        
+        // Get the current logged-in user's ID
+        $userData = session()->get('userData');
+        
+        $user_id = $userData['user_id'];
+        
+        // Comprehensive input validation
+        if (!$user_id) {
+            log_message('error', 'Rating submission failed: No user logged in');
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'User not authenticated']);
+        }
+        
+        if (!$rating) {
+            log_message('error', 'Rating submission failed: No rating provided');
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Rating is required']);
+        }
+
+        if (!$productId) {
+            log_message('error', 'Rating submission failed: No product ID provided');
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Product ID is required']);
+        }
+
+        // Prepare data for insertion
+        $data = [
+            'rating' => intval($rating),
+            'comment' => $comment ?? null,
+            'product_id' => intval($productId),
+            'user_id' => $user_id,
+        ];
+
+        // Load the model
+        $ratingModel = new ProductRatingModel();
+
+        try {
+            // Validate data before insertion
+            if (!$ratingModel->validate($data)) {
+                $errors = $ratingModel->errors();
+                log_message('error', 'Validation Errors: ' . print_r($errors, true));
+                return $this->response->setStatusCode(400)->setJSON([
+                    'error' => 'Validation failed',
+                    'details' => $errors
+                ]);
+            }
+            
+            // Insert the rating
+            $result = $ratingModel->insert($data);
+            //log_message('info', "Rating submitted successfully. Rating ID: $result");
+
+            return $this->response->setStatusCode(200)->setJSON([
+                'success' => true,
+                'message' => 'Rating submitted successfully',
+                'rating_id' => $result
+            ]);
+
+        } catch (\Exception $e) {
+            // Detailed error logging
+            log_message('critical', 'Rating Submission Error: ' . $e->getMessage());
+            log_message('critical', 'Error Trace: ' . $e->getTraceAsString());
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'error' => 'Failed to submit rating',
+                'details' => $e->getMessage()
+            ]);
+        }
+    }
+    public function fetchExistingRatings(){
+        $productId = $this->request->getVar('product_id');
+        $userData = session()->get('userData');  
+        $userId = $userData['user_id'];
+
+        $ProductRatingModel = new ProductRatingModel;
+        $existingReview = $ProductRatingModel->getRatings($productId, $userId);
+
+        if ($existingReview) {
+            return $this->response->setJSON([
+                'status' => 'existing_review',
+                'rating' => $existingReview['rating'],
+                'comment' => $existingReview['comment']
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'no_existing_review'
+        ]);
+    }
 }

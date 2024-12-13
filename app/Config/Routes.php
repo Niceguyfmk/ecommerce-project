@@ -86,6 +86,10 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->post('addCoupons', 'ProductController::addCoupon');
     $routes->post('applyCoupon', 'ProductController::applyCoupon');
     $routes->post('couponID', 'ProductController::getCouponId');
+    //Rating
+    $routes->post('rating', 'ProductController::productRating');
+    $routes->get('rating/check/', 'ProductController::fetchExistingRatings');
+
 
 });
 
