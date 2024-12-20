@@ -368,19 +368,43 @@ async function createOrder() {
     }
 
     // Send an AJAX request
+    // Send an AJAX request
     fetch('http://localhost:8080/order/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        console.log('Raw response:', response);
+
+        // Check if the response is OK
+        if (response.ok) {
+            return response.json(); // Parse the JSON response if successful
         }
-        return response.json();
+
+        // If not OK, return the response text for debugging
+        return response.text().then(text => {
+            console.error('Response not OK, raw text:', text);
+            throw new Error(`Server responded with status ${response.status}`);
+        });
     })
-    .then(data => console.log('Order created successfully:', data))
-    .catch(error => console.error('Error creating order:', error));
+    .then(data => {
+        // Handle parsed JSON response
+        console.log('Parsed response:', data);
+
+        // Redirect based on the provided URL
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            console.error('No redirect URL provided in response:', data);
+            alert('Unexpected response. Please try again later.');
+        }
+    })
+    .catch(error => {
+        // Handle network or other fetch-related errors
+        console.error('Error creating order:', error);
+        alert('An error occurred while processing your request. Please try again.');
+    });    
 }
 
 document.addEventListener('DOMContentLoaded', function() {

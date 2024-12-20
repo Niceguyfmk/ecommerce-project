@@ -51,7 +51,7 @@ class AdminAuthController extends ResourceController
             session()->set('jwtToken', $token);
             session()->set('adminData', $userData);
             session()->set('userRole', 'admin');
-            session()->set('message', 'Log in Success!');
+            session()->set('message', value: 'Log in Success!');
             
             return redirect()->to('auth/admin')->with('userName', $userData['username']);
             /* return $this->respond([

@@ -4,7 +4,8 @@ use CodeIgniter\Router\RouteCollection;
 
 //Shop Website
 $routes->get('/', 'Home::index');
-
+//contact
+$routes->get('contact', 'Home::contact');
 $routes->group('user', function ($routes) {
     $routes->get('register', 'Users\UserController::register');
     $routes->post('addUser', 'Users\UserController::addUser');

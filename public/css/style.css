@@ -603,3 +603,44 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
 }
+
+/* success page */
+.message {
+    font-size: 1.25rem;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.success {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.success h1 {
+    font-size: 3rem;
+    color: #4caf50;
+    margin-bottom: 20px;
+}
+
+
+/* cancel page */
+.cancel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.cancel h1 {
+    font-size: 3rem;
+    color: crimson;
+    margin-bottom: 20px;
+}

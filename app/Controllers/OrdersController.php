@@ -21,74 +21,72 @@ class OrdersController extends ResourceController
     public function create()
     {
         $IdGenerator = new idGenerator();
-
         $data = json_decode(file_get_contents('php://input'), true);
-
+    
+        // Validate incoming data
+        if (!isset($data['grand_total'], $data['payment_method'])) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Missing required fields.']);
+        }
+    
         $grandTotal = $data['grand_total'];
         $paymentMethod = $data['payment_method'];
-        if (isset($data['coupon_id'])) {
-            $couponId = $data['coupon_id'];
-        } else {
-            $couponId = null; 
-        }
-        $uniqueOrderId = $IdGenerator->generateId();
-        //get the cookies
-        $uid = $this->request->getCookie('uid');
-
-        // Check if the user is logged in
-        $userData = session()->get('userData');
-        $userId = $userData['user_id'];
-
-        $cartItems = [];
+        $couponId = $data['coupon_id'] ?? null;
     
-        if ($userData && isset($userData['user_id'])) {
-            
-            $cartModel = new CartModel();
-            $cart = $cartModel->where('user_id', $userId)->first();
-            $cartId = $cart['cart_id'];
-            $cartItemsModel = new CartItemsModel();
-            $cartItems = $cartItemsModel->getUserCart($cartId);
+        $uniqueOrderId = $IdGenerator->generateId();
+        $userData = session()->get('userData');
+    
+        if (!$userData || !isset($userData['user_id'])) {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'User not logged in.']);
         }
-
-            // Create the order
+    
+        $userId = $userData['user_id'];
+    
+        // Fetch the user's cart
+        $cartModel = new CartModel();
+        $cart = $cartModel->where('user_id', $userId)->first();
+    
+        if (!$cart) {
+            return $this->response->setStatusCode(404)->setJSON(['error' => 'Cart not found.']);
+        }
+    
+        $cartId = $cart['cart_id'];
+        $cartItemsModel = new CartItemsModel();
+        $cartItems = $cartItemsModel->getUserCart($cartId);
+    
+        if (empty($cartItems)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Cart is empty.']);
+        }
+    
+        // Create the order
         $orderModel = new OrdersModel();
         $orderData = [
-            'unique_order_id'=> $uniqueOrderId,
+            'unique_order_id' => $uniqueOrderId,
             'user_id' => $userId,
             'total_amount' => $grandTotal,
             'payment_method' => $paymentMethod,
             'coupon_id' => $couponId
         ];
-
-        $orderId = $orderModel->createOrder($orderData);  
+    
+        $orderId = $orderModel->createOrder($orderData);
         if (!$orderId) {
             return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to create order.']);
         }
-        //update coupon usage 
-        $couponModel = new CouponModel();
-        if($couponId){
-            $couponUsage = $couponModel->updateCouponUsageById($couponId);
+    
+        // Update coupon usage if applicable
+        if ($couponId) {
+            $couponModel = new CouponModel();
+            $couponModel->updateCouponUsageById($couponId);
         }
-        //Transactions
+    
+        // Record transaction
         $transactionsModel = new TransactionsModel();
         $transactionData = [
-            'order_id'=> $orderId,
+            'order_id' => $orderId,
             'amount' => $grandTotal,
         ];
-        $transactionId = $transactionsModel->createTransaction($transactionData);  
-        //if payment method is COD
-        if($paymentMethod === "COD"){
-            /* $transactionStatus = $transactionsModel->updateStatus($transactionId);
-            if(!$transactionStatus){
-                $message = 'Failed to update transaction status for Transaction ID.';
-            }
     
-            $orderStatus = $this->model->updateStatus($orderId);
-            if(!$orderStatus){
-                $message = 'Failed to update order status for Order ID';
-            } */
-            redirect()->to('/success');
-        }
+        $transactionId = $transactionsModel->createTransaction($transactionData);
+    
         // Add items to the order
         $orderItemsModel = new OrderItemsModel();
         foreach ($cartItems as $item) {
@@ -99,24 +97,25 @@ class OrdersController extends ResourceController
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
             ]);
-
+    
             if (!$insertSuccess) {
                 return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to add order items.']);
             }
         }
-
-        // Clear the cart after the order is created
-        if ($cartId) {
-            // Remove cart items
-            $cartItemsModel->where('cart_id', $cartId)->delete();
-
-            // Optionally, remove the cart record itself
-            $cartModel->where('cart_id', $cartId)->delete();
+    
+        // Clear the cart
+        $cartItemsModel->where('cart_id', $cartId)->delete();
+        $cartModel->where('cart_id', $cartId)->delete();
+    
+        // Redirect based on payment method
+        if ($paymentMethod === "COD") {
+            log_message('debug', 'COD payment method reached. Redirecting to success.');
+            return $this->response->setJSON(['url' => '/success']);
         }
-            
-        // Simulate order processing logic here
-        return $this->response->setStatusCode(201)->setJSON(['message' => 'Order created successfully']);
-        }
+    
+        // For other payment methods, you can handle redirection or further actions
+        return $this->response->setJSON(['message' => 'Order created successfully.', 'url' => '/payment']);
+    }
     
     public function viewTable(){
         

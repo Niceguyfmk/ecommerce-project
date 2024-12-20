@@ -58,27 +58,33 @@ class Home extends BaseController
         if ($userData && isset($userData['user_id'])) {
             // User is logged in, fetch cart items from permanent CartItemsModel
             $userId = $userData['user_id'];
-
-            //Fetch cart
+        
+            // Fetch cart
             $cartModel = new CartModel();
             $cart = $cartModel->where('user_id', $userId)->first();
-
+        
             // If no cart exists, create one
             if (!$cart) {
-                $cart = $cartModel->insert([
+                // Insert the new cart and get the inserted ID
+                $cartId = $cartModel->insert([
                     'user_id' => $userId,
                     'coupon_id' => null,  // or set any default coupon ID
                 ]);
+            } else {
+                // If cart exists, use the existing cart_id
+                $cartId = $cart['cart_id'];
             }
-            $cartId = $cart['cart_id'];
+        
+            // Fetch cart items using the cart_id
             $cartItemsModel = new CartItemsModel();
             $cartItems = $cartItemsModel->getUserCart($cartId);
-
+        
         } else {
             // Guest user, fetch cart items from TempCartModel
             $tempCartModel = new TempCartModel();
             $cartItems = $tempCartModel->getTempCartItems($uid);
         }
+        
 
         // Load views with data
         return view('shop-Include/header', ['pageTitle' => $pageTitle])
@@ -284,6 +290,14 @@ class Home extends BaseController
             "errorMessage"=> $errorMessage,
             "message"=> $message
             ])
+        . view('shop-include/footer');
+    }
+
+    public function contact(){
+        $pageTitle = 'Contact Us';
+
+        return view('shop-include/header', ['pageTitle' => $pageTitle]) 
+        . view('shop/contact')
         . view('shop-include/footer');
     }
 

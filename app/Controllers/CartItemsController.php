@@ -128,7 +128,7 @@ class CartItemsController extends ResourceController
             . view('shop/checkout', ['cartItems' => $cartItems, 'message' => $message])
             . view('shop-Include/footer');
     }
-    
+
     public function addItem($productId)
     {
         //Ajax request or not
@@ -462,12 +462,42 @@ class CartItemsController extends ResourceController
     }
     public function success()
     {
+        // Retrieve the cookie value or create it if it doesn't exist
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            $uid = uniqid('cart_', true);
+            $this->response->setCookie('uid', $uid, 60 * 60 * 24 * 7); // 1 week
+        }
+    
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Payment Success';
 
-        return view('success'); // Success page view
+        // Load views with data
+        return view('shop-Include/header', ['pageTitle' => $pageTitle])
+        . view('success', [
+            'message' => $message,
+            'uid' => $uid,
+        ])
+        . view('shop-Include/footer');
     }
     public function cancel()
     {
-        return view('cancel'); // Cancel page view
+        // Retrieve the cookie value or create it if it doesn't exist
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            $uid = uniqid('cart_', true);
+            $this->response->setCookie('uid', $uid, 60 * 60 * 24 * 7); // 1 week
+        }
+    
+        $message = session()->getFlashdata('message');
+        $pageTitle = 'Payment Cancelled';
+        // Load views with data
+        return view('shop-Include/header', ['pageTitle' => $pageTitle])
+        . view('cancel', [
+            'message' => $message,
+            'uid' => $uid,
+        ])
+        . view('shop-Include/footer');
     }
 
     /**

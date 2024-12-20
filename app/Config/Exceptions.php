@@ -33,7 +33,7 @@ class Exceptions extends BaseConfig
      *
      * @var list<int>
      */
-    public array $ignoreCodes = [404];
+    public array $ignoreCodes = [];
 
     /**
      * --------------------------------------------------------------------------
@@ -101,6 +101,12 @@ class Exceptions extends BaseConfig
      */
     public function handler(int $statusCode, Throwable $exception): ExceptionHandlerInterface
     {
+        // Handle 404 errors with custom view
+        if ($statusCode === 404) {
+            return new \App\Libraries\CustomExceptionHandler();
+        }
+
+        // For other status codes, use the default handler
         return new ExceptionHandler($this);
     }
 }
