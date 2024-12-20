@@ -108,6 +108,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-2">Big Banana</h6>
+
                                         <div class="d-flex mb-2">
                                             <i class="fa fa-star text-secondary"></i>
                                             <i class="fa fa-star text-secondary"></i>
@@ -115,6 +116,7 @@
                                             <i class="fa fa-star text-secondary"></i>
                                             <i class="fa fa-star"></i>
                                         </div>
+
                                         <div class="d-flex mb-2">
                                             <h5 class="fw-bold me-2">2.99 $</h5>
                                             <h5 class="text-danger text-decoration-line-through">4.11 $</h5>
@@ -170,16 +172,25 @@
                                         
                                         <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                             <h4><a href="<?= base_url('/shop-detail/' . $product["product_id"]); ?>"><?= $product["name"]; ?></a></h4>
+                                            <?php
+                                                $productRating = array_filter($avgProductRating, fn($Rating) => $Rating["product_id"] === $product["product_id"]);
+                                                $productRating = reset($productRating);
+                                                $averageRating = $productRating["avg_rating"] ?? 5; //default is 5 if no ratings is given
+                                            ?> 
+
                                             <div class="rating">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="far fa-star"></i>
+                                                <div class="d-flex mb-4">
+                                                    <div class="mb-2">
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <i class="fa fa-star <?= ($i <= $averageRating) ? 'text-secondary' : '' ?>"></i>
+                                                        <?php endfor; ?>
+                                                    </div>
+                                                </div>
                                             </div>
+
                                             <p><?= $product["description"]; ?></p>
                                             <div class="d-flex justify-content-between flex-lg-wrap">
-                                                <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / kg</p>
+                                                <p class="text-dark fs-5 fw-bold mb-0">$<?= $product["base_price"]; ?> / 250g</p>
 
                                                 <!-- Show Add to Cart Button or Quantity Control -->
                                                 <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">

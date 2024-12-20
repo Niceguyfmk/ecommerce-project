@@ -34,9 +34,18 @@
                         ?>
                         <p class="mb-3">Category: <?= $productCategory["category_name"] ?></p>
                         <h5 class="fw-bold mb-3">$ <?= $product["base_price"] ?></h5>
-                        
+                        <?php
+                            // Search for the product in the cart
+                            $cartItem = array_filter($cartItems, function ($item) use ($product) {
+                                return $item['product_id'] == $product['product_id'];
+                            });
 
-                        
+                            // Reset to get the first match
+                            $cartItem = reset($cartItem);
+
+                            // Determine quantity (default to 0 if not found)
+                            $quantity = $cartItem ? $cartItem['quantity'] : 0;
+                        ?>
                         <?php if (!empty($ratingsAvg)): ?>
                                 <div class="d-flex mb-4">
                                         <div class="mb-2">
@@ -46,25 +55,56 @@
                                         </div>
                                 </div>
                         <?php else: ?>
-                            <p>No reviews yet. Be the first to leave a review!</p>
+                            <i class="fa fa-star text-secondary"></i>
+                            <i class="fa fa-star text-secondary"></i>
+                            <i class="fa fa-star text-secondary"></i>
+                            <i class="fa fa-star text-secondary"></i>
+                            <i class="fa fa-star text-secondary"></i>
                         <?php endif; ?>
 
 
                         <p class="mb-4"><?= $product['description'] ?></p>
-                        <div class="input-group quantity mb-5" style="width: 100px;">
-                            <div class="input-group-btn">
-                                <button class="btn btn-sm btn-minus rounded-circle bg-light border" >
-                                    <i class="fa fa-minus"></i>
-                                </button>
+                        <!-- Show Add to Cart Button or Quantity Control -->
+                        <div class="cart-control-<?= $product['product_id']; ?> d-flex align-items-center">
+                            <!-- Add to Cart Button -->
+                            <button
+                                class="add-to-cart-btn-<?= $product['product_id']; ?> btn border border-secondary rounded-pill px-3 text-primary <?= ($quantity > 0 ? 'd-none' : ''); ?>"
+                                onclick="addToCart(<?= $product['product_id']; ?>, 1, <?= $product['base_price']; ?>)">
+                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                            </button>
+
+                            <div class="quantity-control-<?= $product['product_id']; ?> d-flex align-items-center <?= ($quantity > 0 ? '' : 'd-none'); ?>">
+                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?>, 'decrement')">-</button>
+                                <input type="number" value="<?= $quantity > 0 ? $quantity : 1; ?>" class="form-control quantity-input-<?= $product['product_id']; ?>" readonly />
+                                <button class="btn btn-secondary rounded-circle" onclick="updateQuantity(<?= $product['product_id']; ?>, <?= $product['base_price']; ?> , 'increment')">+</button>
                             </div>
-                            <input type="text" class="form-control form-control-sm text-center border-0" value="1">
-                            <div class="input-group-btn">
-                                <button class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
+                            <!-- Inline CSS -->
+                            <style>
+                                .quantity-input-<?= $product['product_id']; ?> {
+                                    font-size: 1.1rem;
+                                    border-radius: 10px;
+                                    text-align: center;
+                                    margin: 5px;
+                                    display: inline-flex;
+                                    min-width: 50px;
+                                }
+                                .add-to-cart-btn-<?= $product['product_id']; ?> {
+                                    border-radius: 50px;
+                                    font-size: 1rem;
+                                    transition: background-color 0.3s ease;
+                                }
+                                
+                                .quantity-control-<?= $product['product_id']; ?> {
+                                    display: flex;
+                                    align-items: center;
+                                }
+                                .quantity-control-<?= $product['product_id']; ?> button {
+                                    width: 2.5rem;
+                                    height: 2.5rem;
+
+                                }
+                            </style>
                         </div>
-                        <a href="#" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
                     </div>
                     <div class="col-lg-12">
                         <nav>
@@ -129,7 +169,7 @@
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <p>No reviews yet. Be the first to leave a review!</p>
+                                    <p>No reviews yet. Order this item and be the first to leave a review!</p>
                                 <?php endif; ?>
                             </div>
 

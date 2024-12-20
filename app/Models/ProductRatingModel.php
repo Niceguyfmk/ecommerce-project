@@ -53,8 +53,17 @@ class ProductRatingModel extends Model
         ->where('product_id', $product_id)
         ->get()
         ->getRowArray();
-
         return $result['rating'] ?? 0; 
     }
 
+    //for the shop page, or for anything else where id isnt fed directly
+    public function getProductAvgRating()
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('product_id, AVG(rating) as avg_rating');
+        $builder->groupBy('product_id');
+        $result = $builder->get()->getResultArray();
+        return $result;
+    }
+    
 }

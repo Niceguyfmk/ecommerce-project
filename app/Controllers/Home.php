@@ -24,6 +24,8 @@ class Home extends BaseController
     ** 
     ** 
     **/
+
+    
     public function index(): string
     {
         $message = session()->getFlashdata('success');  
@@ -43,8 +45,7 @@ class Home extends BaseController
         $products = $productModel->getProducts();
         $attributes = $attributesModel->getAllAttributes();
         $productAttributes = $productAttributesModel->getAllProductAttributes();
-
-
+        
         // Ensure a UID cookie exists (for both logged in and guest users)
         $uid = $this->request->getCookie('uid');
         if (!$uid) {
@@ -114,7 +115,8 @@ class Home extends BaseController
         $categoryModel = new ProductCategoriesModel();
         $productModel = new ProductModel();
         $attributesModel = new AttributesModel();
-        $productAttributesModel = new ProductAttributesModel();
+        $productAttributesModel = new ProductAttributesModel();   
+        $productRatingModel = new ProductRatingModel();
     
         // Fetch data
         $images = $imagesModel->getAllImages();
@@ -128,6 +130,7 @@ class Home extends BaseController
         $products = $productModel->filterProducts($keyword, $categoryFilter);
         $attributes = $attributesModel->getAllAttributes();
         $productAttributes = $productAttributesModel->getAllProductAttributes();
+        $avgProductRating = $productRatingModel->getProductAvgRating();
         $pager = $productModel->pager;
     
         // Check if the user is logged in
@@ -165,6 +168,7 @@ class Home extends BaseController
                 'message' => $message,
                 'categories' => $categories,
                 'products' => $products,
+                'avgProductRating' => $avgProductRating,
                 'images' => $images,
                 'pager' => $pager,
                 'categoryName' => $categoryName,
@@ -174,92 +178,91 @@ class Home extends BaseController
             ])
             . view('shop-Include/footer');
     }
-      //Product Shop-Detail 
-      public function detail($id): string
-      {
-          $message = session()->getFlashdata('success');
-          $errorMessage = session()->getFlashdata('error');
-          $pageTitle = 'Organic Shop - Detail';
-      
-          // Initialize models
-          $imagesModel = new ImagesModel();
-          $categoryModel = new ProductCategoriesModel();
-          $productModel = new ProductModel();
-          $attributesModel = new AttributesModel();
-          $productAttributesModel = new ProductAttributesModel();
-          $productRatingModel = new ProductRatingModel();
-          $productMetaModel = new ProductMetaModel();
-      
-          // Fetch data
-          $images = $imagesModel->getAllImages();
-          $categories = $categoryModel->getAllCategories();
-          $products = $productModel->getProducts();
-          $product = $productModel->getProduct($id);
-          
-          $attributes = $attributesModel->getAllAttributes();
-          $productAttributes = $productAttributesModel->getAllProductAttributes();
-          $ratings = $productRatingModel->getAllProductRatings($id);
-          $ratingsAvg = $productRatingModel->getAverageRating($id);
-          $metaValues = $productMetaModel->getValuebyProductID($id);
-          // Check if product exists
-          if (!$product) {
-              throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-          }
-      
-          // Ensure a UID cookie exists (for both logged-in and guest users)
-          $uid = $this->request->getCookie('uid');
-          if (!$uid) {
-              $uid = uniqid('cart_', true);
-              $this->response->setCookie('uid', $uid, 60 * 60 * 24 * 7); // 1 week
-          }
-      
-          $userData = session()->get(key: 'userData'); // Check if user is logged in
-      
-          if ($userData && isset($userData['user_id'])) {
-              // User is logged in, fetch cart items from permanent CartItemsModel
-              $userId = $userData['user_id'];
-      
-              // Fetch cart
-              $cartModel = new CartModel();
-              $cart = $cartModel->where('user_id', $userId)->first();
-      
-              // If no cart exists, create one
-              if (!$cart) {
-                  $cartId = $cartModel->insert([
-                      'user_id' => $userId,
-                      'coupon_id' => null, // or set any default coupon ID
-                  ]);
-                  $cart = $cartModel->find($cartId);
-              }
-              $cartId = $cart['cart_id'];
-              $cartItemsModel = new CartItemsModel();
-              $cartItems = $cartItemsModel->getUserCart($cartId);
-      
-          } else {
-              // Guest user, fetch cart items from TempCartModel
-              $tempCartModel = new TempCartModel();
-              $cartItems = $tempCartModel->getTempCartItems($uid);
-          }
-      
-          // Load views with data
-          return view('shop-Include/header', ['pageTitle' => $pageTitle])
-              . view('shop/shop-detail', [
-                  'message' => $message,
-                  'errorMessage' => $errorMessage,
-                  'categories' => $categories,
-                  'products' => $products,
-                  'product' => $product,
-                  'metaValues' => $metaValues,
-                  'images' => $images,
-                  'ratings' => $ratings,
-                  'ratingsAvg' => $ratingsAvg,
-                  'cartItems' => $cartItems,
-                  'uid' => $uid,
-                  'userData' => $userData
-              ])
-              . view('shop-Include/footer');
-      }
-      
+    //Product Shop-Detail 
+    public function detail($id): string
+    {
+        $message = session()->getFlashdata('success');
+        $errorMessage = session()->getFlashdata('error');
+        $pageTitle = 'Organic Shop - Detail';
+    
+        // Initialize models
+        $imagesModel = new ImagesModel();
+        $categoryModel = new ProductCategoriesModel();
+        $productModel = new ProductModel();
+        $attributesModel = new AttributesModel();
+        $productAttributesModel = new ProductAttributesModel();
+        $productRatingModel = new ProductRatingModel();
+        $productMetaModel = new ProductMetaModel();
+    
+        // Fetch data
+        $images = $imagesModel->getAllImages();
+        $categories = $categoryModel->getAllCategories();
+        $products = $productModel->getProducts();
+        $product = $productModel->getProduct($id);
+        
+        $attributes = $attributesModel->getAllAttributes();
+        $productAttributes = $productAttributesModel->getAllProductAttributes();
+        $ratings = $productRatingModel->getAllProductRatings($id);
+        $ratingsAvg = $productRatingModel->getAverageRating($id);
+        $metaValues = $productMetaModel->getValuebyProductID($id);
+        // Check if product exists
+        if (!$product) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+    
+        // Ensure a UID cookie exists (for both logged-in and guest users)
+        $uid = $this->request->getCookie('uid');
+        if (!$uid) {
+            $uid = uniqid('cart_', true);
+            $this->response->setCookie('uid', $uid, 60 * 60 * 24 * 7); // 1 week
+        }
+    
+        $userData = session()->get(key: 'userData'); // Check if user is logged in
+    
+        if ($userData && isset($userData['user_id'])) {
+            // User is logged in, fetch cart items from permanent CartItemsModel
+            $userId = $userData['user_id'];
+    
+            // Fetch cart
+            $cartModel = new CartModel();
+            $cart = $cartModel->where('user_id', $userId)->first();
+    
+            // If no cart exists, create one
+            if (!$cart) {
+                $cartId = $cartModel->insert([
+                    'user_id' => $userId,
+                    'coupon_id' => null, // or set any default coupon ID
+                ]);
+                $cart = $cartModel->find($cartId);
+            }
+            $cartId = $cart['cart_id'];
+            $cartItemsModel = new CartItemsModel();
+            $cartItems = $cartItemsModel->getUserCart($cartId);
+    
+        } else {
+            // Guest user, fetch cart items from TempCartModel
+            $tempCartModel = new TempCartModel();
+            $cartItems = $tempCartModel->getTempCartItems($uid);
+        }
+    
+        // Load views with data
+        return view('shop-Include/header', ['pageTitle' => $pageTitle])
+            . view('shop/shop-detail', [
+                'message' => $message,
+                'errorMessage' => $errorMessage,
+                'categories' => $categories,
+                'products' => $products,
+                'product' => $product,
+                'metaValues' => $metaValues,
+                'images' => $images,
+                'ratings' => $ratings,
+                'ratingsAvg' => $ratingsAvg,
+                'cartItems' => $cartItems,
+                'uid' => $uid,
+                'userData' => $userData
+            ])
+            . view('shop-Include/footer');
+    }
     //Customer Profile in shop
     public function profile(){
         $message = session()->getFlashdata('success');  

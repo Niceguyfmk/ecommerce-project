@@ -128,6 +128,7 @@ class CartItemsController extends ResourceController
             . view('shop/checkout', ['cartItems' => $cartItems, 'message' => $message])
             . view('shop-Include/footer');
     }
+    
     public function addItem($productId)
     {
         //Ajax request or not
