@@ -20,6 +20,10 @@ class OrderTrackingModel extends Model
         'created_at',
     ];
 
+    public function createTrackingOrder($data){
+        return $this->insert($data); 
+    }
+
     public function statusChanges($orderId){
 
                 $builder = $this->db->table('order_tracking');

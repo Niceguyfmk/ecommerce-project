@@ -93,5 +93,6 @@ class Autoload extends AutoloadConfig
      */
     public $helpers = [
         "auth_helper",
+        "move_cart_items",
     ];
 }

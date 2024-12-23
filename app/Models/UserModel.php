@@ -25,12 +25,16 @@ class UserModel extends Model
         return $this->save($data);
     }
 
-    public function addUser(string $email, string $name): bool
+    public function addUser(string $email, string $name, $address = null, $password = null)
     {
-        return $this->insert([
+        $data = [
             'email' => $email,
             'name' => $name,
-        ]);
+            'address' => $address,
+            'password' => $password,
+        ];
+
+        return $this->insert($data);  // This will return true on success, false on failure
     }
 
     public function getUser($id){

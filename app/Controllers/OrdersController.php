@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Controllers;
+
+use App\Models\OrderTrackingModel;
 use App\Models\CartItemsModel;
 use App\Models\CartModel;
 use App\Models\CouponModel;
@@ -33,6 +35,7 @@ class OrdersController extends ResourceController
         $couponId = $data['coupon_id'] ?? null;
     
         $uniqueOrderId = $IdGenerator->generateId();
+        $uniqueTrackingOrderId = $IdGenerator->generateId();
         $userData = session()->get('userData');
     
         if (!$userData || !isset($userData['user_id'])) {
@@ -83,9 +86,10 @@ class OrdersController extends ResourceController
         $transactionData = [
             'order_id' => $orderId,
             'amount' => $grandTotal,
+            'payment_status' => "completed"
         ];
     
-        $transactionId = $transactionsModel->createTransaction($transactionData);
+        $transactionsModel->createTransaction($transactionData);
     
         // Add items to the order
         $orderItemsModel = new OrderItemsModel();
@@ -97,12 +101,25 @@ class OrdersController extends ResourceController
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
             ]);
-    
+
             if (!$insertSuccess) {
                 return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to add order items.']);
             }
         }
+
+        // Confirm Order Tracking
+        $orderTrackingModel = new OrderTrackingModel();
+        $orderTrackingData = [
+            'order_tracking_id' => $uniqueTrackingOrderId,
+            'order_id' => $orderId,
+            'order_tracking_status' => "Order Confirmed",
+        ];
     
+        $orderTracking = $orderTrackingModel->createTrackingOrder($orderTrackingData);
+        if (!$orderTracking) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => 'Failed to create order.']);
+        }
+
         // Clear the cart
         $cartItemsModel->where('cart_id', $cartId)->delete();
         $cartModel->where('cart_id', $cartId)->delete();

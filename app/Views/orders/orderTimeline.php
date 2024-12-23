@@ -1,7 +1,7 @@
 <?php if (!empty($message)): ?> <div class="alert alert-success"> <?= esc($message) ?> </div> <?php endif; ?> 
 
 <div class="container">
-    <div class="d-flex flex-column overflow-auto h-100 text-dark" style="background-color: ivory;">
+    <div class="d-flex flex-column overflow-auto h-100 text-dark">
         <div class="container h-50 px-4 py-5 mx-auto">
             <div class="card bg-light shadow-lg border border-dark rounded-lg py-3 px-5 my-5">
                 <div class="row d-flex justify-content-between mx-5 pt-3 my-3">

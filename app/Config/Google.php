@@ -10,3 +10,4 @@ class Google extends BaseConfig
     public $clientSecret = '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';
     public $redirectUri = 'http://localhost:8080/user/login';
 }
+//http://localhost:8080/user/authGoogle

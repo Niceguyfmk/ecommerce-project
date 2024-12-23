@@ -52,9 +52,9 @@ class CouponModel extends Model
             throw new \RuntimeException('Max usage for coupon has already reached zero.');
         }
     
-        echo "max usage before: " . $usage;
+        //echo "max usage before: " . $usage;
         $usage--;
-        echo "max usage after: " . $usage;
+        //echo "max usage after: " . $usage;
     
         $data = [
             'coupon_id' => $coupon_id, 
@@ -63,6 +63,10 @@ class CouponModel extends Model
     
         // Save the updated coupon
         return $this->save($data);
+    }
+
+    public function getAllCoupons(){
+        return $this->findAll();
     }
     
 }

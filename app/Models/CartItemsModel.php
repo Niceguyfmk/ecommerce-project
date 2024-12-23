@@ -38,6 +38,8 @@ class CartItemsModel extends Model
     {
         // Check if the item already exists in the cart based on product ID
         $existingItem = $this->where(['product_id' => $data['product_id']])->first();
+        log_message('error', 'Checking Existing Item: ' . print_r($existingItem, true));
+
         if ($existingItem) {
             // If the item exists, update the quantity instead of inserting a new one
             $newQuantity = $existingItem['quantity'] + $data['quantity']; // Add the new quantity to existing quantity

@@ -65,5 +65,12 @@ class ProductRatingModel extends Model
         $result = $builder->get()->getResultArray();
         return $result;
     }
+
+    //ALl Ratings for admin table
+    public function getAllRatings(){
+        return $this->select('product_ratings.*, products.name as product_name')
+                ->join('products', 'products.product_id = product_ratings.product_id')
+                ->findAll();
+    }
     
 }

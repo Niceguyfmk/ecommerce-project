@@ -39,7 +39,7 @@ class OrderTrackingController extends ResourceController
             return redirect()->back();
         }
 
-        // Initialize models
+                // Initialize models
         $orderModel = new OrdersModel();
         $orderTrackingModel = new OrderTrackingModel();
         $transactionsModel = new TransactionsModel();
@@ -54,6 +54,11 @@ class OrderTrackingController extends ResourceController
             'order_id' => $data['order_id'],
             'order_tracking_status' => $data['status'],
         ];
+        
+        /*         Add this to url to debug: ?debug=true  */
+        if ($this->request->getGet('debug') === 'true') {
+            return view('debug_view', ['orderId' => $data['order_id'], 'status' => $data['status']]);
+        }
 
         try {
             // Create new order tracking record
@@ -68,9 +73,9 @@ class OrderTrackingController extends ResourceController
             if (!$detailsOrderTracking) {
                 throw new \Exception('Tracking record not found.');
             }
-
+            
             // Retrieve payment status from TransactionsModel
-            $payment = $transactionsModel->find($data['order_id']);
+            $payment = $transactionsModel->findTransaction($data['order_id']);
             if (!$payment) {
                 throw new \Exception('Payment details not found for the order.');
             }

@@ -22,7 +22,7 @@
                                     </div>
                                     <div class="col-md-2 d-flex align-items-end">
                                         <button type="button" class="btn btn-danger delete-meta" 
-                                                data-meta-id="<?= $meta['meta_id'] ?>">×</button>
+                                            data-meta-id="<?= $meta['meta_id'] ?>">×</button>
                                     </div>
                                 </div>
                             </div>

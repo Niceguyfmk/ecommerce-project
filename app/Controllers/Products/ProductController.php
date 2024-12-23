@@ -175,6 +175,7 @@ class ProductController extends ResourceController
 
     public function saveAttributes($product_id)
     {
+
         $productAttributesModel = new ProductAttributesModel();
         $attributesModel = new AttributesModel(); // Load your Attributes model
         $attributes = $this->request->getPost('attributes');
@@ -182,7 +183,6 @@ class ProductController extends ResourceController
         foreach ($attributes as $attribute) {
             // Validate attribute_id exists
             $isValidAttribute = $attributesModel->where('attribute_id', $attribute['attribute_id'])->first();
-    
             if (!$isValidAttribute) {
                 // Skip this attribute or handle the error
                 return redirect()->back()->with('error', 'Invalid attribute selected.');
@@ -192,7 +192,8 @@ class ProductController extends ResourceController
             $existingAttribute = $productAttributesModel->where('product_id', $product_id)
                                                         ->where('attribute_id', $attribute['attribute_id'])
                                                         ->first();
-    
+            //return $this->response->setStatusCode(404)->setJSON(['message' => $existingAttribute]);
+
             $data = [
                 'product_id' => $product_id,
                 'attribute_id' => $attribute['attribute_id'],
@@ -203,7 +204,8 @@ class ProductController extends ResourceController
                 'stock' => $attribute['stock'],
                 'is_default' => $attribute['is_default'],
             ];
-    
+            //return $this->response->setStatusCode(404)->setJSON(['message' => $data]);
+            
             if ($existingAttribute) {
                 // Update the existing record
                 $data['product_attribute_id'] = $existingAttribute['product_attribute_id']; 
@@ -211,6 +213,8 @@ class ProductController extends ResourceController
             } else {
                 // Insert a new record
                 $productAttributesModel->insert($data);
+                //return $this->response->setStatusCode(404)->setJSON(['message' => 'inserting new data']);
+
             }
         }
     
@@ -219,12 +223,22 @@ class ProductController extends ResourceController
 
     public function deleteAttribute($attribute_id) {
         $productAttributeModel = new ProductAttributesModel();
-        
-        if ($productAttributeModel->deletebyID($attribute_id)) {
-            return $this->response->setStatusCode(200)->setBody('Attribute deleted successfully.');
-        } else {
-            return $this->response->setStatusCode(500)->setBody('Failed to delete attribute.');
+
+        // Check if the attribute exists
+        $attribute = $productAttributeModel->find($attribute_id);
+        if (!$attribute) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'Attribute not found']);
         }
+        
+        // Delete the attribute
+        $deleted = $productAttributeModel->delete($attribute_id);
+
+        if ($deleted) {
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Attribute deleted successfully.']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to delete attribute.']);
+        }
+        
     }    
     public function saveMetaValues($product_id)
     {
@@ -378,6 +392,20 @@ class ProductController extends ResourceController
         . view('products/couponForm', [
             'categories' => $categories,
             ])
+        . view('include/footer'); 
+    }
+    //Coupons Table
+    public function couponsTableView(){
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
+        $couponModel = new CouponModel();
+        $coupons = $couponModel->getAllCoupons();
+        $pageTitle = 'Coupons Table';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/couponTable', ['coupons'=> $coupons, 'message'=> $message, 'errorMessage'=> $errorMessage])
         . view('include/footer'); 
     }
     //Add Coupon
@@ -536,6 +564,29 @@ class ProductController extends ResourceController
         }
         return $this->response->setJSON(['success' => true, 'couponID' => $couponID]);
     }
+    //delete Coupon
+    public function deleteCoupon($id){
+        $couponModel = new CouponModel();
+        $coupon = $couponModel->find($id);
+        if (!$coupon) {
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to find coupon.",
+            ]);
+        }
+        // Delete the coupon
+        $couponModel->delete($id);
+        if(!$couponModel){
+            session()->setFlashdata("error", "Failed to delete coupon");
+
+            return $this->respond([
+                "status" => false,
+                "message" => "Failed to delete coupon.",
+            ]);
+        }
+        session()->setFlashdata("success", "Successfully deleted coupon");
+        return redirect()->back();
+    }
 
     /*** 
     **
@@ -648,5 +699,19 @@ class ProductController extends ResourceController
         return $this->response->setJSON([
             'status' => 'no_existing_review'
         ]);
+    }
+    //Ratings Table for admin
+    public function ratingsTableView(){
+        $message = session()->getFlashdata('success');  
+        $errorMessage = session()->getFlashdata('error');
+        $ProductRatingModel = new ProductRatingModel;
+        $ratings = $ProductRatingModel->getAllRatings();
+        $pageTitle = 'Ratings Table';
+    
+        return view('include/header', ['pageTitle' => $pageTitle]) 
+        . view('include/sidebar')
+        . view('include/nav')
+        . view('products/ratingsTable', ['ratings'=> $ratings, 'message'=> $message, 'errorMessage'=> $errorMessage])
+        . view('include/footer'); 
     }
 }

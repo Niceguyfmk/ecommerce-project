@@ -33,4 +33,10 @@ class TransactionsModel extends Model
         return $this->update($transaction_id, $data);
     }
 
+    public function findTransaction($order_id) {
+        return $this->db->table('transactions') 
+                        ->where('order_id', $order_id) 
+                        ->get()                       
+                        ->getRowArray();              
+    }
 }

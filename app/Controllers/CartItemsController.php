@@ -8,6 +8,7 @@ use App\Models\CartItemsModel;
 use App\Models\CartModel;
 use App\Models\TransactionsModel;
 use CodeIgniter\RESTful\ResourceController;
+require_once APPPATH . 'Helpers/move_cart_items.php';
 
 use Stripe;
 class CartItemsController extends ResourceController
@@ -58,6 +59,7 @@ class CartItemsController extends ResourceController
     //checkout page
     public function checkout()
     {
+        helper('move_cart_items');
         $message = session()->getFlashdata('message');
         $pageTitle = 'Checkout';
     
@@ -76,7 +78,7 @@ class CartItemsController extends ResourceController
         if (!$uid) {
             return $this->response->setStatusCode(400, 'No UID cookie found');
         }
-    
+
         // Fetch or create a permanent cart for the logged-in user
         $cartModel = new CartModel();
         $cart = $cartModel->where('user_id', $userId)->first();
@@ -92,31 +94,11 @@ class CartItemsController extends ResourceController
     
         $cartId = $cart['cart_id'];
     
-        // Transfer temporary cart items to permanent cart
-        $tempCartModel = new TempCartModel();
-        //for displaying on page
-        $tempCartItems = $tempCartModel->getTempCartItems($uid);
+        // Call the function to move the temporary cart items to the permanent cart
+        $moveResult = move_cart_items($uid, $cartId);
         
-        if (!empty($tempCartItems)) {
-            $cartItemsModel = new CartItemsModel();
-    
-            foreach ($tempCartItems as $item) {
-                if($item['status'] === '0'){
-                    $data = [
-                        'cart_id' => $cartId,
-                        'product_id' => $item['product_id'],
-                        'product_attribute_id' => $item['product_attribute_id'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price']
-                    ];
-        
-                    // Add item to the permanent cart, ignore duplicates
-                    $cartItemsModel->addCartItem($data);
-                }
-            }
-
-            // Update the temporary cart products status after transferring using uid
-            $tempCartModel->upadateStatusUsingUID($uid);
+        if ($moveResult !== 'Items moved successfully!') {
+            return redirect()->to('/checkout')->with('error', 'Error moving cart items to permanent cart.');
         }
     
         // Retrieve all items from the permanent cart
@@ -128,7 +110,6 @@ class CartItemsController extends ResourceController
             . view('shop/checkout', ['cartItems' => $cartItems, 'message' => $message])
             . view('shop-Include/footer');
     }
-
     public function addItem($productId)
     {
         //Ajax request or not
@@ -174,7 +155,7 @@ class CartItemsController extends ResourceController
                         'coupon_id' => null,  // Default value
                     ], true); // Get the inserted ID
                 } else {
-                    $cartId = $cart['cart_id'];
+                    $cartId = $cart['cart_id'];                    
                 }
 
                  // Insert product into cart_items table with the correct cart_id
@@ -192,7 +173,7 @@ class CartItemsController extends ResourceController
             }else{
                 //if not logged in use tempCart to save items
                 $cartItemsModel = new TempCartModel();
-    
+
                 // Add the item to the cart (TempCart model)
                 $cartItemsModel->addItemsToTempCart([
                     'product_id' => $productId,
@@ -201,7 +182,7 @@ class CartItemsController extends ResourceController
                     'uid' => $uid, // Use UID instead of session_id
                     'product_attribute_id' => 6
                 ]);
-    
+
                 // Respond with the updated cart count
                 return $this->respond(['message' => 'Product added to cart successfully'], 200);
             }
@@ -217,7 +198,6 @@ class CartItemsController extends ResourceController
         if (!$this->request->isAJAX()) {
             return $this->response->setStatusCode(400, 'Bad Request');
         }
-
         //get Quantity & Price by Post
         $quantity = $this->request->getPost('quantity');
         $quantity = (int) $quantity;
@@ -267,6 +247,8 @@ class CartItemsController extends ResourceController
                 $updateModel = new TempCartModel();
                 //check status of uid
                 $status = $updateModel->getCartStatus($productId, $uid);
+                //return $this->response->setStatusCode(404)->setJSON(['cart status' => $status]);
+
                 //echo('status: ' . $status);
                 if($status === '0'){
                     // Update the cart item in the model if status is 0
@@ -362,6 +344,14 @@ class CartItemsController extends ResourceController
             return $this->respond(['error' => 'Internal Server Error'], 500);
         }
     }
+
+    /**
+     * 
+     * Stripe Payment Related
+     * 
+     * 
+     */
+
 
     public function payment()
     {

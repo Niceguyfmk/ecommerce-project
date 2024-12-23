@@ -196,58 +196,80 @@ class UserController extends ResourceController
         return redirect()->to($authUrl);
     }
 
-    public function authGoogle()
-    {
-        $google = new Google();
-        $client = new GoogleClient();
-        $client->setClientId($google->clientId);
-        $client->setClientSecret($google->clientSecret);
-        $client->setRedirectUri($google->redirectUri);
-        $client->addScope("email");
-        $client->addScope("profile");
-    
-        // Handle the OAuth 2.0 authentication code exchange
-        $code = $this->request->getGet('code'); // Get the authorization code from the query params
-        log_message('debug', 'Google auth code: ' . $code);    
-        if ($code) {
-            // Exchange authorization code for access token
-            $token = $client->fetchAccessTokenWithAuthCode($code);
-    
-            // Check if token is valid
-            if (isset($token['access_token'])) {
-                $client->setAccessToken($token['access_token']);
-    
-                // Fetch the user's profile data from Google
-                $oauth2Service = new \Google_Service_Oauth2($client);
-                $googleUser = $oauth2Service->userinfo->get(); // Get user data from Google
-                
-                log_message('debug', 'Google User Info: ' . print_r($googleUser, true));
+public function authGoogle()
+{
+    $google = new Google();
+    $client = new GoogleClient();
+    $client->setClientId($google->clientId);
+    $client->setClientSecret($google->clientSecret);
+    $client->setRedirectUri($google->redirectUri);
+    $client->addScope("email");
+    $client->addScope("profile");
 
-                // Retrieve user email and name
-                $email = $googleUser->email;
-                $name = $googleUser->name;
+    // Handle the OAuth 2.0 authentication code exchange
+    $code = $this->request->getGet('code'); // Get the authorization code from the query params
+    log_message('debug', 'Google auth code: ' . $code);
 
-                // If the user doesn't exist in the database, register them
-                $userModel = new UserModel();
-                if (!$userModel->userExists($email)) {
-                    // Add the new user to the database
-                    $userModel->addUser($email, $name);
+    if ($code) {
+        // Exchange authorization code for access token
+        $token = $client->fetchAccessTokenWithAuthCode($code);
+
+        // Check if token is valid
+        if (isset($token['access_token'])) {
+            $client->setAccessToken($token['access_token']);
+
+            // Fetch the user's profile data from Google
+            $oauth2Service = new \Google_Service_Oauth2($client);
+            $googleUser = $oauth2Service->userinfo->get(); // Get user data from Google
+
+            log_message('debug', 'Google User Info: ' . print_r($googleUser, true));
+
+            // Retrieve user email and name
+            $email = $googleUser->email;
+            $name = $googleUser->name;
+            $address = null; // Assuming you won't have the address at this point
+            $password = null; // No password for Google users
+
+            // Check if user exists in the database
+            $userModel = new UserModel();
+            $existingUser = $userModel->userExists($email);
+
+            log_message('debug', 'User Exists Check: ' . print_r($existingUser, true));
+
+            if (!$existingUser) {
+                // Add the new user to the database
+                $inserted = $userModel->addUser($email, $name, $address, $password);
+
+                // Log the result of the user creation
+                log_message('debug', 'User Inserted: ' . $inserted);
+
+                if ($inserted) {
+                    // Successfully created the user
+                    log_message('debug', 'New user created: ' . $email);
+                } else {
+                    // If user creation failed
+                    log_message('error', 'Failed to create new user: ' . $email);
                 }
-                
-                // Redirect to the homepage with a success message
-                return redirect()->to(base_url('/user/login'))->with('success', 'Logged in successfully.');
             } else {
-                // If token is not valid, show an error message
-                
-                return redirect()->to(base_url('/user/login'))->with('error', 'Failed to authenticate using Google.');
+                // If the user already exists
+                log_message('debug', 'User already exists: ' . $email);
             }
-        } else {
-            // If no code is present in the request, show an error
-            return redirect()->to(base_url('/user/login'))->with('error', 'Google authentication failed.');
-        }
-    }
-    
 
+            // Redirect to the login page (you can modify this to a dashboard or another page)
+            return redirect()->to(base_url('/user/login'))->with('success', 'Logged in successfully.');
+        } else {
+            // If token is not valid, show an error message
+            log_message('error', 'Google Authentication Failed: Invalid token');
+            return redirect()->to(base_url('/user/login'))->with('error', 'Failed to authenticate using Google.');
+        }
+    } else {
+        // If no code is present in the request, show an error
+        log_message('error', 'Google Authentication Failed: No code received');
+        return redirect()->to(base_url('/user/login'))->with('error', 'Google authentication failed.');
+    }
+}
+
+    
     public function logout(){
 
         $token = $this->request -> jwtToken;

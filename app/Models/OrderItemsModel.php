@@ -26,8 +26,7 @@ class OrderItemsModel extends Model
         $builder->select('order_items.*, orders.*, products.name, users.email');
         $builder->join('orders', 'orders.order_id = order_items.order_id');
         $builder->join('users', 'users.user_id = orders.user_id');
-        $builder->join('product_attributes', 'product_attributes.product_attribute_id = order_items.product_attribute_id');
-        $builder->join('products', 'products.product_id = product_attributes.product_id');
+        $builder->join('products', 'products.product_id = order_items.product_id');
         $builder->where('order_items.order_id', $order_id);
         return $builder->get()->getResultArray();
     }

@@ -84,21 +84,17 @@ $routes->group("product", ["namespace" => "App\Controllers\Products", 'filter' =
     $routes->delete('deleteMeta/(:num)', 'ProductController::deleteMeta/$1');
     //Coupons
     $routes->get('coupons', 'ProductController::couponsView');
+    $routes->get('couponsTable', 'ProductController::couponsTableView');
     $routes->post('addCoupons', 'ProductController::addCoupon');
     $routes->post('applyCoupon', 'ProductController::applyCoupon');
     $routes->post('couponID', 'ProductController::getCouponId');
+    $routes->get('deleteCoupon/(:num)', 'ProductController::deleteCoupon/$1');
+
     //Rating
     $routes->post('rating', 'ProductController::productRating');
+    $routes->get('ratingsTable', 'ProductController::ratingsTableView');
     $routes->get('rating/check/', 'ProductController::fetchExistingRatings');
-
-
 });
-
-/* $routes->group('temp-cart', function ($routes) {
-    
-    
-}); */
-
 
 //Orders
 $routes->post('/order/create', 'OrdersController::create');

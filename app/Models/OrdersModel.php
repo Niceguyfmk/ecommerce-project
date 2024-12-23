@@ -37,8 +37,11 @@ class OrdersModel extends Model
     public function getOrdersByID($userID){
         $builder = $this->db->table('orders');
 
-        $builder->select('orders.*');
+        $builder->select('orders.*, order_tracking.order_tracking_status as delivery_status');
+        $builder->join('order_tracking', 'order_tracking.order_id = orders.order_id');
         $builder->where('orders.user_id', $userID);
+        $builder->orderBy('order_tracking.created_at', 'DESC'); 
+        $builder->limit(1); 
         return $builder->get()->getResultArray();
     }
 

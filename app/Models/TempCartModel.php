@@ -81,8 +81,6 @@ class TempCartModel extends Model
         return $status;
     }
     
-    
-
     public function upadateStatusUsingUID($uid){
 
         // Find the cart item based on product ID and UID

@@ -86,7 +86,7 @@
                                     <!-- Delete Button -->
                                     <div class="col-md-2 d-flex align-items-end">
                                         <button type="button" class="btn btn-danger delete-attribute"
-                                        data-attribute-id="<?= $attribute['attribute_id'] ?>">
+                                        data-attribute-id="<?= $attribute['product_attribute_id'] ?>">
                                             ×
                                         </button>
                                     </div>
@@ -95,9 +95,72 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <!-- Empty fields for adding new attributes -->
-                        <div class="attribute-row mb-4">
-                            <!-- Content remains the same -->
+                        <div class="attribute-row mb-4" id="attribute-row-0">
+                            <h4 class="attribute-heading py-3">Attribute 1</h4>
+                            <div class="row g-2">
+                                <!-- Attribute Name -->
+                                <div class="col-md-2 mb-4">
+                                    <label for="attribute_name" class="form-label">Attribute Name</label>
+                                    <select name="attributes[0][attribute_id]" class="form-control" required>
+                                        <?php foreach ($attributes as $availableAttribute): ?>
+                                            <option value="<?= esc($availableAttribute['attribute_id']) ?>">
+                                                <?= esc($availableAttribute['attribute_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <!-- Unit Type -->
+                                <div class="col-md-2">
+                                    <label for="unit_type" class="form-label">Unit Type</label>
+                                    <select name="attributes[0][unit_type]" class="form-control" required>
+                                        <option value="" disabled>Select unit type</option>
+                                        <?php foreach ($enumValues as $enum): ?>
+                                            <option value="<?= esc($enum) ?>"><?= esc(ucfirst($enum)) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <!-- Unit Quantity -->
+                                <div class="col-md-2">
+                                    <label for="unit_quantity" class="form-label">Unit Quantity</label>
+                                    <input type="number" step="0.01" class="form-control" name="attributes[0][unit_quantity]" value="" required>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-md-2">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="number" step="0.01" class="form-control" name="attributes[0][price]" value="" required>
+                                </div>
+
+                                <!-- Discount Price -->
+                                <div class="col-md-2">
+                                    <label for="discount_price" class="form-label">Discount Price</label>
+                                    <input type="number" step="0.01" class="form-control" name="attributes[0][discount_price]" value="">
+                                </div>
+
+                                <!-- Stock -->
+                                <div class="col-md-2">
+                                    <label for="stock" class="form-label">Stock</label>
+                                    <input type="number" class="form-control" name="attributes[0][stock]" value="" required>
+                                </div>
+
+                                <!-- Show Attribute -->
+                                <div class="col-md-2">
+                                    <label for="is_default" class="form-label">Show Attribute</label>
+                                    <select name="attributes[0][is_default]" class="form-control" required>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+
+                                <!-- Delete Button (not needed for new row) -->
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <!-- This button can be added later when cloning/removing is implemented -->
+                                </div>
+                            </div>
                         </div>
+
                     <?php endif; ?>
                 </div>
 
@@ -114,16 +177,16 @@
     
 function initializedeleteAttributeButtons() {
     // Select all delete buttons
-    const deleteAttributeButtons = document.querySelectorAll('.delete-meta');
+    const deleteAttributeButtons = document.querySelectorAll('.delete-attribute');
 
     // Add event listeners to each delete button
     deleteAttributeButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const metaId = this.dataset.metaId; // Retrieve the meta_id from the button's dataset
+            const attributeId  = this.dataset.attributeId; // Retrieve the attributeId from the button's dataset
 
-            if (confirm('Are you sure you want to delete this meta value?')) {
+            if (confirm('Are you sure you want to delete this attribute value?')) {
                 // Send an AJAX request to delete the row
-                fetch(`/product/deleteAttribute/${metaId}`, {
+                fetch(`/product/deleteAttribute/${attributeId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -133,12 +196,12 @@ function initializedeleteAttributeButtons() {
                     .then(response => {
                         if (response.ok) {
                             // Remove the row from the DOM
-                            const rowToDelete = document.getElementById(`meta-row-${metaId}`);
+                            const rowToDelete = document.getElementById(`attribute-row-${attributeId}`);
                             if (rowToDelete) {
                                 rowToDelete.remove();
                             }
                         } else {
-                            alert('Failed to delete the meta value. Please try again.');
+                            alert('Failed to delete the attribute value. Please try again.');
                         }
                     })
                     .catch(error => {
@@ -149,6 +212,5 @@ function initializedeleteAttributeButtons() {
         });
     });
 }
-
 initializedeleteAttributeButtons();
 </script>

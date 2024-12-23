@@ -252,3 +252,7 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
     padding-left: 10px;
 }
 /*Quill Editor Ends*/
+
+.sidebar-item li {
+    padding-left: 15px;
+}
