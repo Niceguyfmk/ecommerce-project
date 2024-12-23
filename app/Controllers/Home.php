@@ -38,6 +38,8 @@ class Home extends BaseController
         $productModel = new ProductModel();
         $attributesModel = new AttributesModel();
         $productAttributesModel = new ProductAttributesModel();
+        $orderItemsModel = new OrderItemsModel();
+        $productRatingModel = new ProductRatingModel();
 
         // Fetch data
         $images = $imagesModel->getAllImages();
@@ -111,7 +113,12 @@ class Home extends BaseController
             // Guest user, fetch cart items from TempCartModel
             $tempCartModel = new TempCartModel();
             $cartItems = $tempCartModel->getTempCartItems($uid);
-        }        
+        }       
+        //average product ratings
+        $avgProductRating = $productRatingModel->getProductAvgRating();
+
+        //best selling products
+        $bestSellingProducts = $orderItemsModel->getBestSellingProducts(6);
 
         // Load views with data
         return view('shop-Include/header', ['pageTitle' => $pageTitle])
@@ -121,7 +128,9 @@ class Home extends BaseController
                 'categories' => $categories,
                 'products' => $products,
                 'images' => $images,
-                'cartItems' => $cartItems, // Use correct cart items based on login state
+                'cartItems' => $cartItems,
+                'bestSellingProducts' => $bestSellingProducts,
+                'avgProductRating' => $avgProductRating,
                 'uid' => $uid,
                 'userData'=> $userData
             ])

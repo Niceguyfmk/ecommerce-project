@@ -33,25 +33,33 @@ class OrderItemsModel extends Model
 
     //for shop profile -> order item details
     public function getOrderItemDetails($orderId){
-    $builder = $this->db->table('order_items');
+        $builder = $this->db->table('order_items');
 
-    // Select the columns needed from each table
-    $builder->select('order_items.*, orders.*, products.name, images.image_url');
+        // Select the columns needed from each table
+        $builder->select('order_items.*, orders.*, products.name, images.image_url');
 
-    // Join `orders` table with `order_items`
-    $builder->join('orders', 'orders.order_id = order_items.order_id');
-    
-    // Join `products` table with `order_items` via `product_id`
-    $builder->join('products', 'products.product_id = order_items.product_id');
-    
-    // Join `images` table with `products` via `product_id`
-    $builder->join('images', 'images.product_id = products.product_id');
+        // Join `orders` table with `order_items`
+        $builder->join('orders', 'orders.order_id = order_items.order_id');
+        
+        // Join `products` table with `order_items` via `product_id`
+        $builder->join('products', 'products.product_id = order_items.product_id');
+        
+        // Join `images` table with `products` via `product_id`
+        $builder->join('images', 'images.product_id = products.product_id');
 
-    // Apply the condition to filter by `order_id`
-    $builder->where('order_items.order_id', $orderId);
+        // Apply the condition to filter by `order_id`
+        $builder->where('order_items.order_id', $orderId);
 
-    // Return the result as an array
-    return $builder->get()->getResultArray();
-}
+        // Return the result as an array
+        return $builder->get()->getResultArray();
+    }
 
+    public function getBestSellingProducts($limit = 6)
+    {
+        return $this->select('product_id, SUM(quantity) as total_quantity')
+            ->groupBy('product_id')
+            ->orderBy('total_quantity', 'DESC')
+            ->limit($limit)
+            ->find();
+    }
 }
