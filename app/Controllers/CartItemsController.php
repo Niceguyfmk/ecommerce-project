@@ -8,7 +8,6 @@ use App\Models\CartItemsModel;
 use App\Models\CartModel;
 use App\Models\TransactionsModel;
 use CodeIgniter\RESTful\ResourceController;
-require_once APPPATH . 'Helpers/move_cart_items.php';
 
 use Stripe;
 class CartItemsController extends ResourceController
@@ -59,7 +58,6 @@ class CartItemsController extends ResourceController
     //checkout page
     public function checkout()
     {
-        helper('move_cart_items');
         $message = session()->getFlashdata('message');
         $pageTitle = 'Checkout';
     
@@ -94,11 +92,35 @@ class CartItemsController extends ResourceController
     
         $cartId = $cart['cart_id'];
     
-        // Call the function to move the temporary cart items to the permanent cart
-        $moveResult = move_cart_items($uid, $cartId);
-        
-        if ($moveResult !== 'Items moved successfully!') {
-            return redirect()->to('/checkout')->with('error', 'Error moving cart items to permanent cart.');
+        // Transfer temporary cart items to permanent cart
+        $tempCartModel = new TempCartModel();
+        //for displaying on page
+        $tempCartItems = $tempCartModel->getTempCartItems($uid);
+
+        if (!empty($tempCartItems)) {
+            log_message('error', 'No temporary cart items found for UID: ' . print_r($tempCartItems, true));
+            $cartItemsModel = new CartItemsModel();
+            foreach ($tempCartItems as $item) {
+                if($item['status'] === '0'){
+                    $data = [
+                        'cart_id' => $cartId,
+                        'product_id' => $item['product_id'],
+                        'product_attribute_id' => $item['product_attribute_id'],
+                        'quantity' => $item['quantity'],
+                        'uid' => $uid,
+                        'price' => $item['price']
+                    ];
+                    //log_message('notice', message: 'Adding item to cart: ' . print_r($data, true));
+                    // Add item to the permanent cart, ignore duplicates
+                    $cartItemsModel->addCartItem($data);
+                }
+            }
+
+            // Update the temporary cart products status after transferring using uid
+            $result = $tempCartModel->upadateStatusUsingUID($uid);
+            if (!$result) {
+                log_message('error', 'Failed to update the status of temporary cart items for UID: ' . $uid);
+            }
         }
     
         // Retrieve all items from the permanent cart

@@ -74,6 +74,34 @@ class Home extends BaseController
                 // If cart exists, use the existing cart_id
                 $cartId = $cart['cart_id'];
             }
+            $tempCartModel = new TempCartModel();
+            $tempCartItems = $tempCartModel->getTempCartItems($uid);
+
+            if (!empty($tempCartItems)) {
+                log_message('error', 'No temporary cart items found for UID: ' . print_r($tempCartItems, true));
+                $cartItemsModel = new CartItemsModel();
+                foreach ($tempCartItems as $item) {
+                    if($item['status'] === '0'){
+                        $data = [
+                            'cart_id' => $cartId,
+                            'product_id' => $item['product_id'],
+                            'product_attribute_id' => $item['product_attribute_id'],
+                            'quantity' => $item['quantity'],
+                            'uid' => $uid,
+                            'price' => $item['price']
+                        ];
+                        //log_message('notice', message: 'Adding item to cart: ' . print_r($data, true));
+                        // Add item to the permanent cart, ignore duplicates
+                        $cartItemsModel->addCartItem($data);
+                    }
+                }
+    
+                // Update the temporary cart products status after transferring using uid
+                $result = $tempCartModel->upadateStatusUsingUID($uid);
+                if (!$result) {
+                    log_message('error', 'Failed to update the status of temporary cart items for UID: ' . $uid);
+                }
+            }
         
             // Fetch cart items using the cart_id
             $cartItemsModel = new CartItemsModel();
@@ -83,8 +111,7 @@ class Home extends BaseController
             // Guest user, fetch cart items from TempCartModel
             $tempCartModel = new TempCartModel();
             $cartItems = $tempCartModel->getTempCartItems($uid);
-        }
-        
+        }        
 
         // Load views with data
         return view('shop-Include/header', ['pageTitle' => $pageTitle])

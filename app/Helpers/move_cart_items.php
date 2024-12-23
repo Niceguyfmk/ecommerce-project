@@ -34,9 +34,6 @@ if (!function_exists('move_cart_items')) {
                 log_message('error', 'Failed to update the status of temporary cart items for UID: ' . $uid);
             }
 
-            // After moving items, clear the temporary cart
-            $tempCartModel->clearTempCart($uid);
-
             // Commit the transaction
             $db->transComplete();
 
