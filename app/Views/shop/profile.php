@@ -58,6 +58,7 @@
                                     <th>Item Total</th>
                                     <th>Order Status</th>
                                     <th>Order Created</th>
+                                    <th>Delivery Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,6 +87,7 @@
                                         <td><?= esc($order['status']) ?></td>
                                         <td><?= esc($order['created_at']) ?></td>
                                         <td><?= esc($order['delivery_status']) ?></td>
+                                        
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

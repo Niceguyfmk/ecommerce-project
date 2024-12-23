@@ -34,16 +34,17 @@ class OrdersModel extends Model
         return $builder->get()->getResultArray();
     }
 
-    public function getOrdersByID($userID){
+    public function getOrdersByID($userID) {
         $builder = $this->db->table('orders');
-
+        
         $builder->select('orders.*, order_tracking.order_tracking_status as delivery_status');
-        $builder->join('order_tracking', 'order_tracking.order_id = orders.order_id');
+        $builder->join('order_tracking', 'order_tracking.order_id = orders.order_id', 'left');
         $builder->where('orders.user_id', $userID);
-        $builder->orderBy('order_tracking.created_at', 'DESC'); 
-        $builder->limit(1); 
+        $builder->orderBy('order_tracking.created_at', 'DESC');
+        $builder->groupBy('orders.order_id'); // Ensuring we only get one row per order
         return $builder->get()->getResultArray();
     }
+    
 
     public function updateOrder($order_id, $data){
         return $this->update($order_id, $data);

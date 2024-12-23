@@ -11,10 +11,11 @@
                         <th>Quantity</th>
                         <th>Item</th>
                         <th>Price</th>
-                        <th>Rating</th>
+                        <th>Rate</th>
                     </tr>
                 </thead>
                 <tbody>
+                    
                     <?php if (!empty($orderItems)): ?>
                         <?php foreach ($orderItems as $item): ?>
                             <tr>
@@ -22,12 +23,14 @@
                                 <td><?= esc($item['quantity']) ?></td>
                                 <td><?= esc($item['name']) ?></td>
                                 <td><?= esc($item['price']) ?></td>
+                                <!-- Button trigger modal -->
                                 <td>
                                     <button type="button"
                                      class="btn btn-primary btn-sm"
                                      data-bs-toggle="modal"
                                      data-bs-target="#ratingModal"
-                                     data-item-id="<?= esc($item['product_id']) ?>">
+                                     data-item-id="<?= esc($item['product_id']) ?>"
+                                     data-order-id="<?= esc($item['order_id']) ?>">
                                         Rate
                                     </button>
                                 </td>
@@ -40,13 +43,11 @@
                     <?php endif; ?>
                 </tbody>
             </table>
+            <a href="<?= base_url('/user/profile') ?>" type="button" class="btn btn-secondary">Back</a>
         </div>
     </div>
 </div>
 <!-- Rating Modal -->
-<!-- Button trigger modal -->
-
-
 <!-- Modal -->
 <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -84,6 +85,11 @@
                         name="product_id" 
                         value="<?= esc($item['product_id']) ?>"
                     >
+                    <input type="hidden" 
+                        id="order_id" 
+                        name="order_id" 
+                        value="<?= esc($item['order_id']) ?>"
+                    >
                     <label for="comment" class="form-label">Comment</label>
                     <textarea name="comment" id="comment" class="form-control" rows="3" placeholder="Write your review..."></textarea>
                 </div>
@@ -101,6 +107,7 @@
     document.addEventListener('DOMContentLoaded', () => {
     const ratingModal = document.getElementById('ratingModal');
     const productIdInput = document.getElementById('product_id');
+    const orderIdInput = document.getElementById('order_id');
     const ratingInputs = document.querySelectorAll('input[name="rating"]');
     const commentInput = document.getElementById('comment');
     const saveButton = document.querySelector('#ratingModal .btn-primary');
@@ -110,7 +117,7 @@
         ratingModal.addEventListener('show.bs.modal', (event) => {
             const button = event.relatedTarget; // Button that triggered modal
             const productId = button?.getAttribute('data-item-id'); // Use optional chaining
-
+            const orderId = button?.getAttribute('data-order-id');
             console.group('Modal Opening Debug');
             console.log('Triggered Button:', button);
             console.log('Extracted Product ID:', productId);
@@ -120,12 +127,14 @@
             resetForm();
 
             // Ensure product ID is set
-            if (productId) {
+            if (productId && orderId) {
                 productIdInput.value = productId;
+                orderIdInput.value = orderId;
                 console.log('Product ID Input Set To:', productIdInput.value);
+                console.log('Order ID Input Set To:', orderIdInput.value);
 
                 // Check if the user has already rated this product
-                checkExistingRating(productId);
+                checkExistingRating(productId, orderId);
             } else {
                 console.error('No product ID found when opening modal');
                 alert('Error: Unable to identify product. Please try again.');
@@ -145,10 +154,10 @@
     }
 
     // Function to check if a rating already exists
-    function checkExistingRating(productId) {
+    function checkExistingRating(productId, orderId) {
         // AJAX request to check if the user has already rated this product
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', `/product/rating/check?product_id=${productId}`, true);
+        xhr.open('GET', `/product/rating/check?product_id=${productId}&order_id=${orderId}`, true);
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         
         xhr.onload = function () {
@@ -201,12 +210,14 @@
             const rating = document.querySelector('input[name="rating"]:checked')?.value;
             const comment = document.getElementById('comment')?.value;
             const productId = document.getElementById('product_id')?.value;
+            const orderId = document.getElementById('order_id')?.value;
 
             // Enhanced Validation
             console.group('Rating Submission Validation');
             console.log('Rating:', rating);
             console.log('Comment:', comment);
             console.log('Product ID:', productId);
+            console.log('Order ID:', orderId);
             console.groupEnd();
 
             // Comprehensive Checks
@@ -217,6 +228,11 @@
 
             if (!productId) {
                 alert('Unable to identify the product. Please refresh the page or contact support.');
+                return;
+            }
+
+            if (!orderId) {
+                alert('Unable to identify the order. Please refresh the page or contact support.');
                 return;
             }
 
@@ -246,7 +262,8 @@
             const data = 
                 'rating=' + encodeURIComponent(rating) + 
                 '&comment=' + encodeURIComponent(comment) + 
-                '&productId=' + encodeURIComponent(productId);
+                '&productId=' + encodeURIComponent(productId)+
+                '&orderId=' + encodeURIComponent(orderId);
             
             console.log('Sending Data:', data);
             xhr.send(data);

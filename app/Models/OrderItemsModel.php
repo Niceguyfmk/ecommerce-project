@@ -36,7 +36,7 @@ class OrderItemsModel extends Model
         $builder = $this->db->table('order_items');
 
         // Select the columns needed from each table
-        $builder->select('order_items.*, orders.*, products.name, images.image_url');
+        $builder->select('DISTINCT order_items.*, orders.*, products.name, images.image_url, (CASE WHEN product_ratings.rating IS NOT NULL THEN 1 ELSE 0 END) as has_rated', false);
 
         // Join `orders` table with `order_items`
         $builder->join('orders', 'orders.order_id = order_items.order_id');
@@ -46,6 +46,10 @@ class OrderItemsModel extends Model
         
         // Join `images` table with `products` via `product_id`
         $builder->join('images', 'images.product_id = products.product_id');
+
+        // Join `product ratings` table with `products` via `product_id`
+
+        $builder->join('product_ratings', 'product_ratings.product_id = products.product_id AND product_ratings.user_id = orders.user_id', 'left');
 
         // Apply the condition to filter by `order_id`
         $builder->where('order_items.order_id', $orderId);

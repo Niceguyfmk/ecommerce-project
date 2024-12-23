@@ -18,7 +18,8 @@ class ProductRatingModel extends Model
         "user_id",
         "rating",
         "created_at",
-        "comment"
+        "comment",
+        "order_id"
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
@@ -28,13 +29,15 @@ class ProductRatingModel extends Model
     protected $validationRules = [
         'product_id' => 'required|integer',
         'user_id'    => 'required|integer',
+        'order_id'    => 'required|integer',
         'rating'     => 'required|integer|greater_than[0]|less_than_equal_to[5]',
     ];
 
-    public function getRatings($product_id, $user_id)
+    public function getRatings($product_id, $order_id, $user_id)
     {
         return $this->where([
             'product_id' => $product_id,
+            'order_id' => $order_id,
             'user_id' => $user_id
         ])->first(); 
     }

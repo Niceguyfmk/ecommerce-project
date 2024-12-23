@@ -598,7 +598,6 @@ class ProductController extends ResourceController
     public function productRating()
     {
         
-        log_message('info', 'Rating Submission Attempt');
         // Validate the request is an AJAX request
         if (!$this->request->isAJAX()) {
             log_message('error', 'Non-AJAX request received');
@@ -606,15 +605,16 @@ class ProductController extends ResourceController
         }
 
         // Log all received POST data for debugging
-        log_message('info', 'Received POST Data: ' . print_r($this->request->getPost(), true));
+        //log_message('info', 'Received POST Data: ' . print_r($this->request->getPost(), true));
 
         // Get the posted data
         $rating = $this->request->getPost('rating');
         $comment = $this->request->getPost('comment');
         $productId = $this->request->getPost('productId');
-        
+        $orderId = $this->request->getPost('orderId');
+
         // Log extracted values
-        log_message('info', "Extracted Values - Rating: $rating, ProductId: $productId");
+        //log_message('info', "Extracted Values - Rating: $rating, ProductId: $productId");
         
         // Get the current logged-in user's ID
         $userData = session()->get('userData');
@@ -632,6 +632,11 @@ class ProductController extends ResourceController
             return $this->response->setStatusCode(400)->setJSON(['error' => 'Rating is required']);
         }
 
+        if (!$orderId) {
+            log_message('error', 'Rating submission failed: No order ID provided');
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Order ID is required']);
+        }
+
         if (!$productId) {
             log_message('error', 'Rating submission failed: No product ID provided');
             return $this->response->setStatusCode(400)->setJSON(['error' => 'Product ID is required']);
@@ -642,6 +647,7 @@ class ProductController extends ResourceController
             'rating' => intval($rating),
             'comment' => $comment ?? null,
             'product_id' => intval($productId),
+            'order_id' => intval($orderId),
             'user_id' => $user_id,
         ];
 
@@ -682,11 +688,12 @@ class ProductController extends ResourceController
     }
     public function fetchExistingRatings(){
         $productId = $this->request->getVar('product_id');
+        $orderId = $this->request->getVar('order_id');
         $userData = session()->get('userData');  
         $userId = $userData['user_id'];
 
         $ProductRatingModel = new ProductRatingModel;
-        $existingReview = $ProductRatingModel->getRatings($productId, $userId);
+        $existingReview = $ProductRatingModel->getRatings($productId, $orderId, $userId);
 
         if ($existingReview) {
             return $this->response->setJSON([
