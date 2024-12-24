@@ -14,12 +14,13 @@
                             Dashboard
                         </a>
                     </li>
-
-                    <li class="sidebar-item">
+                    <?php if (isset($adminData['role_id']) && $adminData['role_id'] === "1"): ?>
+                        <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed" data-bs-target="#pages" data-bs-toggle="collapse"
                             aria-expanded="false"><i class="fa-solid fa-user pe-2"></i>
                             Users
                         </a>
+                        
                         <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                             <li class="sidebar-item">
                                 <a href="<?= site_url(relativePath: 'auth/register') ?>" class="sidebar-link">Add User</a>
@@ -29,7 +30,7 @@
                             </li>
                         </ul>
                     </li>
-
+                    <?php endif; ?>
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed" data-bs-target="#products" data-bs-toggle="collapse"
                             aria-expanded="false"><i class="fa-solid fa-shopping-cart pe-2"></i>

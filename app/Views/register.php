@@ -12,6 +12,11 @@
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
             
             <div class="mb-3">
                 <label for="password" class="form-label">Password:</label>
@@ -33,7 +38,11 @@
                     </select>
                     </div>
             </div>
+            <?php if (isset($adminData['role_id']) && $adminData['role_id'] === "1"): ?>
             <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+            <?php else: ?>
+            <button type="submit" id="submit" class="btn btn-primary" disabled>Submit</button>
+            <?php endif; ?>
         </form>
 </div>
 

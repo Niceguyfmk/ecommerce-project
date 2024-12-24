@@ -14,6 +14,7 @@ use App\Models\ProductAttributesModel;
 use App\Models\TempCartModel;
 use App\Models\ImagesModel;
 use App\Models\OrdersModel;
+use App\Models\UserModel;
 use Firebase\JWT\JWT;
 class Home extends BaseController
 {
@@ -355,17 +356,65 @@ class Home extends BaseController
         $message = session()->getFlashdata('success');  
         $errorMessage = session()->getFlashdata('error');
         $pageTitle = 'Dashboard';
-    
-        return view('include/header', ['pageTitle' => $pageTitle, 'message' => $message, 'errorMessage' => $errorMessage,]) 
-            . view('include/sidebar') 
+
+        // Initialize models
+        $usersModel = new UserModel;
+        $imagesModel = new ImagesModel();
+        $categoryModel = new ProductCategoriesModel();
+        $productModel = new ProductModel();
+        $attributesModel = new AttributesModel();
+        $productAttributesModel = new ProductAttributesModel();
+        $orderItemsModel = new OrderItemsModel();
+        $ordersModel = new OrdersModel();
+        $productRatingModel = new ProductRatingModel();
+
+        // Fetch data START:
+
+            //get admin details
+            $adminData = session()->get(key: 'adminData'); // Check if user is logged in
+            //total orders
+            $totalOrders = $ordersModel->countAll();
+            //total users
+            $totalUsers = $usersModel->countAll();
+            //total sales
+            $totalSales = $ordersModel->getTotalSales();
+            //Sales by Product
+            $productData = $productModel->getProductSalesData();
+            // Prepare data for the chart
+            $productNames = array_column($productData, 'name');
+            $productSales = array_column($productData, 'products_sold');
+            // Get the revenue by category data
+            $revenueByCategory = $orderItemsModel->getRevenueByCategory();
+            // Prepare data for the chart
+            $categories = array_column($revenueByCategory, 'category_name');
+            $revenues = array_column($revenueByCategory, 'total_revenue');
+            
+        // Fetch data END
+
+        return view('include/header', ['pageTitle' => $pageTitle, 'message' => $message, 'errorMessage' => $errorMessage]) 
+            . view('include/sidebar', ['adminData' => $adminData]) 
             . view('include/nav') 
-            . view('index', ['message' => $message]) 
+            . view('index', [
+                'adminData' => $adminData,
+                'totalOrders' => $totalOrders,
+                'totalUsers' => $totalUsers,
+                'totalSales' => $totalSales,
+                'productNames' => json_encode($productNames),
+                'productSales' => json_encode($productSales),
+                'categories' => json_encode($categories),
+                'revenues' => json_encode($revenues),
+                ]) 
             . view('include/footer');
     }   
    
     public function register(){
         $pageTitle = 'Add User';
-        return view('include/header', ['pageTitle' => $pageTitle]) . view('include/sidebar') . view('include/nav') . view('register')
+        $adminData = session()->get(key: 'adminData'); 
+
+        return view('include/header', ['pageTitle' => $pageTitle])
+         . view('include/sidebar', ['adminData' => $adminData])
+         . view('include/nav') 
+         . view('register', ['adminData' => $adminData])
          . view('include/footer');
     }
 }

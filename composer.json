@@ -14,9 +14,7 @@
         "codeigniter4/framework": "^4.0",
         "firebase/php-jwt": "^6.10",
         "google/apiclient": "2.13",
-        "paypal/paypal-checkout-sdk": "^1.0",
         "paypal/paypal-server-sdk": "^0.6.1",
-        "paypal/rest-api-sdk-php": "^1.6",
         "razorpay/razorpay": "^2.9",
         "tatter/stripe": "^2.0"
     },

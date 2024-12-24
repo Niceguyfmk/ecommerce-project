@@ -80,6 +80,7 @@ class AdminAuthController extends ResourceController
                 "id" => $userData['admin_id'],
                 "email" => $userData["email"],
                 "password" => $userData["password"],
+                "username" => $userData["username"],
                 "role_id" => $userData["role_id"]
             ]
         ];
@@ -106,12 +107,16 @@ class AdminAuthController extends ResourceController
     {
         // Get data from the form
         $admin_id = $this->request->getPost('id');
+        $username = $this->request->getPost('name');
         $password = $this->request->getPost('password');
         $confirm_password = $this->request->getPost('confirm_password');
         
         // Early return for missing fields
         if (empty($admin_id)) {
             return $this->respond(['status' => 'error', 'message' => 'Admin ID is required.']);
+        }
+        if (empty($username) || empty($username)) {
+            return $this->respond(['status' => 'error', 'message' => 'Username is required.']);
         }
         if (empty($password) || empty($confirm_password)) {
             return $this->respond(['status' => 'error', 'message' => 'All fields are required.']);
@@ -129,14 +134,14 @@ class AdminAuthController extends ResourceController
         // Hash new password and update data
         $hashed_password = password_hash($confirm_password, PASSWORD_DEFAULT);
         $data = [
+            'username' => $username,
             'password' => $hashed_password
         ];
     
         if ($this->model->updateData($admin_id, $data)) {
-            return $this->respond(['status' => 'success', 'message' => 'Admin data updated successfully.']);
+            return redirect()->to(base_url('auth/admin'))->with('success','Admin data updated successfully.');
         }
-    
-        return $this->respond(['status' => 'error', 'message' => 'Failed to update admin data.']);
+        return redirect()->to(base_url('auth/admin'))->with('error','Failed to update admin data.');
     }    
 
     public function logout(){

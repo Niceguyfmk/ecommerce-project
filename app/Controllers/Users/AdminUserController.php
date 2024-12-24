@@ -46,6 +46,7 @@ class AdminUserController extends ResourceController
 
         //getPost()
         $UserData = [
+            "username" => $this->request->getVar("name"),
             "email" => $this->request->getVar("email"), 
             "password" => password_hash($this->request->getVar("password"), PASSWORD_DEFAULT),
             "role_id" => $this->request->getVar("role_id"),
@@ -66,14 +67,18 @@ class AdminUserController extends ResourceController
 
     public function adminList(){
         $users = $this->model->getAdminUsers();
-        
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
+
         $roleModel = new AdminRoleModel();
         $roles = $roleModel->getAllRoles();  
         $message = session()->getFlashdata('message');
 
         $pageTitle = 'Admin Table';
     
-        return view('include/header', ['pageTitle' => $pageTitle])  . view('include/sidebar') . view('include/nav') . view('adminList', [
+        return view('include/header', ['pageTitle' => $pageTitle])  
+        . view('include/sidebar', ['adminData' => $adminData]) 
+        . view('include/nav') 
+        . view('adminList', [
             'users' => $users, 
             'roles' => $roles,
             'message' => $message

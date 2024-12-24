@@ -26,17 +26,20 @@
                 text-align: center; 
             }
         </style>
-            <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            setupCloning({
-                containerSelector: "#attributes-container",
-                addButtonSelector: "#add-attribute",
-                removeButtonSelector: "#remove-attribute",
-                rowClass: "attribute-row",
-                inputPattern: /\[\d+\]/, // Matches [0], [1], etc.
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                setupCloning({
+                    containerSelector: "#attributes-container",
+                    addButtonSelector: "#add-attribute",
+                    removeButtonSelector: "#remove-attribute",
+                    rowClass: "attribute-row",
+                    inputPattern: /\[\d+\]/, // Matches [0], [1], etc.
+                });
             });
-        });
-    </script>
+        </script>
+            <!-- chart js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
     </head>
     <body>
         <div class="wrapper">

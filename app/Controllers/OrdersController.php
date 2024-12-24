@@ -154,10 +154,10 @@ class OrdersController extends ResourceController
                     "message" => "user data error"
                 ]);
             } */
-
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
         $orders = $this->model->getOrders();
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('orders/ordersTable', [
             'orders' => $orders,

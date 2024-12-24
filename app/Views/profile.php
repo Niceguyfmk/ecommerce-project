@@ -23,6 +23,10 @@
                     <input type="text" class="form-control" id="userRole" name="role_id" value="<?= esc($data['role_id']) ?>" disabled>
                 </div>
                 <div class="form-group mb-4">
+                    <label for="userName">Name</label>
+                    <input type="text" class="form-control" id="userName" name="name" value="<?= esc($data['username']) ?>">
+                </div>
+                <div class="form-group mb-4">
                     <label for="userPassword">Password</label>
                     <input type="password" class="form-control" id="userPassword" name="password" placeholder="Enter new password" required>
                 </div>

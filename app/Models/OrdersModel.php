@@ -59,4 +59,16 @@ class OrdersModel extends Model
     public function deleteOrder($order_id){
         return $this->delete($order_id);
     }
+
+    public function getTotalSales(){
+        $builder = $this->db->table('orders');
+        $builder->selectSum('total_amount');
+        $query = $builder->get();
+
+        // Get the result as an object
+        $result = $query->getResult();
+        $totalAmount= $result[0]->total_amount;
+
+        return $totalAmount;
+    }
 }

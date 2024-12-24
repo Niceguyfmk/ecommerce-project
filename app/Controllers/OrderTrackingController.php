@@ -16,14 +16,14 @@ class OrderTrackingController extends ResourceController
      */
     public function index()
     {   
-        
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
         $orderModel = new OrdersModel();
         $orders = $orderModel->findAll();  // Retrieve all orders to show in the dropdown
         $orderTrackingModel = new OrderTrackingModel();
         $ordersTracked = $orderTrackingModel->ordersTrackingList();
         $pageTitle = 'Order Tracking Index';
         return view('include/header', ['pageTitle' => $pageTitle, 'orders' => $orders, 'ordersTracked' => $ordersTracked])
-         . view('include/sidebar')
+         . view('include/sidebar', ['adminData' => $adminData])
          . view('include/nav')
          . view('orders/orderTracking')
          . view('include/footer');

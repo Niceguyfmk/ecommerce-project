@@ -227,6 +227,19 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
     text-align: center;
 }
 
+.card .icon {
+    padding: 10px;
+    width: 100px;
+    height: 80px;
+    text-align: center;
+    align-content: center;
+  }
+
+  .card i {
+    font-size: 30px;
+    vertical-align: middle;
+  }
+
 /*Quill Editor*/
 
 #editor {

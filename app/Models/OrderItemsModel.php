@@ -66,4 +66,17 @@ class OrderItemsModel extends Model
             ->limit($limit)
             ->find();
     }
+
+    public function getRevenueByCategory()
+    {
+        $builder = $this->db->table('order_items');
+        $builder->select('product_categories.category_name, SUM(order_items.quantity * order_items.price) AS total_revenue');
+        $builder->join('products', 'order_items.product_id = products.product_id');
+        $builder->join('product_categories', 'products.category_id = product_categories.category_id');
+        $builder->groupBy('product_categories.category_name');
+        
+        return $builder->get()->getResultArray();
+    }
+
+
 }

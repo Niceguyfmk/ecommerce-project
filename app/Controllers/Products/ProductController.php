@@ -25,9 +25,9 @@ class ProductController extends ResourceController
         $categoryModel = new ProductCategoriesModel;
         $categories = $categoryModel->getAllCategories();
         $pageTitle = 'Add Product';
-    
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in    
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('products/addProduct', [
             'categories' => $categories,
@@ -47,9 +47,12 @@ class ProductController extends ResourceController
 
         $message = session()->getFlashdata('message');
         $pageTitle = 'Product Table';
+
+        //get admin details
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
     
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('products/listProducts', [
             'products' => $products,
@@ -385,9 +388,10 @@ class ProductController extends ResourceController
         $categoryModel = new ProductCategoriesModel;
         $categories = $categoryModel->getAllCategories();
         $pageTitle = 'Coupons';
-    
+        //get admin details
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('products/couponForm', [
             'categories' => $categories,
@@ -401,9 +405,10 @@ class ProductController extends ResourceController
         $couponModel = new CouponModel();
         $coupons = $couponModel->getAllCoupons();
         $pageTitle = 'Coupons Table';
-    
+        //get admin details
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('products/couponTable', ['coupons'=> $coupons, 'message'=> $message, 'errorMessage'=> $errorMessage])
         . view('include/footer'); 
@@ -714,9 +719,10 @@ class ProductController extends ResourceController
         $ProductRatingModel = new ProductRatingModel;
         $ratings = $ProductRatingModel->getAllRatings();
         $pageTitle = 'Ratings Table';
-    
+        //get admin details
+        $adminData = session()->get(key: 'adminData'); // Check if user is logged in
         return view('include/header', ['pageTitle' => $pageTitle]) 
-        . view('include/sidebar')
+        . view('include/sidebar', ['adminData' => $adminData])
         . view('include/nav')
         . view('products/ratingsTable', ['ratings'=> $ratings, 'message'=> $message, 'errorMessage'=> $errorMessage])
         . view('include/footer'); 

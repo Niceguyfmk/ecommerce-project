@@ -15,7 +15,8 @@ class AdminUserModel extends Model
     protected $allowedFields    = [
         "email",
         "password",
-        "role_id"
+        "role_id",
+        "username"
     ];
 
 

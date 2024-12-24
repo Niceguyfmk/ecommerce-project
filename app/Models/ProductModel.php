@@ -55,4 +55,15 @@ class ProductModel extends Model
         return $builder->paginate(9); // 9 items per page
     }
 
+    public function getProductSalesData()
+    {
+        // Assuming 'orders' table holds order details and 'order_items' links products
+        return $this->db->table('products')
+            ->select('products.name, SUM(order_items.quantity) AS products_sold')
+            ->join('order_items', 'products.product_id = order_items.product_id')
+            ->groupBy('products.name')
+            ->orderBy('products_sold', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 }
